@@ -1,9 +1,8 @@
-import { Hono } from 'hono'
+import { websocket } from 'hono/bun';
+import app from './app';
 
-const app = new Hono()
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-export default app
+Bun.serve({
+  port: 3000,
+  fetch: app.fetch,
+  websocket
+});
