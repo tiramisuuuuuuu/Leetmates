@@ -5,6 +5,14 @@
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
-    "default_icon": "image.jpg"
-  }
+    "default_icon": "image.png"
+  },
+  "content_scripts": [
+    {
+      "js": ["content.js"],
+      "matches": [
+        "https://leetcode.com/*"
+      ]
+    }
+  ]
 }
