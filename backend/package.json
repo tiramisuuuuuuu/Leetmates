@@ -4,7 +4,10 @@
     "dev": "bun run --hot src/index.ts",
     "generate": "bun run drizzle-kit generate",
     "migrate": "bun run drizzle-kit migrate",
-    "reset-db": "bun run scripts/reset-db.ts"
+    "reset-db": "bun run scripts/reset-db.ts",
+    "print-db": "bun run scripts/print-db.ts",
+    "seed-db": "bun run tests/seed-db.ts",
+    "ws-client": "bun run tests/ws-client.ts"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
