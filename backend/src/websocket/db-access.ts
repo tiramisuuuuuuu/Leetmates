@@ -26,5 +26,8 @@ export async function getFriendList(uid: number) {
     return [];
   }
 
-  return await db.select().from(usersTable).where(inArray(usersTable.id, friendIds));
+  return await db
+    .select()
+    .from(usersTable)
+    .where(inArray(usersTable.id, friendIds));
 }

@@ -1,7 +1,28 @@
 import type { WSContext } from 'hono/ws';
 import { websocketMap } from './map';
-import { PresenceSnapshot, PresenceUpdate, UserId } from '../types/websocket';
+import {
+  ClientMessage,
+  PresenceSnapshot,
+  PresenceUpdate,
+  UserId,
+} from '../types/websocket';
 import { getUserInfo, getFriendList } from './db-access';
+
+async function broadcastToFriends(userId: UserId) {
+  const self = websocketMap[userId];
+  if (!self) return;
+
+  const friends = await getFriendList(userId);
+  friends.forEach((friend) => {
+    if (websocketMap[friend.id]) {
+      const update: PresenceUpdate = {
+        type: 'presence:update',
+        friend: self.presence,
+      };
+      websocketMap[friend.id].websocket.send(JSON.stringify(update));
+    }
+  });
+}
 
 export function createPresenceHandler(userId: UserId) {
   return {
@@ -15,8 +36,8 @@ export function createPresenceHandler(userId: UserId) {
           username: user!.username,
           connected: true,
           onLeetcode: false,
-          leetcodeProblem: null
-        }
+          leetcodeProblem: null,
+        },
       };
 
       // Check for friends that are online and notify the user
@@ -26,29 +47,46 @@ export function createPresenceHandler(userId: UserId) {
         username: friend.username,
         connected: websocketMap[friend.id]?.presence.connected ?? false,
         onLeetcode: websocketMap[friend.id]?.presence.onLeetcode ?? false,
-        leetcodeProblem: websocketMap[friend.id]?.presence.leetcodeProblem ?? null
+        leetcodeProblem:
+          websocketMap[friend.id]?.presence.leetcodeProblem ?? null,
       }));
 
       const snapshot: PresenceSnapshot = {
         type: 'presence:snapshot',
         self: websocketMap[userId]!.presence,
-        friends: friendsPresence
+        friends: friendsPresence,
       };
       ws.send(JSON.stringify(snapshot));
 
       // Notify friends that the user is online
-      friends.forEach((friend) => {
-        if (websocketMap[friend.id]) {
-          const update: PresenceUpdate = {
-            type: 'presence:update',
-            friend: websocketMap[userId]!.presence
-          };
-          websocketMap[friend.id].websocket.send(JSON.stringify(update));
-        }
-      });
+      await broadcastToFriends(userId);
     },
-    onMessage(event: MessageEvent) {
-      console.log(event.data);
+    async onMessage(event: MessageEvent) {
+      if (typeof event.data !== 'string') return;
+
+      let message: ClientMessage;
+      try {
+        message = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      if (message.type === 'leetcode:status') {
+        const self = websocketMap[userId];
+        if (!self) return;
+
+        const { onLeetcode, leetcodeProblem } = message;
+        const changed =
+          self.presence.onLeetcode !== onLeetcode ||
+          self.presence.leetcodeProblem !== (leetcodeProblem ?? null);
+
+        if (!changed) return;
+
+        self.presence.onLeetcode = onLeetcode;
+        self.presence.leetcodeProblem = leetcodeProblem ?? null;
+
+        await broadcastToFriends(userId);
+      }
     },
     async onClose() {
       const user = websocketMap[userId];
@@ -66,13 +104,13 @@ export function createPresenceHandler(userId: UserId) {
                 username: user.presence.username,
                 connected: false,
                 onLeetcode: false,
-                leetcodeProblem: null
-              }
+                leetcodeProblem: null,
+              },
             };
             websocketMap[friend.id].websocket.send(JSON.stringify(update));
           }
         });
       }
-    }
+    },
   };
 }

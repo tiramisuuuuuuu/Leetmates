@@ -35,3 +35,11 @@ export interface ErrorMessage {
 }
 
 export type ServerMessage = PresenceSnapshot | PresenceUpdate | ErrorMessage;
+
+export interface LeetcodeStatusMessage {
+  type: 'leetcode:status';
+  onLeetcode: boolean;
+  leetcodeProblem?: string | null;
+}
+
+export type ClientMessage = LeetcodeStatusMessage;

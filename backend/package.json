@@ -1,5 +1,6 @@
 {
   "name": "backend",
+  "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "generate": "bun run drizzle-kit generate",
@@ -7,7 +8,9 @@
     "reset-db": "bun run scripts/reset-db.ts",
     "print-db": "bun run scripts/print-db.ts",
     "seed-db": "bun run tests/seed-db.ts",
-    "ws-client": "bun run tests/ws-client.ts"
+    "ws-client": "bun run tests/ws-client.ts",
+    "format": "prettier . --write",
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -17,10 +20,14 @@
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-seed": "^0.3.1",
-    "tsx": "^4.23.13"
+    "eslint": "^10.9.1",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.13",
+    "typescript-eslint": "^8.69.0"
   }
 }
