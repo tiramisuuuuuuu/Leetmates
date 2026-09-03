@@ -1,4 +1,7 @@
 /// <reference types="chrome" />
+import { createRoot } from "react-dom/client";
+import Overlay from "../components/Overlay";
+
 
 const title = document.title;
 
@@ -10,3 +13,9 @@ chrome.runtime.onMessage.addListener((message) => {
     console.log("Not implemented")
   }
 });
+
+const overlayContainer = document.createElement("div");
+
+document.body.appendChild(overlayContainer);
+
+createRoot(overlayContainer).render(<Overlay />);
