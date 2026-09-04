@@ -1,15 +1,8 @@
-import { Hono } from 'hono'
-import userRoutes from './routes/users'
-import friendRoutes from './routes/friends'
+import { websocket } from 'hono/bun';
+import app from './app';
 
-const app = new Hono()
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-app.route('/users', userRoutes);
-
-app.route('/friends', friendRoutes);
-
-export default app
+Bun.serve({
+  port: 3000,
+  fetch: app.fetch,
+  websocket,
+});
