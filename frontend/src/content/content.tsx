@@ -15,6 +15,13 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 const overlayContainer = document.createElement("div");
+overlayContainer.style.position = "fixed";
+overlayContainer.style.top = "0";
+overlayContainer.style.left = "0";
+overlayContainer.style.width = "100vw";
+overlayContainer.style.height = "100vh";
+overlayContainer.style.zIndex = "99999";
+overlayContainer.style.pointerEvents = "none";
 
 document.body.appendChild(overlayContainer);
 
