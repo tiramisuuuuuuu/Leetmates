@@ -11,10 +11,7 @@ export default defineConfig(({ mode }) => {
         emptyOutDir: false,
         cssCodeSplit: false,
         rolldownOptions: {
-          input: resolve(
-            __dirname,
-            "src/content/content.tsx"
-          ),
+          input: resolve(__dirname, "src/content/content.tsx"),
 
           output: {
             format: "iife",

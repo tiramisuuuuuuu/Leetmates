@@ -1,21 +1,21 @@
 .main {
-    background-color: #C9CBA3;
-    width: 400px;
-    height: 400px;
+  background-color: #c9cba3;
+  width: 400px;
+  height: 400px;
 }
 
 .text {
-    color: pink;
-    font-weight: bolder;
+  color: pink;
+  font-weight: bolder;
 }
 
 .navBar {
-    width: 100%;
-    height: 50px;
-    background-color: goldenrod;
-    cursor: grab;
+  width: 100%;
+  height: 50px;
+  background-color: goldenrod;
+  cursor: grab;
 }
 
 .dragging {
-    cursor: grabbing;
+  cursor: grabbing;
 }
