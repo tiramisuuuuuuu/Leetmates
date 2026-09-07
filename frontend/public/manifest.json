@@ -15,5 +15,13 @@
         "https://leetcode.com/*"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*.png", "*.png"],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ]
 }

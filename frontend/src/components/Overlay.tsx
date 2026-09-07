@@ -2,8 +2,9 @@ import styles from './Overlay.module.css';
 import { useState } from 'react';
 import Window from './Window';
 
-export default function Overlay() {
+export default function Overlay({ assetPrefix="/" } : { assetPrefix?: string }) {
     const [windowOpen, setWindowOpen] = useState(false);
+
     return (
         <div
             style={{
@@ -14,14 +15,14 @@ export default function Overlay() {
             }}
         >
             <button
-                className={styles.lobbyButton}
+                className={styles.bttn}
                 style={{
                     pointerEvents: 'auto',
                 }}
                 onClick={() => setWindowOpen(prev =>  !prev)}
             >
                 <img
-                    src="/image.png"
+                    src={assetPrefix + "image.png"}
                     alt="togglable Leetmates logo"
                     style={{ width: '100%', height: '100%' }}
                 />

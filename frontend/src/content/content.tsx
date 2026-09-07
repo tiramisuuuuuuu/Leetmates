@@ -25,4 +25,4 @@ overlayContainer.style.pointerEvents = "none";
 
 document.body.appendChild(overlayContainer);
 
-createRoot(overlayContainer).render(<Overlay />);
+createRoot(overlayContainer).render(<Overlay assetPrefix={chrome.runtime.getURL("")} />);
