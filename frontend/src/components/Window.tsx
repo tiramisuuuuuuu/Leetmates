@@ -1,13 +1,24 @@
 import Draggable from "react-draggable";
 import styles from "./Window.module.css";
-import { useRef, useState } from "react";
+import { useRef, useState, type Dispatch, type SetStateAction } from "react";
+import "react-resizable/css/styles.css";
+import { ResizableBox } from "react-resizable";
 
-export default function Window({ open }: { open: boolean }) {
+export default function Window({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [isSmall, setIsSmall] = useState(false);
+  const [size, setSize] = useState({
+    width: 400,
+    height: 300,
+  });
 
   const handleDrag = (e: any, data: { x: number; y: number }) => {
     setPosition({ x: data.x, y: data.y });
@@ -38,17 +49,36 @@ export default function Window({ open }: { open: boolean }) {
       >
         <div
           ref={nodeRef}
-          className={styles.main}
+          className={styles.window}
           style={{
             pointerEvents: "auto",
+            width: size.width,
+            height: size.height,
           }}
         >
-          <div
-            className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
+          <ResizableBox
+            width={size.width}
+            height={size.height}
+            draggableOpts={{ grid: [25, 25] }}
+            minConstraints={[100, 100]}
+            maxConstraints={[500, 300]}
+            resizeHandles={["e", "s", "w"]}
+            onResize={(_, { size }) => {
+              setSize(size);
+            }}
           >
-            <button onClick={() => setIsSmall(true)}>min</button>
-          </div>
-          <p className={styles.text}>Here is some text</p>
+            <div>
+              <div
+                className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
+              >
+                <button onClick={() => setOpen(false)} className={styles.bttn}>
+                  ❌️
+                </button>
+              </div>
+
+              <p className={styles.text}>Here is some text</p>
+            </div>
+          </ResizableBox>
         </div>
       </Draggable>
     </div>

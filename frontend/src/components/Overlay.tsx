@@ -31,7 +31,7 @@ export default function Overlay({
           style={{ width: "100%", height: "100%" }}
         />
       </button>
-      <Window open={windowOpen} />
+      <Window open={windowOpen} setOpen={setWindowOpen} />
     </div>
   );
 }
