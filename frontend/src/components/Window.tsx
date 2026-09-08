@@ -9,6 +9,7 @@ import {
 } from "react";
 import "react-resizable/css/styles.css";
 import { ResizableBox } from "react-resizable";
+import Lobby from "./Lobby";
 
 export default function Window({
   open,
@@ -84,7 +85,7 @@ export default function Window({
       >
         <div
           ref={nodeRef}
-          className={styles.window}
+          className={styles.entireWindow}
           style={{
             pointerEvents: "auto",
             width: size.width,
@@ -103,7 +104,7 @@ export default function Window({
               setSize(size);
             }}
           >
-            <div>
+            <div className={styles.windowContents}>
               <div
                 className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
               >
@@ -113,7 +114,9 @@ export default function Window({
                 </button>
               </div>
 
-              <p className={styles.text}>Here is some text</p>
+              <div className={styles.content}>
+                <Lobby />
+              </div>
             </div>
           </ResizableBox>
         </div>

@@ -1,6 +1,7 @@
 import styles from "./Overlay.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Window from "./Window";
+import { useAssetPrefix } from "../store/assetPrefixStore";
 
 export default function Overlay({
   assetPrefix = "/",
@@ -8,6 +9,13 @@ export default function Overlay({
   assetPrefix?: string;
 }) {
   const [windowOpen, setWindowOpen] = useState(false);
+  const updateAssetPrefixContext = useAssetPrefix(
+    (state) => state.setAssetPrefix,
+  );
+
+  useEffect(() => {
+    updateAssetPrefixContext(assetPrefix);
+  }, []);
 
   return (
     <div
