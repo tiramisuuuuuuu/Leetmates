@@ -10,6 +10,11 @@ import {
 import "react-resizable/css/styles.css";
 import { ResizableBox } from "react-resizable";
 import Lobby from "./Lobby";
+import { IoClose } from "react-icons/io5";
+import { PiResize } from "react-icons/pi";
+
+const MAX_WIDTH = 500;
+const MAX_HEIGHT = 300;
 
 export default function Window({
   open,
@@ -23,8 +28,12 @@ export default function Window({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [size, setSize] = useState({
-    width: 500,
-    height: 300,
+    width: MAX_WIDTH,
+    height: MAX_HEIGHT,
+  });
+  const [resized, setResized] = useState({
+    width: 300,
+    height: 250,
   });
 
   const handleDrag = (e: any, data: { x: number; y: number }) => {
@@ -62,6 +71,14 @@ export default function Window({
     window.addEventListener("resize", clampPosition);
     return () => window.removeEventListener("resize", clampPosition);
   }, []);
+
+  function handleResizeBttnClick() {
+    if (size.width != MAX_WIDTH || size.height != MAX_HEIGHT) {
+      setSize({ width: MAX_WIDTH, height: MAX_HEIGHT });
+    } else {
+      setSize(resized);
+    }
+  }
 
   return (
     <div
@@ -102,6 +119,8 @@ export default function Window({
             resizeHandles={["e", "s", "w"]}
             onResize={(_, { size }) => {
               setSize(size);
+              // track latest onResize value, for minimize button
+              setResized(size);
             }}
           >
             <div className={styles.windowContents}>
@@ -109,9 +128,20 @@ export default function Window({
                 className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
               >
                 <p className={styles.header}>Leetmates Lobby</p>
-                <button onClick={() => setOpen(false)} className={styles.bttn}>
-                  ×
-                </button>
+                <div className={styles.bttns}>
+                  <button
+                    onClick={handleResizeBttnClick}
+                    className={styles.bttn}
+                  >
+                    <PiResize />
+                  </button>
+                  <button
+                    onClick={() => setOpen(false)}
+                    className={styles.bttn}
+                  >
+                    <IoClose />
+                  </button>
+                </div>
               </div>
 
               <div className={styles.content}>
