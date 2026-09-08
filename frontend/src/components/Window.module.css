@@ -1,0 +1,64 @@
+.entireWindow {
+  background-color: #291f19;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.windowContents {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.text {
+  color: pink;
+  font-weight: bolder;
+}
+
+.navBar {
+  width: 100%;
+  height: 30px;
+  background-image: linear-gradient(
+    to right,
+    #291f19,
+    #2d221c,
+    #2d221c,
+    #291f19
+  );
+  cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 10px;
+  padding-left: 10px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+
+.header {
+  font-size: small;
+  color: white;
+}
+
+.bttns {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+}
+
+.bttn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+}
