@@ -6,8 +6,6 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import "react-resizable/css/styles.css";
-import { ResizableBox } from "react-resizable";
 import Lobby from "./Lobby";
 import { IoClose } from "react-icons/io5";
 import { PiResize } from "react-icons/pi";
@@ -24,7 +22,9 @@ export default function Window({
 }) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
+  const rightBorderRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const positionRef = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [size, setSize] = useState({
     width: MAX_WIDTH,
@@ -34,9 +34,11 @@ export default function Window({
     width: 300,
     height: 250,
   });
+  const resizeDirection = useRef<string | null>(null);
 
   const handleDrag = (e: any, data: { x: number; y: number }) => {
     setPosition({ x: data.x, y: data.y });
+    positionRef.current = { x: data.x, y: data.y };
   };
 
   // initial positioning of Window
@@ -48,6 +50,7 @@ export default function Window({
     const y = parent.clientHeight - size.height - 90;
 
     setPosition({ x: x, y: y });
+    positionRef.current = { x: x, y: y };
   }, []);
 
   // clamp position of Window when parent resizes
@@ -61,10 +64,14 @@ export default function Window({
       const maxX = parent.clientWidth - child.offsetWidth;
       const maxY = parent.clientHeight - child.offsetHeight;
 
-      setPosition((pos) => ({
-        x: Math.max(0, Math.min(pos.x, maxX)),
-        y: Math.max(0, Math.min(pos.y, maxY)),
-      }));
+      const currPos = positionRef.current;
+      const newPos = {
+        x: Math.max(0, Math.min(currPos.x, maxX)),
+        y: Math.max(0, Math.min(currPos.y, maxY)),
+      };
+
+      setPosition(newPos);
+      positionRef.current = newPos;
     };
 
     window.addEventListener("resize", clampPosition);
@@ -78,6 +85,45 @@ export default function Window({
       setSize(resized);
     }
   }
+
+  useEffect(() => {
+    if (!rightBorderRef.current) return;
+
+    const rightBorder = rightBorderRef.current;
+
+    const handlePointerDown = (e: PointerEvent, dir: string) => {
+      resizeDirection.current = dir;
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!resizeDirection.current) return;
+
+      const dir = resizeDirection.current;
+      if (dir === "r") {
+        const newWidth = e.clientX - positionRef.current.x;
+        setSize((prev) => ({ width: newWidth, height: prev.height }));
+        setResized((prev) => ({ width: newWidth, height: prev.height }));
+      }
+    };
+
+    const stopDragging = () => {
+      resizeDirection.current = null;
+    };
+
+    rightBorder.addEventListener("pointerdown", (e) =>
+      handlePointerDown(e, "r"),
+    );
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", stopDragging);
+
+    return () => {
+      rightBorder.removeEventListener("pointerdown", (e) =>
+        handlePointerDown(e, "r"),
+      );
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", stopDragging);
+    };
+  }, []);
 
   return (
     <div
@@ -102,56 +148,45 @@ export default function Window({
         <div
           ref={nodeRef}
           id="entire-window"
-          className="bg-[#291f19] rounded-md overflow-hidden"
+          className="bg-[#291f19] rounded-md flex flex-col overflow-hidden"
           style={{
             pointerEvents: "auto",
             width: size.width,
             height: size.height,
-            display: open ? "block" : "none",
+            display: open ? "flex" : "none",
           }}
         >
-          <ResizableBox
-            width={size.width}
-            height={size.height}
-            draggableOpts={{ grid: [25, 25] }}
-            minConstraints={[200, 200]}
-            maxConstraints={[500, 300]}
-            resizeHandles={["e", "s", "w"]}
-            onResize={(_, { size }) => {
-              setSize(size);
-              // track latest onResize value, for minimize button
-              setResized(size);
-            }}
+          <div
+            id="nav-bar"
+            className={`drag-handle w-full h-5 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
           >
-            <div id="window-children" className="w-full h-full flex flex-col">
-              <div
-                id="nav-bar"
-                className={`drag-handle w-full h-5 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            <p className="text-xs text-white">Leetmates Lobby</p>
+            <div id="window-buttons" className="flex flex-row gap-0.5">
+              <button
+                id="resize-button"
+                onClick={handleResizeBttnClick}
+                className="flex justify-center items-center text-white"
               >
-                <p className="text-xs text-white">Leetmates Lobby</p>
-                <div id="window-buttons" className="flex flex-row gap-0.5">
-                  <button
-                    id="resize-button"
-                    onClick={handleResizeBttnClick}
-                    className="flex justify-center items-center text-white"
-                  >
-                    <PiResize />
-                  </button>
-                  <button
-                    id="close-button"
-                    onClick={() => setOpen(false)}
-                    className="flex justify-center items-center text-white"
-                  >
-                    <IoClose />
-                  </button>
-                </div>
-              </div>
-
-              <div id="content" className="flex flex-1">
-                <Lobby />
-              </div>
+                <PiResize />
+              </button>
+              <button
+                id="close-button"
+                onClick={() => setOpen(false)}
+                className="flex justify-center items-center text-white"
+              >
+                <IoClose />
+              </button>
             </div>
-          </ResizableBox>
+          </div>
+
+          <div id="content" className="flex flex-1">
+            <Lobby />
+          </div>
+
+          <div
+            ref={rightBorderRef}
+            className="absolute top-0 right-0 w-2 h-full bg-transparent cursor-ew-resize"
+          />
         </div>
       </Draggable>
     </div>
