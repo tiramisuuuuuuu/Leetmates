@@ -1,6 +1,7 @@
 /// <reference types="chrome" />
 import { createRoot } from "react-dom/client";
 import Overlay from "../components/Overlay";
+import tailwindStyles from "../index.css?inline";
 
 const title = document.title;
 
@@ -13,17 +14,26 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-const overlayContainer = document.createElement("div");
-overlayContainer.style.position = "fixed";
-overlayContainer.style.top = "0";
-overlayContainer.style.left = "0";
-overlayContainer.style.width = "100vw";
-overlayContainer.style.height = "100vh";
-overlayContainer.style.zIndex = "99999";
-overlayContainer.style.pointerEvents = "none";
+const shadowRootHost = document.createElement("div");
+document.body.appendChild(shadowRootHost);
 
-document.body.appendChild(overlayContainer);
+const shadowRoot = shadowRootHost.attachShadow({ mode: "open" });
 
-createRoot(overlayContainer).render(
+const style = document.createElement("style");
+style.textContent = tailwindStyles;
+shadowRoot.appendChild(style);
+
+const reactRoot = document.createElement("div");
+reactRoot.style.position = "fixed";
+reactRoot.style.top = "0";
+reactRoot.style.left = "0";
+reactRoot.style.width = "100vw";
+reactRoot.style.height = "100vh";
+reactRoot.style.zIndex = "99999";
+reactRoot.style.pointerEvents = "none";
+
+shadowRoot.appendChild(reactRoot);
+
+createRoot(reactRoot).render(
   <Overlay assetPrefix={chrome.runtime.getURL("")} />,
 );
