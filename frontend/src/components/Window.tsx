@@ -23,6 +23,7 @@ export default function Window({
   const nodeRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
   const rightBorderRef = useRef<HTMLDivElement>(null);
+  const leftBorderRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const positionRef = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -87,9 +88,10 @@ export default function Window({
   }
 
   useEffect(() => {
-    if (!rightBorderRef.current) return;
+    if (!rightBorderRef.current || !leftBorderRef.current) return;
 
     const rightBorder = rightBorderRef.current;
+    const leftBorder = leftBorderRef.current;
 
     const handlePointerDown = (e: PointerEvent, dir: string) => {
       resizeDirection.current = dir;
@@ -104,6 +106,20 @@ export default function Window({
         setSize((prev) => ({ width: newWidth, height: prev.height }));
         setResized((prev) => ({ width: newWidth, height: prev.height }));
       }
+      if (dir === "l") {
+        const widthIncrease = positionRef.current.x - e.clientX;
+        setSize((prev) => ({
+          width: prev.width + widthIncrease,
+          height: prev.height,
+        }));
+        setResized((prev) => ({
+          width: prev.width + widthIncrease,
+          height: prev.height,
+        }));
+        const newPos = { x: e.clientX, y: positionRef.current.y };
+        setPosition(newPos);
+        positionRef.current = newPos;
+      }
     };
 
     const stopDragging = () => {
@@ -113,12 +129,18 @@ export default function Window({
     rightBorder.addEventListener("pointerdown", (e) =>
       handlePointerDown(e, "r"),
     );
+    leftBorder.addEventListener("pointerdown", (e) =>
+      handlePointerDown(e, "l"),
+    );
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", stopDragging);
 
     return () => {
       rightBorder.removeEventListener("pointerdown", (e) =>
         handlePointerDown(e, "r"),
+      );
+      leftBorder.removeEventListener("pointerdown", (e) =>
+        handlePointerDown(e, "l"),
       );
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", stopDragging);
@@ -183,6 +205,10 @@ export default function Window({
             <Lobby />
           </div>
 
+          <div
+            ref={leftBorderRef}
+            className="absolute top-0 left-0 w-2 h-full bg-transparent cursor-ew-resize"
+          />
           <div
             ref={rightBorderRef}
             className="absolute top-0 right-0 w-2 h-full bg-transparent cursor-ew-resize"
