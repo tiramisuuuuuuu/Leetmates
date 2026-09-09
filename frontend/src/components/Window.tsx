@@ -44,8 +44,8 @@ export default function Window({
     if (!parentRef.current) return;
     const parent = parentRef.current;
 
-    const x = parent.clientWidth - size.width - 120;
-    const y = parent.clientHeight - size.height - 80;
+    const x = parent.clientWidth - size.width - 150;
+    const y = parent.clientHeight - size.height - 90;
 
     setPosition({ x: x, y: y });
   }, []);
@@ -126,7 +126,7 @@ export default function Window({
             <div id="window-children" className="w-full h-full flex flex-col">
               <div
                 id="nav-bar"
-                className={`drag-handle w-full h-8 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                className={`drag-handle w-full h-5 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
               >
                 <p className="text-xs text-white">Leetmates Lobby</p>
                 <div id="window-buttons" className="flex flex-row gap-0.5">

@@ -1,4 +1,3 @@
-import styles from "./Lobby.module.css";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useState } from "react";
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
@@ -17,23 +16,24 @@ export default function Lobby() {
     >
       <img
         src={assetPrefix + (darkMode ? "bgDark.svg" : "bg.svg")}
+        id="bg-image"
         alt="cozy cafe background"
-        className={styles.bgImg}
+        className="absolute top-0 left-0 w-full h-full object-cover select-none"
         draggable={false}
       />
 
       <button
-        className={styles.lightDark}
+        className="absolute bottom-0 right-1.5 flex items-center gap-0.5 text-white text-[12px]"
         onClick={() => setDarkMode((prev) => !prev)}
       >
         {!darkMode && (
           <>
-            Light Mode <IoSunnyOutline size={15} />
+            Light Mode <IoSunnyOutline size={16} />
           </>
         )}
         {darkMode && (
           <>
-            Dark Mode <IoMoonOutline size={15} />
+            Dark Mode <IoMoonOutline size={14} />
           </>
         )}
       </button>
