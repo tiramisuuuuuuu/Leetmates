@@ -11,7 +11,9 @@ import { IoClose } from "react-icons/io5";
 import { PiResize } from "react-icons/pi";
 
 const MAX_WIDTH = 500;
+const MIN_WIDTH = 200;
 const MAX_HEIGHT = 300;
+const MIN_HEIGHT = 200;
 
 export default function Window({
   open,
@@ -24,6 +26,7 @@ export default function Window({
   const parentRef = useRef<HTMLDivElement>(null);
   const rightBorderRef = useRef<HTMLDivElement>(null);
   const leftBorderRef = useRef<HTMLDivElement>(null);
+  const bottomBorderRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const positionRef = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -31,9 +34,13 @@ export default function Window({
     width: MAX_WIDTH,
     height: MAX_HEIGHT,
   });
+  const sizeRef = useRef({
+    width: MAX_WIDTH,
+    height: MAX_HEIGHT,
+  });
   const [resized, setResized] = useState({
     width: 300,
-    height: 250,
+    height: 200,
   });
   const resizeDirection = useRef<string | null>(null);
 
@@ -82,16 +89,24 @@ export default function Window({
   function handleResizeBttnClick() {
     if (size.width != MAX_WIDTH || size.height != MAX_HEIGHT) {
       setSize({ width: MAX_WIDTH, height: MAX_HEIGHT });
+      sizeRef.current = { width: MAX_WIDTH, height: MAX_HEIGHT };
     } else {
       setSize(resized);
+      sizeRef.current = resized;
     }
   }
 
   useEffect(() => {
-    if (!rightBorderRef.current || !leftBorderRef.current) return;
+    if (
+      !rightBorderRef.current ||
+      !leftBorderRef.current ||
+      !bottomBorderRef.current
+    )
+      return;
 
     const rightBorder = rightBorderRef.current;
     const leftBorder = leftBorderRef.current;
+    const bottomBorder = bottomBorderRef.current;
 
     const handlePointerDown = (e: PointerEvent, dir: string) => {
       resizeDirection.current = dir;
@@ -102,23 +117,37 @@ export default function Window({
 
       const dir = resizeDirection.current;
       if (dir === "r") {
-        const newWidth = e.clientX - positionRef.current.x;
-        setSize((prev) => ({ width: newWidth, height: prev.height }));
-        setResized((prev) => ({ width: newWidth, height: prev.height }));
-      }
-      if (dir === "l") {
+        let newWidth = e.clientX - positionRef.current.x;
+        newWidth = Math.max(Math.min(newWidth, MAX_WIDTH), MIN_WIDTH);
+        const currSize = sizeRef.current;
+        const newSize = { width: newWidth, height: currSize.height };
+        setSize(newSize);
+        sizeRef.current = newSize;
+        setResized(newSize);
+      } else if (dir === "l") {
         const widthIncrease = positionRef.current.x - e.clientX;
-        setSize((prev) => ({
-          width: prev.width + widthIncrease,
-          height: prev.height,
-        }));
-        setResized((prev) => ({
-          width: prev.width + widthIncrease,
-          height: prev.height,
-        }));
-        const newPos = { x: e.clientX, y: positionRef.current.y };
+        const currSize = sizeRef.current;
+        let newWidth = currSize.width + widthIncrease;
+        newWidth = Math.max(Math.min(newWidth, MAX_WIDTH), MIN_WIDTH);
+        const newSize = { width: newWidth, height: currSize.height };
+
+        setSize(newSize);
+        sizeRef.current = newSize;
+        setResized(newSize);
+
+        const rightBorderX = positionRef.current.x + currSize.width;
+        const newX = rightBorderX - newWidth;
+        const newPos = { x: newX, y: positionRef.current.y };
         setPosition(newPos);
         positionRef.current = newPos;
+      } else if (dir === "b") {
+        let newHeight = e.clientY - positionRef.current.y;
+        newHeight = Math.max(Math.min(newHeight, MAX_HEIGHT), MIN_HEIGHT);
+        const currSize = sizeRef.current;
+        const newSize = { width: currSize.width, height: newHeight };
+        setSize(newSize);
+        sizeRef.current = newSize;
+        setResized(newSize);
       }
     };
 
@@ -132,6 +161,9 @@ export default function Window({
     leftBorder.addEventListener("pointerdown", (e) =>
       handlePointerDown(e, "l"),
     );
+    bottomBorder.addEventListener("pointerdown", (e) =>
+      handlePointerDown(e, "b"),
+    );
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", stopDragging);
 
@@ -141,6 +173,9 @@ export default function Window({
       );
       leftBorder.removeEventListener("pointerdown", (e) =>
         handlePointerDown(e, "l"),
+      );
+      bottomBorder.removeEventListener("pointerdown", (e) =>
+        handlePointerDown(e, "b"),
       );
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", stopDragging);
@@ -207,11 +242,15 @@ export default function Window({
 
           <div
             ref={leftBorderRef}
-            className="absolute top-0 left-0 w-2 h-full bg-transparent cursor-ew-resize"
+            className="absolute top-0 left-0 w-2 h-full bg-transparent cursor-ew-resize "
           />
           <div
             ref={rightBorderRef}
             className="absolute top-0 right-0 w-2 h-full bg-transparent cursor-ew-resize"
+          />
+          <div
+            ref={bottomBorderRef}
+            className="absolute bottom-0 left-0 w-full h-2 bg-transparent cursor-ns-resize"
           />
         </div>
       </Draggable>
