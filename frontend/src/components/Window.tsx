@@ -1,5 +1,4 @@
 import Draggable from "react-draggable";
-import styles from "./Window.module.css";
 import {
   useEffect,
   useRef,
@@ -102,7 +101,8 @@ export default function Window({
       >
         <div
           ref={nodeRef}
-          className={styles.entireWindow}
+          id="entire-window"
+          className="bg-[#291f19] rounded-md overflow-hidden"
           style={{
             pointerEvents: "auto",
             width: size.width,
@@ -123,28 +123,31 @@ export default function Window({
               setResized(size);
             }}
           >
-            <div className={styles.windowContents}>
+            <div id="window-children" className="w-full h-full flex flex-col">
               <div
-                className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
+                id="nav-bar"
+                className={`drag-handle w-full h-8 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
               >
-                <p className={styles.header}>Leetmates Lobby</p>
-                <div className={styles.bttns}>
+                <p className="text-xs text-white">Leetmates Lobby</p>
+                <div id="window-buttons" className="flex flex-row gap-0.5">
                   <button
+                    id="resize-button"
                     onClick={handleResizeBttnClick}
-                    className={styles.bttn}
+                    className="flex justify-center items-center text-white"
                   >
                     <PiResize />
                   </button>
                   <button
+                    id="close-button"
                     onClick={() => setOpen(false)}
-                    className={styles.bttn}
+                    className="flex justify-center items-center text-white"
                   >
                     <IoClose />
                   </button>
                 </div>
               </div>
 
-              <div className={styles.content}>
+              <div id="content" className="flex flex-1">
                 <Lobby />
               </div>
             </div>
