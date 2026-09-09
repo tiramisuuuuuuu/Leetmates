@@ -1,11 +1,12 @@
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig(({ mode }) => {
   if (mode === "content") {
     return {
-      plugins: [react()],
+      plugins: [react(), tailwindcss()],
       build: {
         outDir: "dist",
         emptyOutDir: false,
@@ -29,7 +30,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [react()],
+    plugins: [react(), tailwindcss()],
     build: {
       outDir: "dist",
     },
