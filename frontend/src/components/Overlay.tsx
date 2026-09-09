@@ -1,4 +1,3 @@
-import styles from "./Overlay.module.css";
 import { useEffect, useState } from "react";
 import Window from "./Window";
 import { useAssetPrefix } from "../store/assetPrefixStore";
@@ -27,7 +26,7 @@ export default function Overlay({
       }}
     >
       <button
-        className={styles.bttn}
+        className="absolute bottom-8 right-8 bg-transparent w-20 h-20 p-0 rounded-full cursor-pointer hover:bg-[#804D0080]"
         style={{
           pointerEvents: "auto",
         }}

@@ -127,7 +127,7 @@ export default function Window({
               <div
                 className={`${styles.navBar} ${isDragging && styles.dragging} drag-handle`}
               >
-                <p className="text-pink-500">Leetmates Lobby</p>
+                <p className={styles.header}>Leetmates Lobby</p>
                 <div className={styles.bttns}>
                   <button
                     onClick={handleResizeBttnClick}
