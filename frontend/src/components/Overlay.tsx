@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Window from "./Window";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { initAuth } from "../store/authStore";
-import lmlogo from "../assets/lmlogo.png";
 
 export default function Overlay({
   assetPrefix = "/",
@@ -37,7 +36,7 @@ export default function Overlay({
         onClick={() => setWindowOpen((prev) => !prev)}
       >
         <img
-          src={lmlogo}
+          src={assetPrefix + "lmlogo.png"}
           alt="togglable Leetmates logo"
           style={{ width: "100%", height: "100%" }}
         />
