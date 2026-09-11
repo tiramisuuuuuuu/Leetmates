@@ -1,8 +1,9 @@
 import { integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable('users', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: integer().primaryKey(),
   username: varchar({ length: 255 }).notNull(),
+  leetcodeId: varchar({ length: 255 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
 });

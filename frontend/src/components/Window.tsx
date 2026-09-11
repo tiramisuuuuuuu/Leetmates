@@ -11,9 +11,9 @@ import { IoClose } from "react-icons/io5";
 import { PiResize } from "react-icons/pi";
 
 const MAX_WIDTH = 500;
-const MIN_WIDTH = 200;
-const MAX_HEIGHT = 300;
-const MIN_HEIGHT = 200;
+const MIN_WIDTH = 300;
+const MAX_HEIGHT = 350;
+const MIN_HEIGHT = 280;
 
 export default function Window({
   open,
