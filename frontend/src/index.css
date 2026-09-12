@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+:host,
+:host *,
+:host *::before,
+:host *::after {
+  --tw-border-style: solid;
+}
+
+@theme {
+  --color-ink: #3a2a1d;
+  --color-ink-muted: #6b5644;
+  --color-cream: #f5ead9;
+  --color-clay: #c0602a;
+  --color-clay-dark: #a94f21;
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
