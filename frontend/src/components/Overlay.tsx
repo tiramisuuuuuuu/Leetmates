@@ -29,7 +29,7 @@ export default function Overlay({
       }}
     >
       <button
-        className="absolute bottom-8 right-8 bg-transparent w-20 h-20 p-0 rounded-full cursor-pointer border-1 border-black hover:border-2"
+        className="absolute bottom-8 right-8 bg-transparent w-20 h-20 p-0 rounded-full cursor-pointer border border-black hover:border-2"
         style={{
           pointerEvents: "auto",
         }}

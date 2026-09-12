@@ -50,7 +50,7 @@ export default function Lobby() {
         </div>
       )}
       {isLoggedIn && (
-        <div className="absolute bottom-0 left-1.5">
+        <div className="absolute bottom-1 left-1.5">
           <Profile />
         </div>
       )}

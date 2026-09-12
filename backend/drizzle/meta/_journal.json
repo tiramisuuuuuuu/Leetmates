@@ -15,6 +15,13 @@
       "when": 1788146200503,
       "tag": "0001_outgoing_wong",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789175473844,
+      "tag": "0002_youthful_lenny_balinger",
+      "breakpoints": true
     }
   ]
 }

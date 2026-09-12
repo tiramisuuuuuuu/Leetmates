@@ -2,18 +2,34 @@
 
 export const chromeStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
-    const result = await chrome.storage.local.get(key);
-    // Supabase expects null for a missing key, not undefined.
-    return (result[key] as string | undefined) ?? null;
+    if (hasChromeStorage()) {
+      const result = await chrome.storage.local.get(key);
+      return (result[key] as string | undefined) ?? null;
+    }
+
+    return localStorage.getItem(key);
   },
+
   setItem: async (key: string, value: string) => {
-    await chrome.storage.local.set({ [key]: value });
+    if (hasChromeStorage()) {
+      await chrome.storage.local.set({ [key]: value });
+      return;
+    }
+
+    localStorage.setItem(key, value);
   },
+
   removeItem: async (key: string) => {
-    await chrome.storage.local.remove(key);
-  }
+    if (hasChromeStorage()) {
+      await chrome.storage.local.remove(key);
+      return;
+    }
+
+    localStorage.removeItem(key);
+  },
 };
 
-export const AUTH_STORAGE_KEY = 'leetmates-auth';
+export const AUTH_STORAGE_KEY = "leetmates-auth";
 
-export const hasChromeStorage = () => typeof chrome !== 'undefined' && chrome.storage !== undefined;
+export const hasChromeStorage = () =>
+  typeof chrome !== "undefined" && !!chrome.storage?.local;

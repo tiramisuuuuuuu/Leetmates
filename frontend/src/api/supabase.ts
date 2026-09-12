@@ -9,7 +9,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storageKey: AUTH_STORAGE_KEY,
     persistSession: true,
     autoRefreshToken: true,
-    // Neither the popup nor the content script is an OAuth redirect target.
     detectSessionInUrl: false,
   },
 });
@@ -25,10 +24,18 @@ export async function signUpNewUser(email: string, password: string) {
 }
 
 export async function signInUser(email: string, password: string) {
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password,
   });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data;
+}
+
+export async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
   if (error) {
     throw new Error(error.message);
   }

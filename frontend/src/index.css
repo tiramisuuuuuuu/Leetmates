@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
-/* Color Palette */
+:host,
+:host *,
+:host *::before,
+:host *::after {
+  --tw-border-style: solid;
+}
+
 @theme {
   --color-ink: #3a2a1d;
   --color-ink-muted: #6b5644;

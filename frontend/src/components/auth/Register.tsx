@@ -4,6 +4,7 @@ import {
   IoLockClosedOutline,
   IoPersonOutline,
 } from "react-icons/io5";
+import { SiLeetcode } from "react-icons/si";
 import { useToast } from "../../store/toastStore";
 import { signInUser, signUpNewUser } from "../../api/supabase";
 
@@ -13,12 +14,14 @@ export default function Register({
   onSwitchToLogin: () => void;
 }) {
   const [email, setEmail] = useState("");
+  const [leetcodeUsername, setLeetcodeUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const showToast = useToast((state) => state.showToast);
 
   const handleSignUp = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !leetcodeUsername) {
       showToast("error", "Please fill in all fields");
       return;
     }
@@ -34,13 +37,24 @@ export default function Register({
     // Register
     try {
       await signUpNewUser(email, password);
+
       showToast("success", "Account created successfully");
     } catch (error: any) {
       showToast("error", error.message);
     }
     // Login automatically
     try {
-      await signInUser(email, password);
+      const data = await signInUser(email, password);
+      const uid = data.user?.id;
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: uid,
+          username: displayName,
+          leetcodeId: leetcodeUsername,
+        }),
+      });
       showToast("success", "Logged in successfully");
     } catch (error: any) {
       showToast("error", error.message);
@@ -49,7 +63,7 @@ export default function Register({
 
   return (
     <>
-      <h3 className="text-sm font-bold text-ink">Sign Up</h3>
+      <h3 className="text-sm font-bold text-ink text-center">Sign Up</h3>
 
       <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoMailOutline size={14} className="shrink-0 text-ink-muted" />
@@ -58,6 +72,28 @@ export default function Register({
           placeholder="Email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full min-w-0 bg-transparent text-xs text-ink placeholder:text-ink-muted outline-none"
+        />
+      </div>
+
+      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+        <SiLeetcode size={14} className="shrink-0 text-ink-muted opacity-70" />
+        <input
+          type="text"
+          placeholder="LeetCode username"
+          value={leetcodeUsername}
+          onChange={(e) => setLeetcodeUsername(e.target.value)}
+          className="w-full min-w-0 bg-transparent text-xs text-ink placeholder:text-ink-muted outline-none"
+        />
+      </div>
+
+      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+        <IoPersonOutline size={14} className="shrink-0 text-ink-muted" />
+        <input
+          type="text"
+          placeholder="Display name"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
           className="w-full min-w-0 bg-transparent text-xs text-ink placeholder:text-ink-muted outline-none"
         />
       </div>

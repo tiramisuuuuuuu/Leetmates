@@ -9,8 +9,10 @@ import { signInUser } from "../../api/supabase";
 
 export default function Login({
   onSwitchToRegister,
+  onSwitchToForgotPassword,
 }: {
   onSwitchToRegister: () => void;
+  onSwitchToForgotPassword: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +37,7 @@ export default function Login({
 
   return (
     <>
-      <h3 className="text-sm font-bold text-ink">Login</h3>
+      <h3 className="text-sm font-bold text-ink text-center">Login</h3>
 
       <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoMailOutline size={14} className="shrink-0 text-ink-muted" />
@@ -81,9 +83,12 @@ export default function Login({
           Create an Account
         </button>
 
-        <button className="text-[10px] text-ink-muted underline cursor-pointer">
+        {/* <button
+          onClick={onSwitchToForgotPassword}
+          className="text-[10px] text-ink-muted underline cursor-pointer"
+        >
           Forgot your password?
-        </button>
+        </button> */}
       </div>
     </>
   );
