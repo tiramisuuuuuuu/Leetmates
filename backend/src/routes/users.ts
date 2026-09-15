@@ -1,12 +1,14 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { usersTable } from '../db/schema';
+import { AppVariables } from '../types/variables';
 
-const userRoutes = new Hono();
+const userRoutes = new Hono<{ Variables: AppVariables }>();
 
 userRoutes.post('/create', async (c) => {
+  const id = c.get('uid');
   const body = await c.req.json();
-  const { id, username, leetcodeId, displayName } = body;
+  const { username, leetcodeId, displayName } = body;
 
   const newUser = await db
     .insert(usersTable)

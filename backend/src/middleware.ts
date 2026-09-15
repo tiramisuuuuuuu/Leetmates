@@ -15,13 +15,18 @@ export const authMiddleware = createMiddleware(async (c, next) => {
 
   const token = authHeader.slice(7);
 
-  const { payload } = await jwtVerify(token, PROJECT_JWKS, {
-    issuer: `${supabaseUrl}/auth/v1`,
-    audience: 'authenticated',
-  });
+  try {
+    const { payload } = await jwtVerify(token, PROJECT_JWKS, {
+      issuer: `${supabaseUrl}/auth/v1`,
+      audience: 'authenticated',
+    });
 
-  const userId = payload.sub;
-  console.log(userId);
+    const userId = payload.sub;
+    c.set('uid', userId);
 
-  await next();
+    await next();
+  } catch (error) {
+    console.error('JWT verification failed:', error);
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
 });
