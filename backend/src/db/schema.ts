@@ -1,4 +1,5 @@
 import {
+  index,
   integer,
   pgTable,
   timestamp,
@@ -16,19 +17,34 @@ export const usersTable = pgTable('users', {
   updatedAt: timestamp('updated_at', { withTimezone: true }),
 });
 
-export const friendsTable = pgTable('friends', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  user1Id: integer().notNull(),
-  user2Id: integer().notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const friendsTable = pgTable(
+  'friends',
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    user1Id: uuid()
+      .notNull()
+      .references(() => usersTable.id),
+    user2Id: uuid()
+      .notNull()
+      .references(() => usersTable.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('friends_user1Id_idx').on(table.user1Id),
+    index('friends_user2Id_idx').on(table.user2Id),
+  ]
+);
 
 export const friendRequestsTable = pgTable('friendRequests', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  senderId: integer().notNull(),
-  recipientId: integer().notNull(),
+  senderId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  recipientId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

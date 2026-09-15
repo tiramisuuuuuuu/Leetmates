@@ -9,6 +9,7 @@
         "drizzle": "^1.4.0",
         "drizzle-orm": "^0.45.2",
         "hono": "^4.13.5",
+        "jose": "^6.2.12",
         "pg": "^8.23.0",
       },
       "devDependencies": {
@@ -778,6 +779,8 @@
     "isstream": ["isstream@0.1.2", "", {}, "sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g=="],
 
     "isurl": ["isurl@1.0.0", "", { "dependencies": { "has-to-string-tag-x": "^1.2.0", "is-object": "^1.0.1" } }, "sha512-1P/yWsxPlDtn7QeRD+ULKQPaIaN6yF368GZ2vDfv0AL0NwpStafjWCDDdn0k8wgFMWpVAqG7oJhxHnlud42i9w=="],
+
+    "jose": ["jose@6.2.12", "", {}, "sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw=="],
 
     "js-sha3": ["js-sha3@0.6.1", "", {}, "sha512-2OHj7sAZ9gnJS4lQsgIsTslmqVrNQdDC99bvwYGQKU1w6k/gwsTLeGBfWt8yHCuTOGqk7DXzuVlK8J+dDXnG7A=="],
 

@@ -4,6 +4,7 @@ import userRoutes from './routes/users';
 import friendRoutes from './routes/friends';
 import home from './routes/home';
 import ws from './routes/ws';
+import { authMiddleware } from './middleware';
 
 const app = new Hono();
 console.log('Started backend server.');
@@ -14,6 +15,8 @@ app.use('*', async (c, next) => {
   console.log(c.req.method, c.req.path);
   await next();
 });
+
+app.use('*', authMiddleware);
 
 app.get('/', (c) => {
   return c.text('Hello Hono!');

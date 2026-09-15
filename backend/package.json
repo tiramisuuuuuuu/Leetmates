@@ -17,6 +17,7 @@
     "drizzle": "^1.4.0",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.13.5",
+    "jose": "^6.2.12",
     "pg": "^8.23.0"
   },
   "devDependencies": {
