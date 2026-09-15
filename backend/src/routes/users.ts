@@ -10,7 +10,7 @@ userRoutes.post('/create', async (c) => {
 
   const newUser = await db
     .insert(usersTable)
-    .values({ id, username, leetcodeId, displayName })
+    .values({ id, username, leetcodeId })
     .returning();
 
   return c.json(newUser, 201);
