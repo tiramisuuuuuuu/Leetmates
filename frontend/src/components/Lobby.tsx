@@ -5,6 +5,7 @@ import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
+import CompleteProfile from "./profile/CompleteProfile";
 
 export default function Lobby() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
@@ -43,6 +44,10 @@ export default function Lobby() {
           </>
         )}
       </button>
+
+      <div className="absolute inset-12 flex justify-center items-center">
+        <CompleteProfile />
+      </div>
 
       {!authLoading && !isLoggedIn && (
         <div className="absolute inset-5">

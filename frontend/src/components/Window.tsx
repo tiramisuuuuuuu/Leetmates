@@ -39,8 +39,8 @@ export default function Window({
     height: MAX_HEIGHT,
   });
   const [resized, setResized] = useState({
-    width: 300,
-    height: 200,
+    width: MIN_WIDTH,
+    height: MIN_HEIGHT,
   });
   const resizeDirection = useRef<string | null>(null);
 
