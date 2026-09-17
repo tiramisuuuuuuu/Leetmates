@@ -1,25 +1,26 @@
 import { useAssetPrefix } from "../../store/assetPrefixStore";
 import { FaTrashCan } from "react-icons/fa6";
 import { BiSolidPencil } from "react-icons/bi";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useProfileForm } from "../../store/profileFormStore";
 
 export default function Photo() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const updatePhoto = useProfileForm((state) => state.updatePhoto);
+  const file = useProfileForm((state) => state.file);
+  const previewUrl = useProfileForm((state) => state.previewUrl);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      setFile(selectedFile);
       const localUrl = URL.createObjectURL(selectedFile);
-      setPreviewUrl(localUrl);
+      updatePhoto(selectedFile, localUrl);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center gap-1">
+    <>
       <div className="relative">
         <img
           src={previewUrl ? previewUrl : assetPrefix + "defaultProfile.svg"}
@@ -47,23 +48,22 @@ export default function Photo() {
               file && inputRef.current?.click();
             }}
           >
-            <BiSolidPencil className="" size={16} color="white" />
+            <BiSolidPencil size={16} color="white" />
           </button>
 
           {file && (
             <button
               onClick={() => {
-                setFile(null);
-                setPreviewUrl(null);
+                updatePhoto(null, null);
               }}
             >
-              <FaTrashCan className="" size={12} color="white" />
+              <FaTrashCan size={12} color="white" />
             </button>
           )}
         </div>
       </div>
 
       <p className="text-xs text-ink-muted">Upload a profile photo</p>
-    </div>
+    </>
   );
 }
