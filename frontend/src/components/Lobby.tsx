@@ -20,6 +20,7 @@ export default function Lobby() {
         width: "100%",
         height: "100%",
       }}
+      className="[container-type:size]"
     >
       <img
         src={assetPrefix + (darkMode ? "bgDark.svg" : "bg.svg")}
@@ -45,7 +46,7 @@ export default function Lobby() {
         )}
       </button>
 
-      <div className="absolute inset-12 flex justify-center items-center">
+      <div className="absolute inset-12 [@container(max-width:420px)]:inset-5 [@container(max-height:320px)]:inset-5">
         <CompleteProfile />
       </div>
 
