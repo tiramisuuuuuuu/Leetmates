@@ -24,8 +24,8 @@ export default function Photo() {
       <div className="relative">
         <img
           src={previewUrl ? previewUrl : assetPrefix + "defaultProfile.svg"}
-          id="bg-image"
-          alt="cozy cafe background"
+          id="profile-image"
+          alt="default profile picture"
           className="w-16 h-16 object-cover select-none rounded-full overflow-hidden"
           draggable={false}
         />
