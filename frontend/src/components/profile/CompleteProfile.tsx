@@ -7,7 +7,7 @@ export default function CompleteProfile() {
   const [step, setStep] = useState(1);
 
   return (
-    <div className="relative w-full h-full bg-cream rounded-lg border border-ink flex flex-col justify-center gap-1 p-4">
+    <div className="relative w-full min-w-[255px] min-h-[213px] h-full bg-cream rounded-lg border border-ink flex flex-col justify-center gap-1 p-4">
       <h3 className="text-sm font-bold text-ink text-center [@container(max-width:380px)]:text-sm">
         Complete your profile [{step}/3]
       </h3>
