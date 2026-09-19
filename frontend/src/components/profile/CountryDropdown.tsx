@@ -96,10 +96,10 @@ export default function CountryDropdown() {
                 : "Country"}
             </p>
           </div>
-          <IoIosArrowDown className="text-ink/30 self-end justify-self-end" />
+          <IoIosArrowDown className="text-ink/30 self-end justify-self-end shrink-0" />
         </div>
 
-        <div className="absolute top-0 w-full flex items-center gap-2 bg-transparent border border-transparent opacity-50 rounded-md px-2.5 py-0.5">
+        <div className="absolute top-0 w-full h-full flex items-center gap-2 border border-transparent opacity-50 rounded-md px-2.5 py-0.5">
           <input
             type="text"
             value={search}
@@ -108,7 +108,7 @@ export default function CountryDropdown() {
               setDropdownOpen(true);
             }}
             onChange={(e) => handleInputChange(e.target.value)}
-            className="w-full min-w-0 bg-transparent text-xs text-transparent outline-none caret-[transparent]  cursor-default"
+            className="w-full min-w-0 h-full bg-transparent text-xs text-transparent outline-none caret-[transparent]  cursor-default"
           />
         </div>
       </div>

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { LuGraduationCap } from "react-icons/lu";
+import { useProfileForm } from "../../store/profileFormStore";
 
 const options = ["Undergrad", "Master's", "Out of school"];
 
 export default function Dropdown() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const selected = useProfileForm((state) => state.currentStatus);
+  const setSelected = useProfileForm((state) => state.setCurrentStatus);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
