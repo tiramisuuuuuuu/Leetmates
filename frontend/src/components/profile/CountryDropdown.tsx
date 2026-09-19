@@ -2,6 +2,8 @@ import { useState } from "react";
 import countriesData from "../../../public/countries.json";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
 import { useProfileForm } from "../../store/profileFormStore";
+import { IoIosArrowDown } from "react-icons/io";
+import { IoLocationOutline } from "react-icons/io5";
 
 export default function CountryDropdown() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
@@ -12,7 +14,7 @@ export default function CountryDropdown() {
     end: countriesData.length,
   });
   const [search, setSearch] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   function normalize(str: string) {
     return str
@@ -61,7 +63,7 @@ export default function CountryDropdown() {
 
   return (
     <div
-      className="relative w-full flex flex-col"
+      className="relative w-full flex flex-col max-w-2xs"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
           setDropdownOpen(false);
@@ -69,24 +71,32 @@ export default function CountryDropdown() {
       }}
     >
       <div className="relative w-full">
-        <div className="w-full flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
-          {selected && (
-            <img
-              src={
-                assetPrefix +
-                `flags/${countriesData.find((obj) => obj.code === selected)?.code}.svg`
-              }
-              alt="country flag"
-              className="w-3 h-2 object-cover"
-            />
-          )}
-          <p
-            className={`text-xs ${selected ? "text-ink" : "text-ink-muted"} outline-none`}
-          >
-            {selected
-              ? countriesData.find((obj) => obj.code === selected)?.name
-              : "Select country from dropdown"}
-          </p>
+        <div className="w-full flex items-center justify-between bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
+          <div className="flex items-center justify-between gap-2">
+            {selected ? (
+              <img
+                src={
+                  assetPrefix +
+                  `flags/${countriesData.find((obj) => obj.code === selected)?.code}.svg`
+                }
+                alt="country flag"
+                className="w-3 h-2 object-cover"
+              />
+            ) : (
+              <IoLocationOutline
+                size={14}
+                className="shrink-0 text-ink-muted"
+              />
+            )}
+            <p
+              className={`text-xs ${selected ? "text-ink" : "text-ink-muted"} outline-none`}
+            >
+              {selected
+                ? countriesData.find((obj) => obj.code === selected)?.name
+                : "Country"}
+            </p>
+          </div>
+          <IoIosArrowDown className="text-ink/30 self-end justify-self-end" />
         </div>
 
         <div className="absolute top-0 w-full flex items-center gap-2 bg-transparent border border-transparent opacity-50 rounded-md px-2.5 py-0.5">
@@ -98,7 +108,7 @@ export default function CountryDropdown() {
               setDropdownOpen(true);
             }}
             onChange={(e) => handleInputChange(e.target.value)}
-            className="w-full min-w-0 bg-transparent text-xs text-transparent outline-none caret-[transparent]"
+            className="w-full min-w-0 bg-transparent text-xs text-transparent outline-none caret-[transparent]  cursor-default"
           />
         </div>
       </div>

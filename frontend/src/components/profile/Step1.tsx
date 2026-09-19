@@ -20,7 +20,7 @@ export default function Photo() {
   };
 
   return (
-    <>
+    <div className="w-full h-full flex flex-col justify-center items-center gap-1">
       <div className="relative">
         <img
           src={previewUrl ? previewUrl : assetPrefix + "defaultProfile.svg"}
@@ -64,6 +64,6 @@ export default function Photo() {
       </div>
 
       <p className="text-xs text-ink-muted">Upload a profile photo</p>
-    </>
+    </div>
   );
 }
