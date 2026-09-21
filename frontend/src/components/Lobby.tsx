@@ -46,7 +46,7 @@ export default function Lobby() {
         )}
       </button>
 
-      <div className="absolute inset-12 [@container(max-width:420px)]:inset-5 [@container(max-height:320px)]:inset-5">
+      <div className="absolute inset-12 flex justify-center items-center">
         <CompleteProfile />
       </div>
 

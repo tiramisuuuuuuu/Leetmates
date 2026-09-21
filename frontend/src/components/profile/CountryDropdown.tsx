@@ -63,7 +63,7 @@ export default function CountryDropdown() {
 
   return (
     <div
-      className="relative w-full flex flex-col max-w-2xs"
+      className="relative w-full flex flex-col"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
           setDropdownOpen(false);
@@ -93,7 +93,7 @@ export default function CountryDropdown() {
             >
               {selected
                 ? countriesData.find((obj) => obj.code === selected)?.name
-                : "Country"}
+                : "Search country"}
             </p>
           </div>
           <IoIosArrowDown className="text-ink/30 self-end justify-self-end shrink-0" />

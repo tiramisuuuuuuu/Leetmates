@@ -20,30 +20,49 @@ export default function MatchingPreference() {
   const setSelected = useProfileForm((state) => state.setMatching);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center gap-1.5">
-      {options.map((item) => (
-        <button
-          id={item.id}
-          className={`w-full max-w-2xs h-12 flex flex-row items-center gap-2  ${selected === item.id ? "bg-clay border-clay-dark" : "bg-cream-muted border border-ink/30"} rounded-md px-2.5 py-0.5`}
-          onClick={() => setSelected(item.id)}
-        >
-          {item.id === "friends" ? (
-            <IoPeopleOutline
-              className={`${selected == item.id ? "text-cream" : "text-shadow-clay-dark"} shrink-0`}
-            />
-          ) : (
-            <MdOutlineWavingHand
-              className={`${selected == item.id ? "text-cream" : "text-shadow-clay-dark"} shrink-0`}
-            />
-          )}
-          <div
-            className={`flex flex-col justify-center items-start ${selected == item.id ? "text-cream" : "text-shadow-clay-dark"}`}
+    <div className="w-full h-full flex flex-col justify-center items-center gap-2 px-2">
+      {options.map((item) => {
+        const isSelected = selected === item.id;
+        return (
+          <button
+            key={item.id}
+            id={item.id}
+            onClick={() => setSelected(item.id)}
+            className={`w-full max-w-xs flex items-start gap-2.5 rounded-md border px-3 py-2.5 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay/50 ${
+              isSelected
+                ? "bg-clay border-clay-dark"
+                : "bg-cream-muted border-ink/30 hover:border-ink/50 hover:bg-ink/5"
+            }`}
           >
-            <p className="text-xs font-semibold">{item.title}</p>
-            <p className="text-xs text-start">{item.description}</p>
-          </div>
-        </button>
-      ))}
+            {item.id === "friends" ? (
+              <IoPeopleOutline
+                size={16}
+                className={`shrink-0 mt-0.5 ${isSelected ? "text-cream" : "text-ink-muted"}`}
+              />
+            ) : (
+              <MdOutlineWavingHand
+                size={16}
+                className={`shrink-0 mt-0.5 ${isSelected ? "text-cream" : "text-ink-muted"}`}
+              />
+            )}
+
+            <div className="flex flex-col items-start gap-0.5 min-w-0">
+              <p
+                className={`text-xs font-semibold ${isSelected ? "text-cream" : "text-ink"}`}
+              >
+                {item.title}
+              </p>
+              <p
+                className={`text-[11px] leading-snug ${
+                  isSelected ? "text-cream/80" : "text-ink-muted"
+                }`}
+              >
+                {item.description}
+              </p>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
