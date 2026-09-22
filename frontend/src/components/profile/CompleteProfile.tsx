@@ -3,12 +3,16 @@ import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 import { useProfileForm } from "../../store/profileFormStore";
+import { uploadFile } from "../../api/supabase";
 
 export default function CompleteProfile() {
   const [step, setStep] = useState(1);
 
   function handleSubmit() {
     const file = useProfileForm.getState().file;
+    if (file) {
+      uploadFile(file);
+    }
   }
 
   return (
