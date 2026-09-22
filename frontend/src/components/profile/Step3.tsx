@@ -16,8 +16,8 @@ const options = [
 ];
 
 export default function MatchingPreference() {
-  const selected = useProfileForm((state) => state.matching);
-  const setSelected = useProfileForm((state) => state.setMatching);
+  const selected = useProfileForm((state) => state.matchingPreference);
+  const setSelected = useProfileForm((state) => state.setMatchingPreference);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center gap-2 px-2">

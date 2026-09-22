@@ -46,14 +46,15 @@ export async function uploadFile(file: File) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from("profile_pictures")
-    .upload(`${session?.user.id}/pfp`, file, {
+    .upload(`${session?.user.id}/profile`, file, {
       upsert: true,
     });
 
   if (error) {
     throw new Error(error.message);
   }
-  return data;
+
+  return `${session?.user.id}/profile`;
 }

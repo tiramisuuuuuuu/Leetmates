@@ -2,6 +2,7 @@ import {
   index,
   integer,
   pgTable,
+  text,
   timestamp,
   uuid,
   varchar,
@@ -11,6 +12,11 @@ export const usersTable = pgTable('users', {
   id: uuid().primaryKey(),
   username: varchar({ length: 255 }).notNull(),
   leetcodeId: varchar({ length: 255 }).notNull(),
+  countryCode: varchar({ length: 2 }),
+  currentStatus: text(),
+  matchingPreference: text(),
+  profilePath: text(),
+
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -4,14 +4,36 @@ import Step2 from "./Step2";
 import Step3 from "./Step3";
 import { useProfileForm } from "../../store/profileFormStore";
 import { uploadFile } from "../../api/supabase";
+import { apiFetch } from "../../api/apiHelper";
+import { useToast } from "../../store/toastStore";
 
 export default function CompleteProfile() {
   const [step, setStep] = useState(1);
+  const showToast = useToast((state) => state.showToast);
 
-  function handleSubmit() {
-    const file = useProfileForm.getState().file;
-    if (file) {
-      uploadFile(file);
+  async function handleSubmit() {
+    try {
+      const file = useProfileForm.getState().file;
+      const countryCode = useProfileForm.getState().countryCode;
+      const currentStatus = useProfileForm.getState().currentStatus;
+      const matchingPreference = useProfileForm.getState().matchingPreference;
+
+      let profilePath = null;
+      if (file) {
+        profilePath = await uploadFile(file);
+      }
+
+      apiFetch("/users/update", {
+        method: "POST",
+        body: JSON.stringify({
+          profilePath,
+          countryCode,
+          currentStatus,
+          matchingPreference,
+        }),
+      });
+    } catch (error: any) {
+      showToast("error", error.message);
     }
   }
 

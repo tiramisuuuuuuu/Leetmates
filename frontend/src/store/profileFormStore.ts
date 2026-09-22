@@ -5,11 +5,11 @@ interface ProfileFormState {
   previewUrl: string | null;
   countryCode: string | null;
   currentStatus: string | null;
-  matching: string;
+  matchingPreference: string;
   updatePhoto: (file: File | null, previewUrl: string | null) => void;
   setCountryCode: (countryCode: string | null) => void;
   setCurrentStatus: (currentStatus: string | null) => void;
-  setMatching: (matching: string) => void;
+  setMatchingPreference: (matchingPreference: string) => void;
 }
 
 export const useProfileForm = create<ProfileFormState>()((set) => ({
@@ -17,10 +17,11 @@ export const useProfileForm = create<ProfileFormState>()((set) => ({
   previewUrl: null,
   countryCode: null,
   currentStatus: null,
-  matching: "everyone",
+  matchingPreference: "everyone",
   updatePhoto: (file: File | null, previewUrl: string | null) =>
     set({ file, previewUrl }),
   setCountryCode: (countryCode: string | null) => set({ countryCode }),
   setCurrentStatus: (currentStatus: string | null) => set({ currentStatus }),
-  setMatching: (matching: string) => set({ matching }),
+  setMatchingPreference: (matchingPreference: string) =>
+    set({ matchingPreference }),
 }));
