@@ -32,9 +32,13 @@ export default function CompleteProfile() {
           matchingPreference,
         }),
       });
+
+      showToast("success", "Profile updated");
     } catch (error: any) {
       showToast("error", error.message);
     }
+
+    useProfileForm.getState().setShowModal(false);
   }
 
   return (

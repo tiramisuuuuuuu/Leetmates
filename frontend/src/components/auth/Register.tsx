@@ -8,6 +8,7 @@ import { SiLeetcode } from "react-icons/si";
 import { useToast } from "../../store/toastStore";
 import { signUpNewUser } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
+import { useProfileForm } from "../../store/profileFormStore";
 
 export default function Register({
   onSwitchToLogin,
@@ -51,9 +52,12 @@ export default function Register({
         }),
       });
 
-      // as long as email verification is off in Supabase settings,
-      // supabase onAuthStateChange will automatically update authStore with
-      // SIGNED_IN state and will trigger rerender of subscriber, Lobby
+      // as long as email-verification is off in Supabase settings,
+      // supabase onAuthStateChange will automatically update authStore
+      // with SIGNED_IN state, when you signUpNewUser, and will trigger
+      // rerender of its subscriber, ex. Lobby
+
+      useProfileForm.getState().setShowModal(true);
     } catch (error: any) {
       showToast("error", error.message);
     }
