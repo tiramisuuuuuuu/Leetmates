@@ -5,12 +5,15 @@ import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
+import CompleteProfile from "./profile/CompleteProfile";
+import { useProfileForm } from "../store/profileFormStore";
 
 export default function Lobby() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [darkMode, setDarkMode] = useState(false);
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
+  const showProfileForm = useProfileForm((state) => state.showModal);
 
   return (
     <div
@@ -19,6 +22,7 @@ export default function Lobby() {
         width: "100%",
         height: "100%",
       }}
+      className="[container-type:size]"
     >
       <img
         src={assetPrefix + (darkMode ? "bgDark.svg" : "bg.svg")}
@@ -49,9 +53,16 @@ export default function Lobby() {
           <Auth />
         </div>
       )}
+
       {isLoggedIn && (
         <div className="absolute bottom-1 left-1.5">
           <Profile />
+        </div>
+      )}
+
+      {showProfileForm && (
+        <div className="absolute inset-12 flex justify-center items-center">
+          <CompleteProfile />
         </div>
       )}
 

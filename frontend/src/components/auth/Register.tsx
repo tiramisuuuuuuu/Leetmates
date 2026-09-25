@@ -8,6 +8,7 @@ import { SiLeetcode } from "react-icons/si";
 import { useToast } from "../../store/toastStore";
 import { signUpNewUser } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
+import { useProfileForm } from "../../store/profileFormStore";
 
 export default function Register({
   onSwitchToLogin,
@@ -51,9 +52,12 @@ export default function Register({
         }),
       });
 
-      // as long as email verification is off in Supabase settings,
-      // supabase onAuthStateChange will automatically update authStore with
-      // SIGNED_IN state and will trigger rerender of subscriber, Lobby
+      // as long as email-verification is off in Supabase settings,
+      // supabase onAuthStateChange will automatically update authStore
+      // with SIGNED_IN state, when you signUpNewUser, and will trigger
+      // rerender of its subscriber, ex. Lobby
+
+      useProfileForm.getState().setShowModal(true);
     } catch (error: any) {
       showToast("error", error.message);
     }
@@ -65,7 +69,7 @@ export default function Register({
         Sign Up
       </h3>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoMailOutline size={14} className="shrink-0 text-ink-muted" />
         <input
           type="email"
@@ -76,7 +80,7 @@ export default function Register({
         />
       </div>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <SiLeetcode size={14} className="shrink-0 text-ink-muted opacity-70" />
         <input
           type="text"
@@ -87,7 +91,7 @@ export default function Register({
         />
       </div>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoPersonOutline size={14} className="shrink-0 text-ink-muted" />
         <input
           type="text"
@@ -98,7 +102,7 @@ export default function Register({
         />
       </div>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoLockClosedOutline size={14} className="shrink-0 text-ink-muted" />
         <input
           type="password"
@@ -109,7 +113,7 @@ export default function Register({
         />
       </div>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoLockClosedOutline size={14} className="shrink-0 text-ink-muted" />
         <input
           type="password"
