@@ -3,7 +3,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { LuGraduationCap } from "react-icons/lu";
 import { useProfileForm } from "../../store/profileFormStore";
 
-const options = ["Undergrad", "Master's", "Out of school"];
+const options = ["Undergrad", "Master's", "PhD", "Working", "Other"];
 
 export default function Dropdown() {
   const selected = useProfileForm((state) => state.currentStatus);

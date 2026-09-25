@@ -14,7 +14,7 @@ export default function MatchingData() {
         <div className="flex flex-col gap-1 w-full max-w-2xs">
           <span className="flex items-center gap-1.5 text-[10px] text-ink-muted px-0.5">
             <FaGraduationCap size={12} />
-            Academic status
+            Current status
           </span>
           <Dropdown />
         </div>
