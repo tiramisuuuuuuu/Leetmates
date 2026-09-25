@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../api/supabase";
 import { AUTH_STORAGE_KEY, hasChromeStorage } from "../api/chromeStorage";
+import { useProfileForm } from "./profileFormStore";
 
 interface AuthState {
   session: Session | null;
@@ -17,6 +18,7 @@ export const useAuth = create<AuthState>()((set) => ({
     set({ session: newSession, loading: false }),
   signOut: async () => {
     await supabase.auth.signOut();
+    useProfileForm.getState().setShowModal(false);
     set({ session: null });
   },
 }));

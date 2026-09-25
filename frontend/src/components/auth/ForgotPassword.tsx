@@ -37,7 +37,7 @@ export default function ForgotPassword({
     <>
       <h3 className="text-sm font-bold text-ink text-center">Reset Password</h3>
 
-      <div className="flex items-center gap-2 bg-white/70 border border-ink/30 rounded-md px-2.5 py-0.5">
+      <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoMailOutline size={14} className="shrink-0 text-ink-muted" />
         <input
           type="email"

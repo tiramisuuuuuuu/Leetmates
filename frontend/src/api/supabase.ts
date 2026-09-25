@@ -40,3 +40,21 @@ export async function resetPassword(email: string) {
     throw new Error(error.message);
   }
 }
+
+export async function uploadFile(file: File) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const { error } = await supabase.storage
+    .from("profile_pictures")
+    .upload(`${session?.user.id}/profile`, file, {
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return `${session?.user.id}/profile`;
+}
