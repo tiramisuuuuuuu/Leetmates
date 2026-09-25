@@ -2,12 +2,13 @@ import { Hono } from 'hono';
 import { db } from '../db';
 import { friendRequestsTable, friendsTable, usersTable } from '../db/schema';
 import { and, eq, or } from 'drizzle-orm';
+import { AppVariables } from '../types/variables';
 
-const friendRoutes = new Hono();
+const friendRoutes = new Hono<{ Variables: AppVariables }>();
 
 friendRoutes.post('/request', async (c) => {
-  const body = await c.req.json();
-  const { uid, recipientUid } = body;
+  const uid = c.get('uid');
+  const { recipientUid } = await c.req.json();
 
   const existingUsers = await db
     .select()
@@ -39,13 +40,15 @@ friendRoutes.post('/request', async (c) => {
     return c.text('Friend request already exists', 400);
   }
 
+  const comparison = uid.localeCompare(recipientUid);
+
   const [existingFriend] = await db
     .select()
     .from(friendsTable)
     .where(
       and(
-        eq(friendsTable.user1Id, Math.min(uid, recipientUid)),
-        eq(friendsTable.user2Id, Math.max(uid, recipientUid))
+        eq(friendsTable.user1Id, comparison < 0 ? uid : recipientUid),
+        eq(friendsTable.user2Id, comparison > 0 ? uid : recipientUid)
       )
     )
     .limit(1);
@@ -63,8 +66,8 @@ friendRoutes.post('/request', async (c) => {
 });
 
 friendRoutes.post('/accept', async (c) => {
-  const body = await c.req.json();
-  const { uid, senderUid } = body;
+  const uid = c.get('uid');
+  const { senderUid } = await c.req.json();
 
   const existingUsers = await db
     .select()
@@ -96,11 +99,13 @@ friendRoutes.post('/accept', async (c) => {
     .delete(friendRequestsTable)
     .where(eq(friendRequestsTable.senderId, senderUid));
 
+  const comparison = uid.localeCompare(senderUid);
+
   const newFriend = await db
     .insert(friendsTable)
     .values({
-      user1Id: Math.min(uid, senderUid),
-      user2Id: Math.max(uid, senderUid),
+      user1Id: comparison < 0 ? uid : senderUid,
+      user2Id: comparison > 0 ? uid : senderUid,
     })
     .returning();
 
