@@ -7,6 +7,8 @@ import Profile from "./auth/Profile";
 import Toast from "./Toast";
 import CompleteProfile from "./profile/CompleteProfile";
 import { useProfileForm } from "../store/profileFormStore";
+import FriendsPage from "./FriendsPage";
+import { FaUserFriends } from "react-icons/fa";
 
 export default function Lobby() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
@@ -14,6 +16,7 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div
@@ -67,6 +70,15 @@ export default function Lobby() {
       )}
 
       <Toast />
+
+      <button
+        className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
+        onClick={() => setModalOpen(true)}
+      >
+        <FaUserFriends size={16} />
+      </button>
+
+      {modalOpen && <FriendsPage closeModal={() => setModalOpen(false)} />}
     </div>
   );
 }
