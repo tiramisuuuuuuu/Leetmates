@@ -122,18 +122,7 @@ export default function FriendsPage({
         </div>
       </div>
 
-      {/* menu title plate */}
-      {/* <div className="flex flex-col items-center gap-0.5 pt-3 pb-1 border-b border-ink/10">
-        <GiCoffeeCup className="text-clay-dark" size={18} />
-        <div className="font-serif text-[15px] font-bold text-ink tracking-tight">
-          The Friends List
-        </div>
-        <div className="font-serif italic text-[10px] text-ink/45">
-          who's at the counter today
-        </div>
-      </div> */}
-
-      <div className="relative flex-1 flex flex-col overflow-y-scroll">
+      <div className="relative flex-1 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full">
         <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
           <div>
             <MenuHeading label="Online" count={online.length} />
