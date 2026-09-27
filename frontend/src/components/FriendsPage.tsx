@@ -3,7 +3,7 @@ import { useAssetPrefix } from "../store/assetPrefixStore";
 import type { Friend } from "../types/friend";
 import { MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import { GiCoffeeBeans } from "react-icons/gi";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
@@ -116,9 +116,15 @@ export default function FriendsPage({
           back to the lobby
         </button>
 
-        <div className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors">
-          <CiInboxIn size={15} color="#F4F1EA" />
-          <div className="absolute top-0.5 right-0.5 rounded-full w-1.5 h-1.5 outline outline-2 outline-clay-dark bg-green-400" />
+        <div className="flex flex-row gap-1">
+          <div className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors">
+            <CiInboxIn size={15} color="#F4F1EA" />
+            <div className="absolute top-0.5 right-0.5 rounded-full w-1.5 h-1.5 outline outline-2 outline-clay-dark bg-green-400" />
+          </div>
+
+          <div className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors">
+            <IoIosAdd size={15} color="#F4F1EA" />
+          </div>
         </div>
       </div>
 
