@@ -7,7 +7,7 @@ import Profile from "./auth/Profile";
 import Toast from "./Toast";
 import CompleteProfile from "./profile/CompleteProfile";
 import { useProfileForm } from "../store/profileFormStore";
-import FriendsPage from "./FriendsPage";
+import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 
 export default function Lobby() {
@@ -78,7 +78,7 @@ export default function Lobby() {
         <FaUserFriends size={16} />
       </button>
 
-      {modalOpen && <FriendsPage closeModal={() => setModalOpen(false)} />}
+      {modalOpen && <FriendsList closeModal={() => setModalOpen(false)} />}
     </div>
   );
 }

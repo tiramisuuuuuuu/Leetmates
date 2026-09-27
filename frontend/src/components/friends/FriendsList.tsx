@@ -1,10 +1,12 @@
 import { CiInboxIn } from "react-icons/ci";
-import { useAssetPrefix } from "../store/assetPrefixStore";
-import type { Friend } from "../types/friend";
+import { useAssetPrefix } from "../../store/assetPrefixStore";
+import type { Friend } from "../../types/friend";
 import { MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import { GiCoffeeBeans } from "react-icons/gi";
+import Modal from "./Modal";
+import { useState } from "react";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   return (
@@ -64,12 +66,13 @@ function MenuHeading({ label, count }: { label: string; count: number }) {
   );
 }
 
-export default function FriendsPage({
+export default function FriendsList({
   closeModal,
 }: {
   closeModal: () => void;
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
+  const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
 
   const friends: Friend[] = [
     {
@@ -117,14 +120,20 @@ export default function FriendsPage({
         </button>
 
         <div className="flex flex-row gap-1">
-          <div className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors">
+          <button
+            className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors"
+            onClick={() => setModalDisplayed("friendRequest")}
+          >
             <CiInboxIn size={15} color="#F4F1EA" />
             <div className="absolute top-0.5 right-0.5 rounded-full w-1.5 h-1.5 outline outline-2 outline-clay-dark bg-green-400" />
-          </div>
+          </button>
 
-          <div className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors">
+          <button
+            className="relative rounded-full bg-cream/10 hover:bg-cream/20 p-1.5 cursor-pointer transition-colors"
+            onClick={() => setModalDisplayed("add")}
+          >
             <IoIosAdd size={15} color="#F4F1EA" />
-          </div>
+          </button>
         </div>
       </div>
 
@@ -157,6 +166,26 @@ export default function FriendsPage({
           draggable={false}
         />
       </div>
+
+      {modalDisplayed && (
+        <div className="absolute inset-12 flex justify-center items-center">
+          {modalDisplayed == "add" ? (
+            <Modal
+              title="Add Friend"
+              closeModal={() => setModalDisplayed(null)}
+            >
+              <div />
+            </Modal>
+          ) : (
+            <Modal
+              title="Incoming Friend Requests"
+              closeModal={() => setModalDisplayed(null)}
+            >
+              <div />
+            </Modal>
+          )}
+        </div>
+      )}
     </div>
   );
 }
