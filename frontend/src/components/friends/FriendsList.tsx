@@ -7,6 +7,7 @@ import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import { GiCoffeeBeans } from "react-icons/gi";
 import Modal from "./Modal";
 import { useState } from "react";
+import AddFriend from "./AddFriend";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   return (
@@ -174,7 +175,7 @@ export default function FriendsList({
               title="Add Friend"
               closeModal={() => setModalDisplayed(null)}
             >
-              <div />
+              <AddFriend />
             </Modal>
           ) : (
             <Modal

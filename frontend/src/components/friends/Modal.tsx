@@ -12,7 +12,7 @@ export default function Modal({
 }) {
   return (
     <div
-      className="relative w-full min-w-[255px] min-h-[213px] h-full bg-cream rounded-lg border border-ink flex flex-col gap-3 p-3 
+      className="relative w-full min-w-[255px] min-h-[213px] h-full bg-cream rounded-lg border border-ink flex flex-col gap-1 p-3 
         overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full"
     >
       <div className="relative flex flex-row justify-center items-center">
