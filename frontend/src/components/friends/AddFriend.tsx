@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BsAlphabet } from "react-icons/bs";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy } from "react-icons/md";
+import Menu from "./Menu";
 
 const YOUR_CODE = "ABC123";
 
@@ -39,11 +40,12 @@ export default function AddFriend() {
       <div className="flex flex-row justify-center items-center gap-2">
         <p className=" text-ink-muted text-[10px]">Your code:</p>
         <button
-          className="p-1 px-2 border-1 border-ink/40 hover:bg-ink/10 rounded-[10px] flex flex-row justify-center items-center gap-1 text-ink-muted"
+          className="relative p-1 px-2 border-1 border-ink/40 hover:bg-ink/10 rounded-[10px] flex flex-row justify-center items-center gap-1 text-ink-muted"
           onClick={handleCopy}
         >
           <p className="text-ink font-bold ">{YOUR_CODE}</p>
           <MdContentCopy />
+          {copied && <Menu position="top">Copied!</Menu>}
         </button>
       </div>
     </div>
