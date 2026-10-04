@@ -7,8 +7,9 @@ import {
   type SetStateAction,
 } from "react";
 import Lobby from "./Lobby";
-import { IoCloseOutline } from "react-icons/io5";
-import { PiResizeThin } from "react-icons/pi";
+import { FaRegWindowRestore } from "react-icons/fa6";
+import { CgClose } from "react-icons/cg";
+import { useAssetPrefix } from "../store/assetPrefixStore";
 
 const MAX_WIDTH = 500;
 const MIN_WIDTH = 300;
@@ -43,6 +44,7 @@ export default function Window({
     height: MIN_HEIGHT,
   });
   const resizeDirection = useRef<string | null>(null);
+  const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
 
   const handleDrag = (e: any, data: { x: number; y: number }) => {
     setPosition({ x: data.x, y: data.y });
@@ -205,7 +207,7 @@ export default function Window({
         <div
           ref={nodeRef}
           id="entire-window"
-          className="bg-[#291f19] rounded-md flex flex-col overflow-hidden"
+          className="bg-[#291f19] rounded-sm flex flex-col overflow-hidden"
           style={{
             pointerEvents: "auto",
             width: size.width,
@@ -218,8 +220,15 @@ export default function Window({
             className={`drag-handle w-full h-5 bg-[#291f19] border-b border-black/30 flex justify-between items-center box-border px-2 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
           >
             <div className="flex flex-row items-center gap-1">
-              <p className="font-serif italic text-[11px] text-cream/90 tracking-tight">
-                Leetmates Lobby
+              <img
+                src={assetPrefix + "windowIcon.svg"}
+                id="bg-image"
+                alt="cozy autumn background"
+                className="w-6 select-none"
+                draggable={false}
+              />
+              <p className="text-[11px] text-cream/90 tracking-tight">
+                Leetmates
               </p>
             </div>
 
@@ -230,16 +239,16 @@ export default function Window({
               <button
                 id="resize-button"
                 onClick={handleResizeBttnClick}
-                className="flex justify-center items-center text-cream hover:text-cream hover:bg-white/10 rounded-sm w-4 h-4 transition-colors"
+                className="flex justify-center items-center text-cream/70 hover:text-cream hover:bg-white/10 rounded-sm w-4 h-4 transition-colors"
               >
-                <PiResizeThin size={16} />
+                <FaRegWindowRestore size={10} />
               </button>
               <button
                 id="close-button"
                 onClick={() => setOpen(false)}
                 className="flex justify-center items-center text-cream/70 hover:text-white hover:bg-red-500/80 rounded-sm w-4 h-4 transition-colors"
               >
-                <IoCloseOutline size={16} />
+                <CgClose size={12} />
               </button>
             </div>
           </div>
