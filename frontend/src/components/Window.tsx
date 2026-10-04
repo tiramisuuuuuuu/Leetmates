@@ -217,7 +217,7 @@ export default function Window({
         >
           <div
             id="nav-bar"
-            className={`drag-handle w-full h-5 bg-[#291f19] border-b border-black/30 flex justify-between items-center box-border px-2 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            className={`drag-handle w-full h-6 bg-[#291f19] border-b border-black/30 flex justify-between items-center box-border px-2 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
           >
             <div className="flex flex-row items-center gap-1">
               <img
