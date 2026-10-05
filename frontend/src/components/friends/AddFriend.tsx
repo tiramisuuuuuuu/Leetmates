@@ -11,6 +11,8 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 const YOUR_CODE = "ABC123";
 
 function Friend({ data, assetPrefix }: { data: User; assetPrefix: string }) {
+  const [tooltipHovered, setTooltipHovered] = useState(false);
+
   return (
     <div className="flex flex-row items-center gap-3 max-w-full">
       <div className="flex flex-row items-center gap-2 min-w-0 flex-1">
@@ -26,9 +28,24 @@ function Friend({ data, assetPrefix }: { data: User; assetPrefix: string }) {
       </div>
 
       {data.friendStatus === "Incoming Request" && (
-        <p className="[@container(max-width:400px)]:w-16 text-ink-muted text-[12px] text-center">
+        <div
+          className="relative [@container(max-width:400px)]:w-16 text-ink-muted text-[12px] text-center"
+          onMouseEnter={() => {
+            console.log("HOVER");
+            setTooltipHovered(true);
+          }}
+          onMouseLeave={() => setTooltipHovered(false)}
+        >
           Check your inbox ⓘ
-        </p>
+          {tooltipHovered && (
+            <Menu position="top">
+              <p className="min-w-18">
+                This user has already sent you a friend request. You can accept
+                it from your inbox.
+              </p>
+            </Menu>
+          )}
+        </div>
       )}
 
       {data.friendStatus === "Friends" && (
