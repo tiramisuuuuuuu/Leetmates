@@ -6,3 +6,9 @@ export interface Friend {
   isFriend: boolean;
   lastActive: string;
 }
+
+export interface User {
+  uid: number;
+  username: string;
+  friendStatus: string;
+}
