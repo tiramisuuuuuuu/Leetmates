@@ -7,7 +7,7 @@ export interface Friend {
   lastActive: string;
 }
 
-export interface User {
+export interface FriendPreview {
   uid: number;
   username: string;
   friendStatus: string;

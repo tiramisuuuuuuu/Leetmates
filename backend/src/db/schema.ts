@@ -4,24 +4,31 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const usersTable = pgTable('users', {
-  id: uuid().primaryKey(),
-  username: varchar({ length: 255 }).notNull(),
-  leetcodeId: varchar({ length: 255 }).notNull(),
-  countryCode: varchar({ length: 2 }),
-  currentStatus: text(),
-  matchingPreference: text(),
-  profilePath: text(),
+export const usersTable = pgTable('users', 
+  {
+    id: uuid().primaryKey(),
+    username: varchar({ length: 255 }).notNull(),
+    leetcodeId: varchar({ length: 255 }).notNull(),
+    countryCode: varchar({ length: 2 }),
+    currentStatus: text(),
+    matchingPreference: text(),
+    profilePath: text(),
+    friendCode: text().unique(),
 
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }),
-});
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }),
+  },
+  (table) => [
+    unique('users_friend_code_unique').on(table.friendCode),
+  ]
+);
 
 export const friendsTable = pgTable(
   'friends',

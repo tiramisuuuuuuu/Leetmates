@@ -2,13 +2,19 @@ import { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy, MdPersonAdd } from "react-icons/md";
 import Menu from "./Menu";
-import type { User } from "../../types/friend";
+import type { FriendPreview } from "../../types/friend";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
 import { FaClock } from "react-icons/fa6";
 
 const YOUR_CODE = "ABC123";
 
-function Friend({ data, assetPrefix }: { data: User; assetPrefix: string }) {
+function Friend({
+  data,
+  assetPrefix,
+}: {
+  data: FriendPreview;
+  assetPrefix: string;
+}) {
   const [tooltipHovered, setTooltipHovered] = useState(false);
 
   return (
@@ -28,10 +34,7 @@ function Friend({ data, assetPrefix }: { data: User; assetPrefix: string }) {
       {data.friendStatus === "Incoming Request" && (
         <div
           className="relative [@container(max-width:400px)]:w-16 text-ink-muted text-[12px] text-center"
-          onMouseEnter={() => {
-            console.log("HOVER");
-            setTooltipHovered(true);
-          }}
+          onMouseEnter={() => setTooltipHovered(true)}
           onMouseLeave={() => setTooltipHovered(false)}
         >
           Check your inbox ⓘ
@@ -72,7 +75,7 @@ function Friend({ data, assetPrefix }: { data: User; assetPrefix: string }) {
 export default function AddFriend() {
   const [friendCode, setFriendCode] = useState<string>("");
   const [copied, setCopied] = useState(false);
-  const [user, setUser] = useState<User | null>();
+  const [user, setUser] = useState<FriendPreview | null>();
   const [error, setError] = useState(false);
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
 
