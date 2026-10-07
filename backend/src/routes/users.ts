@@ -77,26 +77,6 @@ userRoutes.post('/update', async (c) => {
   return c.json(user, 200);
 });
 
-userRoutes.get('/', async (c) => {
-  const id = c.get('uid');
-
-  const [user] = await db
-    .select({
-      id: usersTable.id,
-      username: usersTable.username,
-      profilePath: usersTable.profilePath,
-    })
-    .from(usersTable)
-    .where(eq(usersTable.id, id))
-    .limit(1);
-
-  if (!user) {
-    return c.text('User not found', 400);
-  }
-
-  return c.json(user, 201);
-});
-
 userRoutes.get('/:friendCode', async (c) => {
   const id = c.get('uid');
   const { friendCode } = c.req.param();
@@ -160,6 +140,29 @@ userRoutes.get('/:friendCode', async (c) => {
   }
 
   return c.json({ ...user, friendStatus }, 201);
+});
+
+userRoutes.get('/', async (c) => {
+  const id = c.get('uid');
+
+  const [user] = await db
+    .select({
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+      countryCode: usersTable.countryCode,
+      currentStatus: usersTable.currentStatus,
+      matchingPreference: usersTable.matchingPreference,
+      friendCode: usersTable.friendCode,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, id))
+    .limit(1);
+
+  if (!user) {
+    return c.text('User not found', 400);
+  }
+
+  return c.json(user, 201);
 });
 
 export default userRoutes;

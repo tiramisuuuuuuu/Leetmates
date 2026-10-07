@@ -11,8 +11,7 @@ import { FaClock } from "react-icons/fa6";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
-
-const YOUR_CODE = "ABC123";
+import { useProfile } from "../../store/profileStore";
 
 function Friend({
   data,
@@ -21,12 +20,7 @@ function Friend({
   data: FriendPreview;
   assetPrefix: string;
 }) {
-  const {
-    isPending,
-    isError,
-    data: signedUrl,
-    error,
-  } = useQuery({
+  const { data: signedUrl } = useQuery({
     queryKey: [data.id],
     queryFn: async () => {
       if (!data.profilePath) {
@@ -98,12 +92,13 @@ export default function AddFriend() {
   const [friendCode, setFriendCode] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [user, setUser] = useState<FriendPreview | null>();
-  const [error, setError] = useState(false);
+  const [errorCode, setErrorCode] = useState(0);
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
+  const profile = useProfile((state) => state.profile);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(YOUR_CODE);
+      await navigator.clipboard.writeText(profile?.friendCode ?? "");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -113,6 +108,11 @@ export default function AddFriend() {
 
   async function handleSubmit() {
     try {
+      if (friendCode === profile?.friendCode) {
+        setErrorCode(2);
+        return;
+      }
+
       const response = await apiFetch(`/users/${friendCode}`);
       const body = await response.json();
       const parsed = fetchFriendPreviewSchema.safeParse(body);
@@ -123,10 +123,10 @@ export default function AddFriend() {
       }
 
       setUser(parsed.data);
-      setError(false);
+      setErrorCode(0);
     } catch (err) {
       console.error("Failed to add friend via code: ", err);
-      setError(true);
+      setErrorCode(1);
     }
   }
 
@@ -142,7 +142,7 @@ export default function AddFriend() {
         className="w-full flex flex-col justify-center items-center"
       >
         <div
-          className={`flex flex-row items-center bg-cream-muted border ${error ? "border-red-500" : "border-ink/30"} rounded-md w-full max-w-60 h-7 overflow-hidden`}
+          className={`flex flex-row items-center bg-cream-muted border ${errorCode ? "border-red-500" : "border-ink/30"} rounded-md w-full max-w-60 h-7 overflow-hidden`}
         >
           <input
             type="text"
@@ -150,7 +150,7 @@ export default function AddFriend() {
             value={friendCode}
             onChange={(e) => {
               setFriendCode(e.target.value);
-              setError(false);
+              setErrorCode(0);
             }}
             className="flex-1 min-w-0 h-full pl-2.5 bg-transparent text-xs text-ink placeholder:text-ink-muted outline-none"
           />
@@ -162,7 +162,11 @@ export default function AddFriend() {
             <IoSearch size={12} />
           </button>
         </div>
-        {error && <p className="text-red-500 text-[12px]">User not found.</p>}
+        {errorCode !== 0 && (
+          <p className="text-red-500 text-[12px]">
+            {errorCode === 1 ? "User not found." : "Cannot friend yourself."}
+          </p>
+        )}
       </form>
 
       {user && <Friend assetPrefix={assetPrefix} data={user} />}
@@ -173,10 +177,12 @@ export default function AddFriend() {
           <p className="text-ink-muted text-[12px]">Your code:</p>
           <button
             className="relative p-1 px-2 border-1 border-ink/40 hover:bg-ink/10 rounded-[8px] flex flex-row justify-center items-center gap-1 text-ink-muted"
-            onClick={handleCopy}
+            onClick={() => profile?.friendCode && handleCopy()}
           >
-            <p className="text-ink font-bold ">{YOUR_CODE}</p>
-            <MdContentCopy />
+            <p className="text-ink font-bold ">
+              {profile?.friendCode ?? "Error: Contact admin"}
+            </p>
+            {profile?.friendCode && <MdContentCopy />}
             {copied && (
               <Menu position="top">
                 <p className="font-bold">Copied!</p>
