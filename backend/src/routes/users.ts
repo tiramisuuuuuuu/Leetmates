@@ -8,9 +8,9 @@ import { DatabaseError } from 'pg';
 
 const userRoutes = new Hono<{ Variables: AppVariables }>();
 
-const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function generateFriendCode(length = 8): string {
-  let code = "";
+  let code = '';
   for (let i = 0; i < length; i++) {
     code += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
   }
@@ -21,9 +21,9 @@ userRoutes.post('/create', async (c) => {
   const id = c.get('uid');
   const body = await c.req.json();
   const { username, leetcodeId } = body;
-  
+
   const MAX_RETRIES = 5;
-  
+
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     const friendCode = generateFriendCode();
     try {
@@ -36,8 +36,8 @@ userRoutes.post('/create', async (c) => {
     } catch (error) {
       if (
         error instanceof DatabaseError &&
-        error.code === "23505" &&
-        error.constraint === "users_friend_code_unique"
+        error.code === '23505' &&
+        error.constraint === 'users_friend_code_unique'
       ) {
         continue;
       }
@@ -80,8 +80,12 @@ userRoutes.post('/update', async (c) => {
 userRoutes.get('/', async (c) => {
   const id = c.get('uid');
 
-  const [ user ] = await db
-    .select({ id: usersTable.id, username: usersTable.username, profilePath: usersTable.profilePath })
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+    })
     .from(usersTable)
     .where(eq(usersTable.id, id))
     .limit(1);
@@ -95,10 +99,14 @@ userRoutes.get('/', async (c) => {
 
 userRoutes.get('/:friendCode', async (c) => {
   const id = c.get('uid');
-  const { friendCode } = c.req.param()
+  const { friendCode } = c.req.param();
 
-  const [ user ] = await db
-    .select({ id: usersTable.id, username: usersTable.username, profilePath: usersTable.profilePath })
+  const [user] = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+    })
     .from(usersTable)
     .where(eq(usersTable.friendCode, friendCode))
     .limit(1);
@@ -112,18 +120,18 @@ userRoutes.get('/:friendCode', async (c) => {
   const comparison = id.localeCompare(recipientUid);
 
   const [existingFriend] = await db
-      .select()
-      .from(friendsTable)
-      .where(
-        and(
-          eq(friendsTable.user1Id, comparison < 0 ? id : recipientUid),
-          eq(friendsTable.user2Id, comparison > 0 ? id : recipientUid)
-        )
+    .select()
+    .from(friendsTable)
+    .where(
+      and(
+        eq(friendsTable.user1Id, comparison < 0 ? id : recipientUid),
+        eq(friendsTable.user2Id, comparison > 0 ? id : recipientUid)
       )
-      .limit(1);
-  
+    )
+    .limit(1);
+
   if (existingFriend) {
-    friendStatus = "Friends";
+    friendStatus = 'Friends';
   } else {
     const [existingFriendRequest] = await db
       .select()
@@ -144,9 +152,9 @@ userRoutes.get('/:friendCode', async (c) => {
 
     if (existingFriendRequest) {
       if (existingFriendRequest.senderId === id) {
-        friendStatus = "Requested";
+        friendStatus = 'Requested';
       } else {
-        friendStatus = "Incoming request";
+        friendStatus = 'Incoming request';
       }
     }
   }

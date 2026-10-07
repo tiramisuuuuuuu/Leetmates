@@ -9,7 +9,8 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const usersTable = pgTable('users', 
+export const usersTable = pgTable(
+  'users',
   {
     id: uuid().primaryKey(),
     username: varchar({ length: 255 }).notNull(),
@@ -25,9 +26,7 @@ export const usersTable = pgTable('users',
       .defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }),
   },
-  (table) => [
-    unique('users_friend_code_unique').on(table.friendCode),
-  ]
+  (table) => [unique('users_friend_code_unique').on(table.friendCode)]
 );
 
 export const friendsTable = pgTable(

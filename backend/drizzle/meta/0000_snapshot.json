@@ -51,12 +51,8 @@
           "name": "friendRequests_senderId_users_id_fk",
           "tableFrom": "friendRequests",
           "tableTo": "users",
-          "columnsFrom": [
-            "senderId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["senderId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -64,12 +60,8 @@
           "name": "friendRequests_recipientId_users_id_fk",
           "tableFrom": "friendRequests",
           "tableTo": "users",
-          "columnsFrom": [
-            "recipientId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recipientId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -158,12 +150,8 @@
           "name": "friends_user1Id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": [
-            "user1Id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user1Id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -171,12 +159,8 @@
           "name": "friends_user2Id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": [
-            "user2Id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user2Id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -260,16 +244,12 @@
         "users_friendCode_unique": {
           "name": "users_friendCode_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "friendCode"
-          ]
+          "columns": ["friendCode"]
         },
         "users_friend_code_unique": {
           "name": "users_friend_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "friendCode"
-          ]
+          "columns": ["friendCode"]
         }
       },
       "policies": {},

@@ -75,7 +75,7 @@ export default function FriendsList({
 
   const friends: Friend[] = [
     {
-      uid: 1,
+      id: "1",
       username: "mochi",
       onLeetcode: true,
       leetcodeProblem: "Two Sum",
@@ -83,7 +83,7 @@ export default function FriendsList({
       lastActive: "Now",
     },
     {
-      uid: 2,
+      id: "2",
       username: "Blade",
       onLeetcode: false,
       leetcodeProblem: null,
@@ -91,7 +91,7 @@ export default function FriendsList({
       lastActive: "2 hrs ago",
     },
     {
-      uid: 3,
+      id: "3",
       username: "Bob A.",
       onLeetcode: true,
       leetcodeProblem: "Linked List",
@@ -146,7 +146,7 @@ export default function FriendsList({
             <MenuHeading label="Online" count={online.length} />
             <div className="flex flex-col">
               {online.map((data) => (
-                <Friend key={data.uid} data={data} assetPrefix={assetPrefix} />
+                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
               ))}
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function FriendsList({
             <MenuHeading label="Offline" count={inactive.length} />
             <div className="flex flex-col">
               {inactive.map((data) => (
-                <Friend key={data.uid} data={data} assetPrefix={assetPrefix} />
+                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
               ))}
             </div>
           </div>

@@ -2,9 +2,15 @@ import { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy, MdPersonAdd } from "react-icons/md";
 import Menu from "./Menu";
-import type { FriendPreview } from "../../types/friend";
+import {
+  fetchFriendPreviewSchema,
+  type FriendPreview,
+} from "../../types/friend";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
 import { FaClock } from "react-icons/fa6";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSignedUrl } from "../../api/supabase";
+import { apiFetch } from "../../api/apiHelper";
 
 const YOUR_CODE = "ABC123";
 
@@ -15,13 +21,29 @@ function Friend({
   data: FriendPreview;
   assetPrefix: string;
 }) {
+  const {
+    isPending,
+    isError,
+    data: signedUrl,
+    error,
+  } = useQuery({
+    queryKey: [data.id],
+    queryFn: async () => {
+      if (!data.profilePath) {
+        return null;
+      }
+      return await fetchSignedUrl(data.profilePath);
+    },
+    staleTime: 55 * 1000,
+  });
+
   const [tooltipHovered, setTooltipHovered] = useState(false);
 
   return (
     <div className="flex flex-row items-center gap-3 max-w-full">
       <div className="flex flex-row items-center gap-2 min-w-0 flex-1">
         <img
-          src={assetPrefix + "defaultProfile.svg"}
+          src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
           alt={data.username}
           className="rounded-full w-8 h-8 bg-white object-cover"
         />
@@ -90,24 +112,22 @@ export default function AddFriend() {
   };
 
   async function handleSubmit() {
-    const found = {
-      uid: 1,
-      username: "mochiiiiiiiiii",
-      friendStatus: "Requested",
-    };
-    setUser(found);
-    // setError(true);
+    try {
+      const response = await apiFetch(`/users/${friendCode}`);
+      const body = await response.json();
+      const parsed = fetchFriendPreviewSchema.safeParse(body);
 
-    // try {
-    //   const newFriend = await apiFetch("/friends/request", {
-    //     method: "POST",
-    //     body: JSON.stringify({
-    //       friendCode
-    //     }),
-    //   });
-    // } catch (err) {
-    //   console.error("Failed to add friend via code: ", err);
-    // }
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      setUser(parsed.data);
+      setError(false);
+    } catch (err) {
+      console.error("Failed to add friend via code: ", err);
+      setError(true);
+    }
   }
 
   return (

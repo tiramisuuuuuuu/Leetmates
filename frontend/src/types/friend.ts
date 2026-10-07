@@ -1,5 +1,7 @@
+import z from "zod";
+
 export interface Friend {
-  uid: number;
+  id: string;
   username: string;
   onLeetcode: boolean;
   leetcodeProblem: string | null;
@@ -8,7 +10,15 @@ export interface Friend {
 }
 
 export interface FriendPreview {
-  uid: number;
+  id: string;
   username: string;
-  friendStatus: string;
+  profilePath: string | null;
+  friendStatus: string | null;
 }
+
+export const fetchFriendPreviewSchema = z.object({
+  id: z.uuid(),
+  username: z.string(),
+  profilePath: z.string().nullable(),
+  friendStatus: z.string().nullable(),
+});

@@ -58,3 +58,27 @@ export async function uploadFile(file: File) {
 
   return `${session?.user.id}/profile`;
 }
+
+export async function fetchSignedUrl(profilePath: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const userId = session?.user.id;
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const { data, error } = await supabase.storage
+    .from("profile_pictures")
+    .createSignedUrl(profilePath, 60 * 60); // 1 hour
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const signedUrl = data.signedUrl;
+
+  return signedUrl;
+}

@@ -44,7 +44,7 @@ export default function Register({
 
       showToast("success", "Account created successfully");
 
-      apiFetch("/users/create", {
+      await apiFetch("/users/create", {
         method: "POST",
         body: JSON.stringify({
           username: displayName,
