@@ -20,8 +20,9 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
             data.onLeetcode ? "border-clay" : "border-ink/20"
           }`}
         />
+
         {data.onLeetcode && (
-          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-cream" />
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 translate-0.5 rounded-full bg-emerald-500 border-2 border-cream" />
         )}
       </div>
 
@@ -124,7 +125,8 @@ export default function FriendsList({
             onClick={() => setModalDisplayed("friendRequest")}
           >
             <CiInboxIn size={15} />
-            <div className="absolute top-0.5 right-0.5 rounded-full w-1.5 h-1.5 outline outline-2 outline-cream bg-green-400" />
+
+            <div className="absolute top-0 right-0 rounded-full w-2.5 h-2.5 border border-2 border-cream bg-green-400" />
           </button>
 
           <button
