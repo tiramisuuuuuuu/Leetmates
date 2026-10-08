@@ -73,8 +73,6 @@ export default function Lobby() {
           </div>
         )}
 
-        <Toast />
-
         <button
           className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
           onClick={() => setModalOpen(true)}
@@ -83,6 +81,8 @@ export default function Lobby() {
         </button>
 
         {modalOpen && <FriendsList closeModal={() => setModalOpen(false)} />}
+
+        <Toast />
       </div>
     </QueryClientProvider>
   );

@@ -13,13 +13,16 @@ import { fetchSignedUrl } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
 import { useProfile } from "../../store/profileStore";
 import { fetchProfileSchema } from "../../types/profile";
+import { useToast } from "../../store/toastStore";
 
 function Friend({
   data,
   assetPrefix,
+  handleSendRequest,
 }: {
   data: FriendPreview;
   assetPrefix: string;
+  handleSendRequest: (uid: string) => void;
 }) {
   const { data: signedUrl } = useQuery({
     queryKey: [data.id],
@@ -80,7 +83,10 @@ function Friend({
       )}
 
       {data.friendStatus === null && (
-        <button className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors">
+        <button
+          onClick={() => handleSendRequest(data.id)}
+          className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
+        >
           <MdPersonAdd size={12} />
           Add
         </button>
@@ -96,6 +102,7 @@ export default function AddFriend() {
   const [errorCode, setErrorCode] = useState(0);
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const profile = useProfile((state) => state.profile);
+  const showToast = useToast((state) => state.showToast);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -154,6 +161,30 @@ export default function AddFriend() {
     }
   }
 
+  async function handleSendRequest(uid: string) {
+    try {
+      const response = await apiFetch("/friends/request", {
+        method: "POST",
+        body: JSON.stringify({
+          recipientUid: uid,
+        }),
+      });
+      const body = await response.json();
+      const parsed = fetchFriendPreviewSchema.safeParse(body);
+
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      setUser(parsed.data);
+      showToast("success", "Sent friend request");
+    } catch (err) {
+      console.error("Failed to send friend request: ", err);
+      showToast("error", "Error sending request");
+    }
+  }
+
   return (
     <div className="w-full h-full flex flex-col justify-between items-center">
       <p className="text-xs text-ink-muted">Find friend using their code</p>
@@ -193,7 +224,13 @@ export default function AddFriend() {
         )}
       </form>
 
-      {user && <Friend assetPrefix={assetPrefix} data={user} />}
+      {user && (
+        <Friend
+          assetPrefix={assetPrefix}
+          data={user}
+          handleSendRequest={handleSendRequest}
+        />
+      )}
 
       <div className="w-full flex flex-col gap-2">
         <div className="w-full h-px bg-ink/15" />

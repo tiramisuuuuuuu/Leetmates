@@ -40,7 +40,7 @@ export default function CompleteProfile() {
 
       if (!parsed.success) {
         console.log("Error ", parsed.error.issues);
-        throw "Zod Error";
+        throw { message: "Backend error" };
       }
 
       useProfile.getState().setProfile(parsed.data);

@@ -11,7 +11,11 @@ friendRoutes.post('/request', async (c) => {
   const { recipientUid } = await c.req.json();
 
   const existingUsers = await db
-    .select()
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+    })
     .from(usersTable)
     .where(or(eq(usersTable.id, uid), eq(usersTable.id, recipientUid)));
 
@@ -57,12 +61,18 @@ friendRoutes.post('/request', async (c) => {
     return c.text('Already friends', 400);
   }
 
-  const newFriendRequest = await db
+  await db
     .insert(friendRequestsTable)
     .values({ senderId: uid, recipientId: recipientUid })
     .returning();
 
-  return c.json(newFriendRequest, 201);
+  return c.json(
+    {
+      ...existingUsers.find((user) => user.id === recipientUid),
+      friendStatus: 'Requested',
+    },
+    201
+  );
 });
 
 friendRoutes.post('/accept', async (c) => {
