@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy, MdPersonAdd } from "react-icons/md";
 import Menu from "./Menu";
@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
 import { useProfile } from "../../store/profileStore";
+import { fetchProfileSchema } from "../../types/profile";
 
 function Friend({
   data,
@@ -96,6 +97,29 @@ export default function AddFriend() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const profile = useProfile((state) => state.profile);
 
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const response = await apiFetch("/users");
+        const body = await response.json();
+        const parsed = fetchProfileSchema.safeParse(body);
+
+        if (!parsed.success) {
+          console.log("Error ", parsed.error.issues);
+          throw "Zod Error";
+        }
+
+        useProfile.getState().setProfile(parsed.data);
+      } catch (err) {
+        console.error("Failed to fetch profile: ", err);
+      }
+    }
+
+    if (!profile) {
+      fetchProfile();
+    }
+  }, [profile]);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(profile?.friendCode ?? "");
@@ -176,11 +200,11 @@ export default function AddFriend() {
         <div className="flex flex-row justify-center items-center gap-2">
           <p className="text-ink-muted text-[12px]">Your code:</p>
           <button
-            className="relative p-1 px-2 border-1 border-ink/40 hover:bg-ink/10 rounded-[8px] flex flex-row justify-center items-center gap-1 text-ink-muted"
+            className={`relative p-1 px-2 border-1 border-ink/40 ${profile?.friendCode ? "hover:bg-ink/10" : ""} rounded-[8px] flex flex-row justify-center items-center gap-1 text-ink-muted`}
             onClick={() => profile?.friendCode && handleCopy()}
           >
             <p className="text-ink font-bold ">
-              {profile?.friendCode ?? "Error: Contact admin"}
+              {profile?.friendCode ?? "Loading"}
             </p>
             {profile?.friendCode && <MdContentCopy />}
             {copied && (

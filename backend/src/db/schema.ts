@@ -17,7 +17,7 @@ export const usersTable = pgTable(
     leetcodeId: varchar({ length: 255 }).notNull(),
     countryCode: varchar({ length: 2 }),
     currentStatus: text(),
-    matchingPreference: text(),
+    matchingPreference: text().default('everyone'),
     profilePath: text(),
     friendCode: text().unique(),
 

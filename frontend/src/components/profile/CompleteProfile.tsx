@@ -6,6 +6,8 @@ import { useProfileForm } from "../../store/profileFormStore";
 import { uploadFile } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
 import { useToast } from "../../store/toastStore";
+import { fetchProfileSchema } from "../../types/profile";
+import { useProfile } from "../../store/profileStore";
 
 export default function CompleteProfile() {
   const [step, setStep] = useState(1);
@@ -23,7 +25,7 @@ export default function CompleteProfile() {
         profilePath = await uploadFile(file);
       }
 
-      apiFetch("/users/update", {
+      const response = await apiFetch("/users/update", {
         method: "POST",
         body: JSON.stringify({
           profilePath,
@@ -32,6 +34,16 @@ export default function CompleteProfile() {
           matchingPreference,
         }),
       });
+
+      const body = response.json();
+      const parsed = fetchProfileSchema.safeParse(body);
+
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      useProfile.getState().setProfile(parsed.data);
 
       showToast("success", "Profile updated");
     } catch (error: any) {

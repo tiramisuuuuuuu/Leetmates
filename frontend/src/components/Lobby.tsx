@@ -1,6 +1,6 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
@@ -10,9 +10,6 @@ import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useProfile } from "../store/profileStore";
-import { apiFetch } from "../api/apiHelper";
-import { fetchProfileSchema } from "../types/profile";
 
 const queryClient = new QueryClient();
 
@@ -22,31 +19,7 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
-  const profileFetched = useProfile((state) => state.profile !== null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await apiFetch("/users");
-        const body = await response.json();
-        const parsed = fetchProfileSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        useProfile.getState().setProfile(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    if (isLoggedIn && !profileFetched) {
-      fetchProfile();
-    }
-  }, [isLoggedIn]);
 
   return (
     <QueryClientProvider client={queryClient}>
