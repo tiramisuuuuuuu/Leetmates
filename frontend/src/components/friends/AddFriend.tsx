@@ -38,8 +38,6 @@ function Friend({
     staleTime: 55 * 1000,
   });
 
-  const [tooltipHovered, setTooltipHovered] = useState(false);
-
   return (
     <div className="flex flex-row items-center gap-3 max-w-full">
       <div className="flex flex-row items-center gap-2 min-w-0 flex-1">
@@ -54,41 +52,22 @@ function Friend({
         </div>
       </div>
 
-      {data.friendStatus === "Incoming Request" && (
-        <div
-          className="relative [@container(max-width:400px)]:w-16 text-ink-muted text-[12px] text-center"
-          onMouseEnter={() => setTooltipHovered(true)}
-          onMouseLeave={() => setTooltipHovered(false)}
-        >
-          Check your inbox ⓘ
-          {tooltipHovered && (
-            <Menu position="top">
-              <p className="min-w-18">
-                This user has already sent you a friend request. You can accept
-                it from your inbox.
-              </p>
-            </Menu>
-          )}
-        </div>
-      )}
-
       {data.friendStatus === "Friends" && (
-        <p className="text-ink-muted text-[12px] text-center">
-          Already friends!
-        </p>
+        <p className="text-ink-muted text-[12px] text-center">Friends</p>
       )}
 
       {data.friendStatus === "Requested" && (
         <button
           onClick={() => handleDeleteRequest(data.id)}
-          className="shrink-0 flex flex-row items-center gap-1 border border-clay-dark text-clay-dark cursor-pointer hover:bg-clay-dark hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
+          className="shrink-0 flex flex-row items-center gap-1 border bg-clay border-clay text-cream cursor-pointer hover:border-clay-dark hover:bg-clay-dark px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
         >
           Pending
           <FaClock size={12} />
         </button>
       )}
 
-      {data.friendStatus === null && (
+      {(data.friendStatus === null ||
+        data.friendStatus === "Incoming request") && (
         <button
           onClick={() => handleSendRequest(data.id)}
           className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
@@ -184,9 +163,16 @@ export default function AddFriend() {
       }
 
       setUser((user) =>
-        user?.id === uid ? { ...user, friendStatus: "Requested" } : user,
+        user?.id === uid
+          ? { ...user, friendStatus: parsed.data.message }
+          : user,
       );
-      showToast("success", "Friend request sent");
+      showToast(
+        "success",
+        parsed.data.message === "Requested"
+          ? "Friend request sent"
+          : "Friend added",
+      );
     } catch (err) {
       console.error("Failed to send friend request: ", err);
       showToast("error", "Error sending request");
