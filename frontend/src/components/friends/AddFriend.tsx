@@ -14,6 +14,7 @@ import { apiFetch } from "../../api/apiHelper";
 import { useProfile } from "../../store/profileStore";
 import { fetchProfileSchema } from "../../types/profile";
 import { useToast } from "../../store/toastStore";
+import { genericResponseSchema } from "../../types/generic";
 
 function Friend({
   data,
@@ -175,14 +176,16 @@ export default function AddFriend() {
         }),
       });
       const body = await response.json();
-      const parsed = fetchFriendPreviewSchema.safeParse(body);
+      const parsed = genericResponseSchema.safeParse(body);
 
       if (!parsed.success) {
         console.log("Error ", parsed.error.issues);
         throw "Zod Error";
       }
 
-      setUser(parsed.data);
+      setUser((user) =>
+        user?.id === uid ? { ...user, friendStatus: "Requested" } : user,
+      );
       showToast("success", "Friend request sent");
     } catch (err) {
       console.error("Failed to send friend request: ", err);
@@ -199,14 +202,16 @@ export default function AddFriend() {
         }),
       });
       const body = await response.json();
-      const parsed = fetchFriendPreviewSchema.safeParse(body);
+      const parsed = genericResponseSchema.safeParse(body);
 
       if (!parsed.success) {
         console.log("Error ", parsed.error.issues);
         throw "Zod Error";
       }
 
-      setUser(parsed.data);
+      setUser((user) =>
+        user?.id === uid ? { ...user, friendStatus: null } : user,
+      );
       showToast("success", "Friend request revoked");
     } catch (err) {
       console.error("Failed to delete friend request: ", err);
