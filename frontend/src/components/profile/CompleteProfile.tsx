@@ -35,7 +35,7 @@ export default function CompleteProfile() {
         }),
       });
 
-      const body = response.json();
+      const body = await response.json();
       const parsed = fetchProfileSchema.safeParse(body);
 
       if (!parsed.success) {
