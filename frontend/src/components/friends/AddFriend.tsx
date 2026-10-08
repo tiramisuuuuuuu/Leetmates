@@ -45,6 +45,7 @@ function Friend({
           src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
           alt={data.username}
           className="rounded-full w-8 h-8 bg-white object-cover"
+          draggable={false}
         />
 
         <div className="font-semibold text-[13px] text-ink truncate  flex-1">
@@ -258,13 +259,15 @@ export default function AddFriend() {
         <div className="flex flex-row justify-center items-center gap-2">
           <p className="text-ink-muted text-[12px]">Your code:</p>
           <button
-            className={`relative p-1 px-2 border-1 border-ink/40 ${profile?.friendCode ? "hover:bg-ink/10" : ""} rounded-[8px] flex flex-row justify-center items-center gap-1 text-ink-muted`}
+            className={`relative p-1 px-2 border-1 border-ink/40 ${profile?.friendCode ? "hover:bg-ink/[0.06] cursor-pointer" : ""} rounded-[8px] flex flex-row justify-center items-center gap-1 text-ink-muted`}
             onClick={() => profile?.friendCode && handleCopy()}
           >
             <p className="text-ink font-bold ">
               {profile?.friendCode ?? "Loading"}
             </p>
-            {profile?.friendCode && <MdContentCopy />}
+            {profile?.friendCode && (
+              <MdContentCopy size={12} color="text-ink" />
+            )}
             {copied && (
               <Menu position="top">
                 <p className="font-bold">Copied!</p>

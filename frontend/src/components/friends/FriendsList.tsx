@@ -7,6 +7,7 @@ import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import Modal from "./Modal";
 import { useState } from "react";
 import AddFriend from "./AddFriend";
+import IncomingRequests from "./IncomingRequests";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   return (
@@ -19,6 +20,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
           className={`rounded-full w-8 h-8 bg-white object-cover border-2 ${
             data.onLeetcode ? "border-clay" : "border-ink/20"
           }`}
+          draggable={false}
         />
 
         {data.onLeetcode && (
@@ -186,7 +188,7 @@ export default function FriendsList({
               title="Incoming Friend Requests"
               closeModal={() => setModalDisplayed(null)}
             >
-              <div />
+              <IncomingRequests />
             </Modal>
           )}
         </div>
