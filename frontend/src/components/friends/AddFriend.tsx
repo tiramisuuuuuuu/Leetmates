@@ -19,10 +19,12 @@ function Friend({
   data,
   assetPrefix,
   handleSendRequest,
+  handleDeleteRequest,
 }: {
   data: FriendPreview;
   assetPrefix: string;
   handleSendRequest: (uid: string) => void;
+  handleDeleteRequest: (uid: string) => void;
 }) {
   const { data: signedUrl } = useQuery({
     queryKey: [data.id],
@@ -76,7 +78,10 @@ function Friend({
       )}
 
       {data.friendStatus === "Requested" && (
-        <button className="shrink-0 flex flex-row items-center gap-1 border border-clay-dark text-clay-dark cursor-pointer hover:bg-clay-dark hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors">
+        <button
+          onClick={() => handleDeleteRequest(data.id)}
+          className="shrink-0 flex flex-row items-center gap-1 border border-clay-dark text-clay-dark cursor-pointer hover:bg-clay-dark hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
+        >
           Pending
           <FaClock size={12} />
         </button>
@@ -178,10 +183,34 @@ export default function AddFriend() {
       }
 
       setUser(parsed.data);
-      showToast("success", "Sent friend request");
+      showToast("success", "Friend request sent");
     } catch (err) {
       console.error("Failed to send friend request: ", err);
       showToast("error", "Error sending request");
+    }
+  }
+
+  async function handleDeleteRequest(uid: string) {
+    try {
+      const response = await apiFetch("/friends/delete-request", {
+        method: "POST",
+        body: JSON.stringify({
+          recipientUid: uid,
+        }),
+      });
+      const body = await response.json();
+      const parsed = fetchFriendPreviewSchema.safeParse(body);
+
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      setUser(parsed.data);
+      showToast("success", "Friend request revoked");
+    } catch (err) {
+      console.error("Failed to delete friend request: ", err);
+      showToast("error", "Error deleting request");
     }
   }
 
@@ -229,6 +258,7 @@ export default function AddFriend() {
           assetPrefix={assetPrefix}
           data={user}
           handleSendRequest={handleSendRequest}
+          handleDeleteRequest={handleDeleteRequest}
         />
       )}
 

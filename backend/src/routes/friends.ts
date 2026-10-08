@@ -75,6 +75,57 @@ friendRoutes.post('/request', async (c) => {
   );
 });
 
+friendRoutes.post('/delete-request', async (c) => {
+  const uid = c.get('uid');
+  const { recipientUid } = await c.req.json();
+
+  const [recipient] = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, recipientUid));
+
+  if (!recipient) {
+    return c.text('Recipient not found', 400);
+  }
+
+  const [existingFriendRequest] = await db
+    .select()
+    .from(friendRequestsTable)
+    .where(
+      or(
+        and(
+          eq(friendRequestsTable.senderId, uid),
+          eq(friendRequestsTable.recipientId, recipientUid)
+        ),
+        and(
+          eq(friendRequestsTable.senderId, recipientUid),
+          eq(friendRequestsTable.recipientId, uid)
+        )
+      )
+    )
+    .limit(1);
+
+  if (!existingFriendRequest) {
+    return c.text('Friend request not found', 400);
+  }
+
+  await db
+    .delete(friendRequestsTable)
+    .where(eq(friendRequestsTable.id, existingFriendRequest.id));
+
+  return c.json(
+    {
+      ...recipient,
+      friendStatus: null,
+    },
+    200
+  );
+});
+
 friendRoutes.post('/accept', async (c) => {
   const uid = c.get('uid');
   const { senderUid } = await c.req.json();
