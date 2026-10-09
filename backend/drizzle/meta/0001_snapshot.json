@@ -1,6 +1,6 @@
 {
-  "id": "459e5780-9181-4efa-897b-7b8fb323ba42",
-  "prevId": "5607b731-9034-4784-909f-d9a8481436b0",
+  "id": "223e51ed-31c2-4c12-a931-6e070dffc9d5",
+  "prevId": "d0f94f69-fcf4-4bd5-a2ea-7cf323a0c8ed",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -209,10 +209,17 @@
           "name": "matchingPreference",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'everyone'"
         },
         "profilePath": {
           "name": "profilePath",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "friendCode": {
+          "name": "friendCode",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -234,7 +241,18 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "users_friendCode_unique": {
+          "name": "users_friendCode_unique",
+          "nullsNotDistinct": false,
+          "columns": ["friendCode"]
+        },
+        "users_friend_code_unique": {
+          "name": "users_friend_code_unique",
+          "nullsNotDistinct": false,
+          "columns": ["friendCode"]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

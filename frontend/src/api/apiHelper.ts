@@ -1,5 +1,7 @@
 import { supabase } from "./supabase";
 
+const IS_BUILD_TEST = import.meta.env.VITE_IS_LOCAL_BUILD === "true";
+
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const {
     data: { session },
@@ -9,11 +11,53 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     throw new Error("Not authenticated");
   }
 
-  return fetch(`${import.meta.env.VITE_BACKEND_URL}${path}`, {
-    ...options,
-    headers: {
-      ...options.headers,
-      Authorization: `Bearer ${session.access_token}`,
-    },
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...Object.fromEntries(new Headers(options.headers || {}).entries()),
+    Authorization: `Bearer ${session.access_token}`,
+  };
+
+  const url = `${import.meta.env.VITE_BACKEND_URL}${path}`;
+
+  if (!IS_BUILD_TEST) {
+    return fetch(url, {
+      ...options,
+      headers,
+    });
+  }
+
+  // Proxy fetch via background script ONLY during local build testing
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      {
+        type: "PROXY_FETCH",
+        url,
+        options: {
+          ...options,
+          headers,
+          body:
+            typeof options.body === "object"
+              ? JSON.stringify(options.body)
+              : options.body,
+        },
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          return reject(new Error(chrome.runtime.lastError.message));
+        }
+
+        if (!response.success) {
+          return reject(new Error(response.error));
+        }
+
+        resolve(
+          new Response(JSON.stringify(response.data), {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          }),
+        );
+      },
+    );
   });
 }

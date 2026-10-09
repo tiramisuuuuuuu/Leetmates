@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../api/supabase";
 import { AUTH_STORAGE_KEY, hasChromeStorage } from "../api/chromeStorage";
 import { useProfileForm } from "./profileFormStore";
+import { useProfile } from "./profileStore";
 
 interface AuthState {
   session: Session | null;
@@ -19,6 +20,7 @@ export const useAuth = create<AuthState>()((set) => ({
   signOut: async () => {
     await supabase.auth.signOut();
     useProfileForm.getState().setShowModal(false);
+    useProfile.getState().clearProfile();
     set({ session: null });
   },
 }));
@@ -33,6 +35,7 @@ export function initAuth() {
     useAuth.getState().setSession(newSession);
   });
 
+  // handles edge case: monitors if the chrome storage inexplicably deletes the auth tokens
   const onStorageChanged = (
     changes: { [key: string]: chrome.storage.StorageChange },
     areaName: string,

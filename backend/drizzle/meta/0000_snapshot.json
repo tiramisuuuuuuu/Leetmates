@@ -1,5 +1,5 @@
 {
-  "id": "5607b731-9034-4784-909f-d9a8481436b0",
+  "id": "d0f94f69-fcf4-4bd5-a2ea-7cf323a0c8ed",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -193,6 +193,36 @@
           "primaryKey": false,
           "notNull": true
         },
+        "countryCode": {
+          "name": "countryCode",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currentStatus": {
+          "name": "currentStatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "matchingPreference": {
+          "name": "matchingPreference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profilePath": {
+          "name": "profilePath",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "friendCode": {
+          "name": "friendCode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -210,7 +240,18 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "users_friendCode_unique": {
+          "name": "users_friendCode_unique",
+          "nullsNotDistinct": false,
+          "columns": ["friendCode"]
+        },
+        "users_friend_code_unique": {
+          "name": "users_friend_code_unique",
+          "nullsNotDistinct": false,
+          "columns": ["friendCode"]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

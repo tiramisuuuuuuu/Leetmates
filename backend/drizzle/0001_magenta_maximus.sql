@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "matchingPreference" SET DEFAULT 'everyone';

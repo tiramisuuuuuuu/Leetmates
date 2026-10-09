@@ -7,8 +7,9 @@ import {
   type SetStateAction,
 } from "react";
 import Lobby from "./Lobby";
-import { IoClose } from "react-icons/io5";
-import { PiResize } from "react-icons/pi";
+import { FaRegWindowRestore } from "react-icons/fa6";
+import { CgClose } from "react-icons/cg";
+import { useAssetPrefix } from "../store/assetPrefixStore";
 
 const MAX_WIDTH = 500;
 const MIN_WIDTH = 300;
@@ -43,6 +44,7 @@ export default function Window({
     height: MIN_HEIGHT,
   });
   const resizeDirection = useRef<string | null>(null);
+  const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
 
   const handleDrag = (e: any, data: { x: number; y: number }) => {
     setPosition({ x: data.x, y: data.y });
@@ -205,7 +207,7 @@ export default function Window({
         <div
           ref={nodeRef}
           id="entire-window"
-          className="bg-[#291f19] rounded-md flex flex-col overflow-hidden"
+          className="bg-[#291f19] rounded-sm flex flex-col overflow-hidden"
           style={{
             pointerEvents: "auto",
             width: size.width,
@@ -215,23 +217,38 @@ export default function Window({
         >
           <div
             id="nav-bar"
-            className={`drag-handle w-full h-5 bg-[#291f19] flex justify-between items-center box-border px-2.5 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+            className={`drag-handle w-full h-6 bg-[#291f19] border-b border-black/30 flex justify-between items-center box-border px-2 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
           >
-            <p className="text-xs text-white">Leetmates Lobby</p>
-            <div id="window-buttons" className="flex flex-row gap-0.5">
+            <div className="flex flex-row items-center gap-1">
+              <img
+                src={assetPrefix + "windowIcon.svg"}
+                id="bg-image"
+                alt="cozy autumn background"
+                className="w-6 select-none"
+                draggable={false}
+              />
+              <p className="text-[11px] text-cream/90 tracking-tight">
+                Leetmates
+              </p>
+            </div>
+
+            <div
+              id="window-buttons"
+              className="flex flex-row items-center gap-1"
+            >
               <button
                 id="resize-button"
                 onClick={handleResizeBttnClick}
-                className="flex justify-center items-center text-white"
+                className="flex justify-center items-center text-cream/70 hover:text-cream hover:bg-white/10 rounded-sm w-4 h-4 transition-colors"
               >
-                <PiResize />
+                <FaRegWindowRestore size={10} />
               </button>
               <button
                 id="close-button"
                 onClick={() => setOpen(false)}
-                className="flex justify-center items-center text-white"
+                className="flex justify-center items-center text-cream/70 hover:text-white hover:bg-red-500/80 rounded-sm w-4 h-4 transition-colors"
               >
-                <IoClose />
+                <CgClose size={12} />
               </button>
             </div>
           </div>
