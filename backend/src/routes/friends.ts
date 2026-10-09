@@ -139,15 +139,6 @@ friendRoutes.post('/accept', async (c) => {
   const uid = c.get('uid');
   const { senderUid } = await c.req.json();
 
-  const existingUsers = await db
-    .select()
-    .from(usersTable)
-    .where(or(eq(usersTable.id, uid), eq(usersTable.id, senderUid)));
-
-  if (existingUsers.length < 2) {
-    return c.text('Sender/Recipient not found', 400);
-  }
-
   const [existingFriendRequest] = await db
     .select()
     .from(friendRequestsTable)
@@ -168,6 +159,22 @@ friendRoutes.post('/accept', async (c) => {
   await createFriendship(uid, senderUid);
 
   return c.json({ message: 'Success' }, 201);
+});
+
+friendRoutes.get('/incoming-requests', async (c) => {
+  const uid = c.get('uid');
+
+  const senders = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+    })
+    .from(friendRequestsTable)
+    .innerJoin(usersTable, eq(friendRequestsTable.senderId, usersTable.id))
+    .where(eq(friendRequestsTable.recipientId, uid));
+
+  return c.json(senders, 200);
 });
 
 export default friendRoutes;

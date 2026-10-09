@@ -22,3 +22,11 @@ export const fetchFriendPreviewSchema = z.object({
   profilePath: z.string().nullable(),
   friendStatus: z.string().nullable(),
 });
+
+export const fetchFriendPreviewsSchema = z.array(
+  z.object({
+    id: z.uuid(),
+    username: z.string(),
+    profilePath: z.string().nullable(),
+  }),
+);

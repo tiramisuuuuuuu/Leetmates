@@ -1,20 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
-import type { FriendPreview } from "../../types/friend";
+import { fetchFriendPreviewsSchema } from "../../types/friend";
 import { fetchSignedUrl } from "../../api/supabase";
 import { FaCheck } from "react-icons/fa6";
-import { IoCloseOutline } from "react-icons/io5";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
 import { IoMdClose } from "react-icons/io";
+import { useEffect, useState } from "react";
+import { apiFetch } from "../../api/apiHelper";
+import { useToast } from "../../store/toastStore";
+import { genericResponseSchema } from "../../types/generic";
+
+interface FriendPreview {
+  id: string;
+  username: string;
+  profilePath: string | null;
+}
 
 function Friend({
   data,
   assetPrefix,
-  handleSendRequest,
+  handleAcceptRequest,
   handleDeleteRequest,
 }: {
   data: FriendPreview;
   assetPrefix: string;
-  handleSendRequest: (uid: string) => void;
+  handleAcceptRequest: (uid: string) => void;
   handleDeleteRequest: (uid: string) => void;
 }) {
   const { data: signedUrl } = useQuery({
@@ -45,7 +54,7 @@ function Friend({
 
       <div className="flex flex-row items-center gap-1 shrink-0">
         <button
-          onClick={() => handleSendRequest(data.id)}
+          onClick={() => handleAcceptRequest(data.id)}
           className="inline-flex items-center gap-1.5 px-1.5 h-5.5 rounded-lg text-[11.5px] font-semibold text-cream border-1 border-clay bg-clay hover:bg-clay-dark hover:border-clay-dark transition-all focus:outline-none cursor-pointer"
         >
           <FaCheck size={10} />
@@ -53,7 +62,7 @@ function Friend({
         </button>
 
         <button
-          onClick={() => handleDeleteRequest(data.id)}
+          onClick={() => handleDeleteRequest(data?.id)}
           className="inline-flex items-center gap-1.5 px-1.5 h-5.5 rounded-lg text-[11.5px] font-semibold text-clay border-1 border-clay hover:bg-ink/5 transition-all focus:outline-none cursor-pointer"
         >
           <IoMdClose size={10} />
@@ -66,40 +75,87 @@ function Friend({
 
 export default function IncomingRequests() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
+  const [data, setData] = useState<FriendPreview[]>([]);
+  const showToast = useToast((state) => state.showToast);
 
-  const friends: FriendPreview[] = [
-    {
-      id: "1",
-      username: "mochi",
-      profilePath: null,
-      friendStatus: "Incoming request",
-    },
-    {
-      id: "2",
-      username: "Blade",
-      friendStatus: "Incoming request",
-      profilePath: null,
-    },
-    // {
-    //   id: "3",
-    //   username: "Bob A.",
-    //   friendStatus: "Incoming request",
-    //   profilePath: null,
-    // },
-  ];
+  useEffect(() => {
+    async function fetchIncomingRequests() {
+      try {
+        const response = await apiFetch("/friends/incoming-requests");
+        const body = await response.json();
+        const parsed = fetchFriendPreviewsSchema.safeParse(body);
+
+        if (!parsed.success) {
+          console.log("Error ", parsed.error.issues);
+          throw "Zod Error";
+        }
+
+        setData(parsed.data);
+      } catch (err) {
+        console.error("Failed to fetch incoming friend requests: ", err);
+      }
+    }
+
+    fetchIncomingRequests();
+  }, []);
+
+  async function handleAcceptRequest(uid: string) {
+    try {
+      const response = await apiFetch("/friends/accept", {
+        method: "POST",
+        body: JSON.stringify({
+          senderUid: uid,
+        }),
+      });
+      const body = await response.json();
+      const parsed = genericResponseSchema.safeParse(body);
+
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      setData((prev) => prev.filter((user) => user.id !== uid));
+      showToast("success", "Friend added");
+    } catch (err) {
+      console.error("Failed to accept friend request: ", err);
+      showToast("error", "Error accepting request");
+    }
+  }
+
+  async function handleDeleteRequest(uid: string) {
+    try {
+      const response = await apiFetch("/friends/delete-request", {
+        method: "POST",
+        body: JSON.stringify({
+          recipientUid: uid,
+        }),
+      });
+      const body = await response.json();
+      const parsed = genericResponseSchema.safeParse(body);
+
+      if (!parsed.success) {
+        console.log("Error ", parsed.error.issues);
+        throw "Zod Error";
+      }
+
+      setData((prev) => prev.filter((user) => user.id !== uid));
+      showToast("success", "Friend request removed");
+    } catch (err) {
+      console.error("Failed to delete friend request: ", err);
+      showToast("error", "Error deleting request");
+    }
+  }
 
   return (
     <div className="flex-1 flex flex-col items-center gap-1 pt-3">
-      {friends.map((friend) => (
+      {data.map((user) => (
         <Friend
-          data={friend}
+          key={user.id}
+          data={user}
           assetPrefix={assetPrefix}
-          handleSendRequest={(uid: string) => {
-            console.log(uid);
-          }}
-          handleDeleteRequest={(uid: string) => {
-            console.log(uid);
-          }}
+          handleAcceptRequest={handleAcceptRequest}
+          handleDeleteRequest={handleDeleteRequest}
         />
       ))}
     </div>
