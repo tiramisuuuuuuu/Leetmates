@@ -10,8 +10,8 @@ import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Modal from "./friends/Modal";
-import EnableNotifications from "./EnableNotifications";
+import Modal from "./ui/Modal";
+import EnableNotifications from "./notifications/EnableNotifications";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +21,7 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState<string | null>("notifications");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -69,14 +69,14 @@ export default function Lobby() {
           </div>
         )}
 
-        {isLoggedIn && (
+        {isLoggedIn && modalOpen === "notifications" && (
           <div className="absolute inset-12 flex justify-center items-center">
             <Modal
               title="Push Notifications"
-              closeModal={() => {}}
+              closeModal={() => setModalOpen(null)}
             >
-              <EnableNotifications />
-            </Modal>       
+              <EnableNotifications closeModal={() => setModalOpen(null)} />
+            </Modal>
           </div>
         )}
 
@@ -88,12 +88,14 @@ export default function Lobby() {
 
         <button
           className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
-          onClick={() => setModalOpen(true)}
+          onClick={() => setModalOpen("friends")}
         >
           <FaUserFriends size={16} />
         </button>
 
-        {modalOpen && <FriendsList closeModal={() => setModalOpen(false)} />}
+        {modalOpen === "friends" && (
+          <FriendsList closeModal={() => setModalOpen(null)} />
+        )}
 
         <Toast />
       </div>

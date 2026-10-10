@@ -4,7 +4,7 @@ import type { Friend } from "../../types/friend";
 import { MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
-import Modal from "./Modal";
+import Modal from "../ui/Modal";
 import { useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
@@ -185,7 +185,7 @@ export default function FriendsList({
             </Modal>
           ) : (
             <Modal
-              title="Incoming Friend Requests"
+              title="Incoming Requests"
               closeModal={() => setModalDisplayed(null)}
             >
               <IncomingRequests />

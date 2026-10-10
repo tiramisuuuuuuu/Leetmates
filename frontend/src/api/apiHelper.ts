@@ -2,7 +2,10 @@ import { supabase } from "./supabase";
 
 const IS_BUILD_TEST = import.meta.env.VITE_IS_LOCAL_BUILD === "true";
 
-export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
+export async function apiFetch(
+  path: string,
+  options: RequestInit = {},
+): Promise<Response> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
