@@ -3,7 +3,7 @@
   "description": "Base Level Extension",
   "version": "1.0",
   "manifest_version": 3,
-  "permissions": ["storage"],
+  "permissions": ["storage", "notifications"],
   "action": {
     "default_popup": "index.html",
     "default_icon": "lmlogo.png"

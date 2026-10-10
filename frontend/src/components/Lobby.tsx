@@ -10,6 +10,8 @@ import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Modal from "./friends/Modal";
+import EnableNotifications from "./EnableNotifications";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,17 @@ export default function Lobby() {
         {isLoggedIn && (
           <div className="absolute bottom-1 left-1.5">
             <Profile />
+          </div>
+        )}
+
+        {isLoggedIn && (
+          <div className="absolute inset-12 flex justify-center items-center">
+            <Modal
+              title="Push Notifications"
+              closeModal={() => {}}
+            >
+              <EnableNotifications />
+            </Modal>       
           </div>
         )}
 

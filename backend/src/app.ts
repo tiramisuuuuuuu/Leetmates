@@ -5,6 +5,7 @@ import friendRoutes from './routes/friends';
 import home from './routes/home';
 import ws from './routes/ws';
 import { authMiddleware } from './middleware';
+import pushRoutes from './routes/push';
 
 const app = new Hono();
 console.log('Started backend server.');
@@ -25,6 +26,8 @@ app.get('/', (c) => {
 app.route('/users', userRoutes);
 
 app.route('/friends', friendRoutes);
+
+app.route('/push', pushRoutes);
 
 app.route('/', home);
 
