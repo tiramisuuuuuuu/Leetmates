@@ -14,7 +14,7 @@ export default function EnableNotifications({
       {step === 1 ? (
         <Step1 next={() => setStep(2)} closeModal={closeModal} />
       ) : (
-        <Step2 />
+        <Step2 closeModal={closeModal} />
       )}
     </div>
   );
