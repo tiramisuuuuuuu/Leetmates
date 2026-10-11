@@ -1,10 +1,13 @@
 import { apiFetch } from "../../api/apiHelper";
+import { useAssetPrefix } from "../../store/assetPrefixStore";
 
 export default function TestMessage({
   closeModal,
 }: {
   closeModal: () => void;
 }) {
+  const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
+
   async function promptTestMessage() {
     try {
       const response = await apiFetch("/push/test", {
@@ -38,7 +41,7 @@ export default function TestMessage({
           <button
             type="button"
             className="text-[12px] text-ink-muted underline underline-offset-2 hover:text-ink"
-            onClick={() => {}}
+            onClick={() => window.open(assetPrefix + "NotificationsGuide.pdf")}
           >
             Troubleshooting guide
           </button>

@@ -16,7 +16,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/*.png", "*.png", "*.svg"],
+      "resources": ["assets/*.png", "*.png", "*.svg", "NotificationsGuide.pdf"],
       "matches": ["<all_urls>"]
     }
   ],
