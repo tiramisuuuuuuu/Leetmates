@@ -1,7 +1,11 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
 import { useState } from "react";
-import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
+import {
+  IoMoonOutline,
+  IoSettingsSharp,
+  IoSunnyOutline,
+} from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
@@ -12,6 +16,7 @@ import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Modal from "./ui/Modal";
 import EnableNotifications from "./notifications/EnableNotifications";
+import SettingsPage from "./settings/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -69,7 +74,7 @@ export default function Lobby() {
           </div>
         )}
 
-        {isLoggedIn && modalOpen === "notifications" && (
+        {showProfileForm && (
           <div className="absolute inset-12 flex justify-center items-center">
             <Modal
               title="Push Notifications"
@@ -86,15 +91,28 @@ export default function Lobby() {
           </div>
         )}
 
-        <button
-          className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
-          onClick={() => setModalOpen("friends")}
-        >
-          <FaUserFriends size={16} />
-        </button>
+        <div className="absolute top-1 right-1.5 flex flex-col justify-center items-center gap-2">
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("friends")}
+          >
+            <FaUserFriends size={16} />
+          </button>
+
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("settings")}
+          >
+            <IoSettingsSharp size={16} />
+          </button>
+        </div>
 
         {modalOpen === "friends" && (
           <FriendsList closeModal={() => setModalOpen(null)} />
+        )}
+
+        {modalOpen === "settings" && (
+          <SettingsPage closeModal={() => setModalOpen(null)} />
         )}
 
         <Toast />

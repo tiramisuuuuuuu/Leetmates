@@ -17,7 +17,6 @@ export default function SubscribePush({
       showToast("success", "Successfully enabled notifications");
     } catch (error) {
       showToast("error", "Error enabling notifications");
-      next();
     }
   }
 
