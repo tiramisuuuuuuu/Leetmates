@@ -46,22 +46,6 @@ export default function Lobby() {
           draggable={false}
         />
 
-        <button
-          className="absolute bottom-0 right-1.5 flex items-center gap-0.5 text-white text-[12px]"
-          onClick={() => setDarkMode((prev) => !prev)}
-        >
-          {!darkMode && (
-            <>
-              Light Mode <IoSunnyOutline size={16} />
-            </>
-          )}
-          {darkMode && (
-            <>
-              Dark Mode <IoMoonOutline size={14} />
-            </>
-          )}
-        </button>
-
         {!authLoading && !isLoggedIn && (
           <div className="absolute inset-5">
             <Auth />
@@ -112,7 +96,10 @@ export default function Lobby() {
         )}
 
         {modalOpen === "settings" && (
-          <SettingsPage closeModal={() => setModalOpen(null)} />
+          <SettingsPage
+            closeModal={() => setModalOpen(null)}
+            toggleAppearance={() => setDarkMode((prev) => !prev)}
+          />
         )}
 
         <Toast />

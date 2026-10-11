@@ -11,13 +11,20 @@ function SettingButton({
   icon,
   header,
   subheader,
+  onClick,
+  hideArrow,
 }: {
   icon: ReactNode;
   header: string;
   subheader: string;
+  onClick: () => void;
+  hideArrow?: boolean;
 }) {
   return (
-    <button className="w-full h-14  flex flex-row items-center p-4 py-4 gap-3 text-ink-muted hover:text-clay cursor-pointer">
+    <button
+      className="w-full h-14  flex flex-row items-center p-4 py-4 gap-3 text-ink-muted hover:text-clay cursor-pointer"
+      onClick={onClick}
+    >
       {icon}
 
       <div className="flex-1 flex flex-col items-start text-ink">
@@ -25,7 +32,7 @@ function SettingButton({
         <p className="text-ink-muted text-start text-[12px]">{subheader}</p>
       </div>
 
-      <IoIosArrowForward className="shrink-0" size={16} />
+      {!hideArrow && <IoIosArrowForward className="shrink-0" size={16} />}
     </button>
   );
 }
@@ -41,8 +48,10 @@ function Heading({ label }: { label: string }) {
 
 export default function SettingsPage({
   closeModal,
+  toggleAppearance,
 }: {
   closeModal: () => void;
+  toggleAppearance: () => void;
 }) {
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
@@ -68,16 +77,20 @@ export default function SettingsPage({
             icon={<IoMdNotificationsOutline size={25} />}
             header="Notifications"
             subheader="Manage notification permissions"
+            onClick={() => {}}
           />
           <SettingButton
             icon={<AiOutlineFileText size={25} />}
             header="Terms and Conditions"
             subheader="Read our terms of use"
+            onClick={() => {}}
           />
           <SettingButton
             icon={<TbSunset2 size={25} />}
             header="Appearance"
             subheader="Press to toggle light/dark mode"
+            onClick={toggleAppearance}
+            hideArrow
           />
         </div>
       </div>
