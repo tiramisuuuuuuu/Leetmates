@@ -1,5 +1,5 @@
 {
-  "id": "800c8894-6165-4814-b729-5679a0b2ab44",
+  "id": "919c40f9-b1f4-4d59-8840-3c641318ea61",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -51,8 +51,12 @@
           "name": "friendRequests_senderId_users_id_fk",
           "tableFrom": "friendRequests",
           "tableTo": "users",
-          "columnsFrom": ["senderId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "senderId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -60,8 +64,12 @@
           "name": "friendRequests_recipientId_users_id_fk",
           "tableFrom": "friendRequests",
           "tableTo": "users",
-          "columnsFrom": ["recipientId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "recipientId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -150,8 +158,12 @@
           "name": "friends_user1Id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": ["user1Id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user1Id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -159,8 +171,12 @@
           "name": "friends_user2Id_users_id_fk",
           "tableFrom": "friends",
           "tableTo": "users",
-          "columnsFrom": ["user2Id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user2Id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -224,8 +240,12 @@
           "name": "pushSubscriptions_userId_users_id_fk",
           "tableFrom": "pushSubscriptions",
           "tableTo": "users",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -235,7 +255,9 @@
         "pushSubscriptions_endpoint_unique": {
           "name": "pushSubscriptions_endpoint_unique",
           "nullsNotDistinct": false,
-          "columns": ["endpoint"]
+          "columns": [
+            "endpoint"
+          ]
         }
       },
       "policies": {},
@@ -316,7 +338,9 @@
         "users_friend_code_unique": {
           "name": "users_friend_code_unique",
           "nullsNotDistinct": false,
-          "columns": ["friendCode"]
+          "columns": [
+            "friendCode"
+          ]
         }
       },
       "policies": {},
