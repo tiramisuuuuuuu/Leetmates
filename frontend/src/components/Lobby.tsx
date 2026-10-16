@@ -58,7 +58,7 @@ export default function Lobby() {
           </div>
         )}
 
-        {showProfileForm && (
+        {showProfileForm && modalOpen && (
           <div className="absolute inset-12 flex justify-center items-center">
             <Modal
               title="Push Notifications"

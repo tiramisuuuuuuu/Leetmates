@@ -91,3 +91,24 @@ self.addEventListener("push", (event) => {
     }),
   );
 });
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type !== "CHECK_PUSH_SUBSCRIPTION") return;
+
+  (async () => {
+    try {
+      const subscription =
+        await self.registration.pushManager.getSubscription();
+
+      if (subscription) {
+        sendResponse({ success: true });
+      } else {
+        sendResponse({ success: false });
+      }
+    } catch (error) {
+      sendResponse({ success: false });
+    }
+  })();
+
+  return true;
+});
