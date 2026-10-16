@@ -30,6 +30,7 @@ reactRoot.style.left = "0";
 reactRoot.style.width = "100vw";
 reactRoot.style.height = "100vh";
 reactRoot.style.zIndex = "99999";
+reactRoot.style.letterSpacing = "0.18px";
 reactRoot.style.pointerEvents = "none";
 
 shadowRoot.appendChild(reactRoot);

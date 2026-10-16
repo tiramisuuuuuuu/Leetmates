@@ -42,9 +42,7 @@ export default function Register({
     try {
       await signUpNewUser(email, password);
 
-      showToast("success", "Account created successfully");
-
-      apiFetch("/users/create", {
+      await apiFetch("/users/create", {
         method: "POST",
         body: JSON.stringify({
           username: displayName,
@@ -56,6 +54,8 @@ export default function Register({
       // supabase onAuthStateChange will automatically update authStore
       // with SIGNED_IN state, when you signUpNewUser, and will trigger
       // rerender of its subscriber, ex. Lobby
+
+      showToast("success", "Account created successfully");
 
       useProfileForm.getState().setShowModal(true);
     } catch (error: any) {

@@ -16,8 +16,15 @@ CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"username" varchar(255) NOT NULL,
 	"leetcodeId" varchar(255) NOT NULL,
+	"countryCode" varchar(2),
+	"currentStatus" text,
+	"matchingPreference" text,
+	"profilePath" text,
+	"friendCode" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone
+	"updated_at" timestamp with time zone,
+	CONSTRAINT "users_friendCode_unique" UNIQUE("friendCode"),
+	CONSTRAINT "users_friend_code_unique" UNIQUE("friendCode")
 );
 --> statement-breakpoint
 ALTER TABLE "friendRequests" ADD CONSTRAINT "friendRequests_senderId_users_id_fk" FOREIGN KEY ("senderId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

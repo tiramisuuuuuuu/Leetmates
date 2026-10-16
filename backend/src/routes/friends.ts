@@ -6,6 +6,24 @@ import { AppVariables } from '../types/variables';
 
 const friendRoutes = new Hono<{ Variables: AppVariables }>();
 
+async function createFriendship(uid: string, senderUid: string) {
+  await db
+    .delete(friendRequestsTable)
+    .where(eq(friendRequestsTable.senderId, senderUid));
+
+  const comparison = uid.localeCompare(senderUid);
+
+  await db
+    .insert(friendsTable)
+    .values({
+      user1Id: comparison < 0 ? uid : senderUid,
+      user2Id: comparison > 0 ? uid : senderUid,
+    })
+    .returning();
+
+  return;
+}
+
 friendRoutes.post('/request', async (c) => {
   const uid = c.get('uid');
   const { recipientUid } = await c.req.json();
@@ -37,7 +55,17 @@ friendRoutes.post('/request', async (c) => {
     .limit(1);
 
   if (existingFriendRequest) {
-    return c.text('Friend request already exists', 400);
+    if (existingFriendRequest.recipientId === uid) {
+      await createFriendship(uid, recipientUid);
+      return c.json(
+        {
+          message: 'Friends',
+        },
+        201
+      );
+    } else {
+      return c.text('Friend request already exists', 400);
+    }
   }
 
   const comparison = uid.localeCompare(recipientUid);
@@ -57,26 +85,59 @@ friendRoutes.post('/request', async (c) => {
     return c.text('Already friends', 400);
   }
 
-  const newFriendRequest = await db
+  await db
     .insert(friendRequestsTable)
     .values({ senderId: uid, recipientId: recipientUid })
     .returning();
 
-  return c.json(newFriendRequest, 201);
+  return c.json(
+    {
+      message: 'Requested',
+    },
+    201
+  );
+});
+
+friendRoutes.post('/delete-request', async (c) => {
+  const uid = c.get('uid');
+  const { recipientUid } = await c.req.json();
+
+  const [existingFriendRequest] = await db
+    .select()
+    .from(friendRequestsTable)
+    .where(
+      or(
+        and(
+          eq(friendRequestsTable.senderId, uid),
+          eq(friendRequestsTable.recipientId, recipientUid)
+        ),
+        and(
+          eq(friendRequestsTable.senderId, recipientUid),
+          eq(friendRequestsTable.recipientId, uid)
+        )
+      )
+    )
+    .limit(1);
+
+  if (!existingFriendRequest) {
+    return c.text('Friend request not found', 400);
+  }
+
+  await db
+    .delete(friendRequestsTable)
+    .where(eq(friendRequestsTable.id, existingFriendRequest.id));
+
+  return c.json(
+    {
+      message: 'Success',
+    },
+    200
+  );
 });
 
 friendRoutes.post('/accept', async (c) => {
   const uid = c.get('uid');
   const { senderUid } = await c.req.json();
-
-  const existingUsers = await db
-    .select()
-    .from(usersTable)
-    .where(or(eq(usersTable.id, uid), eq(usersTable.id, senderUid)));
-
-  if (existingUsers.length < 2) {
-    return c.text('Sender/Recipient not found', 400);
-  }
 
   const [existingFriendRequest] = await db
     .select()
@@ -95,21 +156,25 @@ friendRoutes.post('/accept', async (c) => {
 
   // Skip check for existing friendship, since friend-request api should have already done that
 
-  await db
-    .delete(friendRequestsTable)
-    .where(eq(friendRequestsTable.senderId, senderUid));
+  await createFriendship(uid, senderUid);
 
-  const comparison = uid.localeCompare(senderUid);
+  return c.json({ message: 'Success' }, 201);
+});
 
-  const newFriend = await db
-    .insert(friendsTable)
-    .values({
-      user1Id: comparison < 0 ? uid : senderUid,
-      user2Id: comparison > 0 ? uid : senderUid,
+friendRoutes.get('/incoming-requests', async (c) => {
+  const uid = c.get('uid');
+
+  const senders = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
     })
-    .returning();
+    .from(friendRequestsTable)
+    .innerJoin(usersTable, eq(friendRequestsTable.senderId, usersTable.id))
+    .where(eq(friendRequestsTable.recipientId, uid));
 
-  return c.json(newFriend, 201);
+  return c.json(senders, 200);
 });
 
 export default friendRoutes;
