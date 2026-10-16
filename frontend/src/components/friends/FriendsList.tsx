@@ -12,6 +12,7 @@ import { apiFetch } from "../../api/apiHelper";
 import { useToast } from "../../store/toastStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
+import Menu from "../ui/Menu";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   const { data: signedUrl } = useQuery({
@@ -27,6 +28,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
 
   const [disablePing, setDisablePing] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
   const showToast = useToast((state) => state.showToast);
 
   async function handlePingPressed() {
@@ -47,6 +49,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
       timerRef.current = setTimeout(
         () => {
           setDisablePing(false);
+          setShowTooltip(false);
         },
         5 * 60 * 1000,
       );
@@ -96,12 +99,22 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
       <div className="flex flex-row items-center flex-end  gap-1">
         {data.isFriend && !data.onLeetcode && data.notificationsEnabled && (
           <button
-            className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors"
-            onClick={handlePingPressed}
-            disabled={disablePing}
+            className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-gray-300 bg-gray-300 text-white"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
+            onClick={() => {
+              !disablePing && handlePingPressed();
+            }}
+            onMouseEnter={() => {
+              disablePing && setShowTooltip(true);
+            }}
+            onMouseLeave={() => setShowTooltip(false)}
           >
             <MdOutlineNotificationsActive size={12} />
             Ping
+            {showTooltip && (
+              <Menu position="top">
+                <p className="w-14 text-ink-muted">Ping again after 5 min.</p>
+              </Menu>
+            )}
           </button>
         )}
         {!data.isFriend && (

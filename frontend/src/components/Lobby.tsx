@@ -1,11 +1,7 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
 import { useState } from "react";
-import {
-  IoMoonOutline,
-  IoSettingsSharp,
-  IoSunnyOutline,
-} from "react-icons/io5";
+import { IoSettingsSharp } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
@@ -26,7 +22,13 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
-  const [modalOpen, setModalOpen] = useState<string | null>("notifications");
+  const showNotificationsForm = useProfileForm(
+    (state) => state.showNotificationsModal,
+  );
+  const setShowNotificationsForm = useProfileForm(
+    (state) => state.setShowNotificationsModal,
+  );
+  const [modalOpen, setModalOpen] = useState<string | null>(null);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -58,13 +60,15 @@ export default function Lobby() {
           </div>
         )}
 
-        {showProfileForm && modalOpen && (
+        {showNotificationsForm && (
           <div className="absolute inset-12 flex justify-center items-center">
             <Modal
               title="Push Notifications"
-              closeModal={() => setModalOpen(null)}
+              closeModal={() => setShowNotificationsForm(false)}
             >
-              <EnableNotifications closeModal={() => setModalOpen(null)} />
+              <EnableNotifications
+                closeModal={() => setShowNotificationsForm(false)}
+              />
             </Modal>
           </div>
         )}
