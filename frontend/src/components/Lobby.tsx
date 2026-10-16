@@ -1,7 +1,7 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
 import { useState } from "react";
-import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
+import { IoSettingsSharp } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
@@ -10,6 +10,9 @@ import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Modal from "./ui/Modal";
+import EnableNotifications from "./notifications/EnableNotifications";
+import SettingsPage from "./settings/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +22,13 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
-  const [modalOpen, setModalOpen] = useState(false);
+  const showNotificationsForm = useProfileForm(
+    (state) => state.showNotificationsModal,
+  );
+  const setShowNotificationsForm = useProfileForm(
+    (state) => state.setShowNotificationsModal,
+  );
+  const [modalOpen, setModalOpen] = useState<string | null>(null);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -39,22 +48,6 @@ export default function Lobby() {
           draggable={false}
         />
 
-        <button
-          className="absolute bottom-0 right-1.5 flex items-center gap-0.5 text-white text-[12px]"
-          onClick={() => setDarkMode((prev) => !prev)}
-        >
-          {!darkMode && (
-            <>
-              Light Mode <IoSunnyOutline size={16} />
-            </>
-          )}
-          {darkMode && (
-            <>
-              Dark Mode <IoMoonOutline size={14} />
-            </>
-          )}
-        </button>
-
         {!authLoading && !isLoggedIn && (
           <div className="absolute inset-5">
             <Auth />
@@ -67,20 +60,51 @@ export default function Lobby() {
           </div>
         )}
 
+        {showNotificationsForm && (
+          <div className="absolute inset-12 flex justify-center items-center">
+            <Modal
+              title="Push Notifications"
+              closeModal={() => setShowNotificationsForm(false)}
+            >
+              <EnableNotifications
+                closeModal={() => setShowNotificationsForm(false)}
+              />
+            </Modal>
+          </div>
+        )}
+
         {showProfileForm && (
           <div className="absolute inset-12 flex justify-center items-center">
             <CompleteProfile />
           </div>
         )}
 
-        <button
-          className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
-          onClick={() => setModalOpen(true)}
-        >
-          <FaUserFriends size={16} />
-        </button>
+        <div className="absolute top-1 right-1.5 flex flex-col justify-center items-center gap-2">
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("friends")}
+          >
+            <FaUserFriends size={16} />
+          </button>
 
-        {modalOpen && <FriendsList closeModal={() => setModalOpen(false)} />}
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("settings")}
+          >
+            <IoSettingsSharp size={16} />
+          </button>
+        </div>
+
+        {modalOpen === "friends" && (
+          <FriendsList closeModal={() => setModalOpen(null)} />
+        )}
+
+        {modalOpen === "settings" && (
+          <SettingsPage
+            closeModal={() => setModalOpen(null)}
+            toggleAppearance={() => setDarkMode((prev) => !prev)}
+          />
+        )}
 
         <Toast />
       </div>
