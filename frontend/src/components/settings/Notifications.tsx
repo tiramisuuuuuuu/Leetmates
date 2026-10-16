@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
-import { isSubscribedPushNotifications } from "../../api/enableNotifications";
+import {
+  enableNotifications,
+  isSubscribedPushNotifications,
+  unsubscribeNotifications,
+} from "../../api/enableNotifications";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
+import { useToast } from "../../store/toastStore";
+import { apiFetch } from "../../api/apiHelper";
 
 export default function Notifications() {
   const [toggled, setToggled] = useState(false);
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
+  const showToast = useToast((state) => state.showToast);
 
   useEffect(() => {
     async function fetchStatus() {
@@ -13,6 +20,38 @@ export default function Notifications() {
 
     fetchStatus();
   }, []);
+
+  async function handleToggleOff() {
+    try {
+      await unsubscribeNotifications();
+      showToast("success", "Successfully disabled notifications");
+      setToggled(false);
+    } catch {
+      showToast("error", "Error disabling notifications");
+    }
+  }
+
+  async function handleToggleOn() {
+    try {
+      await enableNotifications();
+      showToast("success", "Successfully enabled notifications");
+      setToggled(true);
+    } catch {
+      showToast("error", "Error enabling notifications");
+    }
+  }
+
+  async function promptTestMessage() {
+    try {
+      const response = await apiFetch("/push/test", {
+        method: "POST",
+      });
+      const body = await response.json();
+      console.log("Prompt body ", body);
+    } catch (error) {
+      console.log("Error requesting test message: ", error);
+    }
+  }
 
   return (
     <div className="flex-1 flex flex-col p-3 gap-5 text-ink divide-y divide-ink/[0.06]">
@@ -32,7 +71,7 @@ export default function Notifications() {
             role="switch"
             aria-checked={toggled}
             aria-label="Toggle Push Notifications"
-            onClick={() => setToggled((prev) => !prev)}
+            onClick={() => (toggled ? handleToggleOff() : handleToggleOn())}
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full p-0.5 transition-colors duration-200 ease-in-out ${toggled ? "bg-clay" : "bg-gray-300"}`}
           >
             <span
@@ -61,7 +100,7 @@ export default function Notifications() {
             <button
               type="button"
               className="w-full max-w-60 inline-flex items-center justify-center rounded-lg bg-clay px-3.5 py-2 text-xs font-medium text-cream shadow-xs transition-colors hover:bg-clay-dark focus:outline-none focus:ring-2 focus:ring-clay focus:ring-offset-2"
-              onClick={() => {}}
+              onClick={() => promptTestMessage()}
             >
               Send test message
             </button>

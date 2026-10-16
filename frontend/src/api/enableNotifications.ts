@@ -13,10 +13,14 @@ export async function enableNotifications() {
     throw new Error("Failed to subscribe to push");
   }
 
-  await apiFetch("/push/subscribe", {
+  const apiResponse = await apiFetch("/push/subscribe", {
     method: "POST",
     body: JSON.stringify(result.subscription),
   });
+
+  if (!apiResponse.ok) {
+    throw new Error("Failed to subscribe to push");
+  }
 }
 
 export async function isSubscribedPushNotifications() {
@@ -29,4 +33,23 @@ export async function isSubscribedPushNotifications() {
   }
 
   return true;
+}
+
+export async function unsubscribeNotifications() {
+  const result = await chrome.runtime.sendMessage({
+    type: "UNSUBSCRIBE_FROM_PUSH",
+  });
+
+  if (!result?.success) {
+    throw new Error("Failed to subscribe to push");
+  }
+
+  if (result?.endpoint) {
+    await apiFetch("/push/delete", {
+      method: "POST",
+      body: JSON.stringify({
+        endpoint: result.endpoint,
+      }),
+    });
+  }
 }

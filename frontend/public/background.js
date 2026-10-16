@@ -112,3 +112,41 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   return true;
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type !== "UNSUBSCRIBE_FROM_PUSH") {
+    return;
+  }
+
+  (async () => {
+    try {
+      const subscription =
+        await self.registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        sendResponse({
+          success: true,
+          message: "No active subscription",
+        });
+        return;
+      }
+
+      const endpoint = subscription.endpoint;
+
+      // Stop browser push delivery for this subscription.
+      await subscription.unsubscribe();
+
+      sendResponse({
+        success: true,
+        endpoint,
+      });
+    } catch (error) {
+      sendResponse({
+        success: false,
+        error: String(error),
+      });
+    }
+  })();
+
+  return true;
+});

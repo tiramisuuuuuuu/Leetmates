@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { AppVariables } from '../types/variables';
 import { db } from '../db';
 import { pushSubscriptionsTable } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import webpush from 'web-push';
 
 webpush.setVapidDetails(
@@ -15,9 +15,12 @@ webpush.setVapidDetails(
 const pushRoutes = new Hono<{ Variables: AppVariables }>();
 
 pushRoutes.get('/public-key', (c) => {
-  return c.json({
-    publicKey: process.env.VAPID_PUBLIC_KEY,
-  });
+  return c.json(
+    {
+      publicKey: process.env.VAPID_PUBLIC_KEY,
+    },
+    200
+  );
 });
 
 pushRoutes.post('/subscribe', async (c) => {
@@ -29,7 +32,7 @@ pushRoutes.post('/subscribe', async (c) => {
     !subscription.keys?.p256dh ||
     !subscription.keys?.auth
   ) {
-    return c.json({ error: 'Invalid subscription' }, 400);
+    return c.json('Invalid subscription', 400);
   }
 
   await db
@@ -44,7 +47,33 @@ pushRoutes.post('/subscribe', async (c) => {
       set: { userId: uid, subscription },
     });
 
-  return c.json({ success: true });
+  return c.json(
+    {
+      message: 'Success',
+    },
+    200
+  );
+});
+
+pushRoutes.post('/delete', async (c) => {
+  const uid = c.get('uid');
+  const { endpoint } = await c.req.json();
+
+  await db
+    .delete(pushSubscriptionsTable)
+    .where(
+      and(
+        eq(pushSubscriptionsTable.userId, uid),
+        eq(pushSubscriptionsTable.endpoint, endpoint)
+      )
+    );
+
+  return c.json(
+    {
+      message: 'Success',
+    },
+    200
+  );
 });
 
 pushRoutes.post('/test', async (c) => {
@@ -56,10 +85,7 @@ pushRoutes.post('/test', async (c) => {
     .where(eq(pushSubscriptionsTable.userId, uid));
 
   if (subscriptions.length === 0) {
-    return c.json(
-      { error: 'No push subscription found. Enable notifications first.' },
-      404
-    );
+    return c.json('No push subscription found', 404);
   }
 
   const results = await Promise.allSettled(
@@ -94,7 +120,7 @@ pushRoutes.post('/test', async (c) => {
 
   const sent = results.filter((result) => result.status === 'fulfilled').length;
 
-  return c.json({ sent, total: subscriptions.length });
+  return c.json({ sent, total: subscriptions.length }, 200);
 });
 
 export default pushRoutes;
