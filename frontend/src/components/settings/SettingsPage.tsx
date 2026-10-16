@@ -1,17 +1,13 @@
 import { useState, type ReactNode } from "react";
-import { AiOutlineFileText } from "react-icons/ai";
 import {
   IoIosArrowBack,
   IoIosArrowForward,
-  IoIosNotifications,
   IoIosNotificationsOutline,
-  IoMdNotificationsOutline,
 } from "react-icons/io";
-import { TbSunMoon, TbSunset2 } from "react-icons/tb";
+import { TbSunMoon } from "react-icons/tb";
 import Notifications from "./Notifications";
-import { IoDocumentText, IoDocumentTextOutline } from "react-icons/io5";
-import { FaBell } from "react-icons/fa6";
-import { PiSunHorizon } from "react-icons/pi";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { useAssetPrefix } from "../../store/assetPrefixStore";
 
 function SettingButton({
   icon,
@@ -52,6 +48,7 @@ export default function SettingsPage({
 }) {
   const [subpage, setSubpage] = useState<string | null>(null);
   const isMainPage = subpage === null;
+  const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
@@ -85,7 +82,9 @@ export default function SettingsPage({
               icon={<IoDocumentTextOutline size={18} />}
               header="Terms and Conditions"
               subheader="Read our terms of use"
-              onClick={() => {}}
+              onClick={() =>
+                window.open(assetPrefix + "TermsAndConditions.pdf")
+              }
             />
             <SettingButton
               icon={<TbSunMoon size={20} />}
