@@ -12,6 +12,7 @@ interface ProfileFormState {
   setCurrentStatus: (currentStatus: string | null) => void;
   setMatchingPreference: (matchingPreference: string) => void;
   setShowModal: (showModal: boolean) => void;
+  clearForm: () => void;
 }
 
 export const useProfileForm = create<ProfileFormState>()((set) => ({
@@ -28,4 +29,12 @@ export const useProfileForm = create<ProfileFormState>()((set) => ({
   setMatchingPreference: (matchingPreference: string) =>
     set({ matchingPreference }),
   setShowModal: (showModal: boolean) => set({ showModal }),
+  clearForm: () =>
+    set({
+      file: null,
+      previewUrl: null,
+      countryCode: null,
+      currentStatus: null,
+      matchingPreference: "everyone",
+    }),
 }));
