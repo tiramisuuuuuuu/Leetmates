@@ -5,11 +5,13 @@ import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
-import CompleteProfile from "./profile/CompleteProfile";
+import CompleteProfile from "./complete-profile/CompleteProfile";
 import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ProfilePage from "./profile/ProfilePage";
+import { BsPersonCircle } from "react-icons/bs";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +21,7 @@ export default function Lobby() {
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState<string | null>(null);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -73,14 +75,29 @@ export default function Lobby() {
           </div>
         )}
 
-        <button
-          className="absolute top-1 right-1.5 flex justify-center items-center text-gray-500"
-          onClick={() => setModalOpen(true)}
-        >
-          <FaUserFriends size={16} />
-        </button>
+        <div className="absolute top-1 right-1.5 flex flex-col justify-center items-center gap-2">
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("friends")}
+          >
+            <FaUserFriends size={16} />
+          </button>
 
-        {modalOpen && <FriendsList closeModal={() => setModalOpen(false)} />}
+          <button
+            className="text-gray-500"
+            onClick={() => setModalOpen("profile")}
+          >
+            <BsPersonCircle size={16} />
+          </button>
+        </div>
+
+        {modalOpen === "friends" && (
+          <FriendsList closeModal={() => setModalOpen(null)} />
+        )}
+
+        {modalOpen === "profile" && (
+          <ProfilePage closeModal={() => setModalOpen(null)} />
+        )}
 
         <Toast />
       </div>

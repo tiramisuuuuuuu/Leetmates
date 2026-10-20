@@ -60,16 +60,6 @@ export async function uploadFile(file: File) {
 }
 
 export async function fetchSignedUrl(profilePath: string) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const userId = session?.user.id;
-
-  if (!userId) {
-    throw new Error("Not authenticated");
-  }
-
   const { data, error } = await supabase.storage
     .from("profile_pictures")
     .createSignedUrl(profilePath, 60 * 60); // 1 hour
@@ -81,4 +71,18 @@ export async function fetchSignedUrl(profilePath: string) {
   const signedUrl = data.signedUrl;
 
   return signedUrl;
+}
+
+export async function fetchOwnProfileUrl(profilePath: string) {
+  const { data, error } = await supabase.storage
+    .from("profile_pictures")
+    .download(profilePath);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const imageUrl = URL.createObjectURL(data);
+
+  return imageUrl;
 }
