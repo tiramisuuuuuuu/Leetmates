@@ -35,7 +35,7 @@ const inputClass =
   "placeholder:text-ink-muted outline-none focus:border-ink/50 " +
   "disabled:bg-ink/[0.04] disabled:text-ink-muted";
 
-export function UserDetailsForm({
+export function AccountDetailsForm({
   profile,
   editing,
 }: {
@@ -44,6 +44,16 @@ export function UserDetailsForm({
 }) {
   return (
     <div className="flex w-full flex-col gap-2.5 text-xs text-ink">
+      <Field label="Display name" icon={<IoPersonOutline size={12} />}>
+        <input
+          type="text"
+          placeholder="Display name"
+          value={profile.username}
+          className={inputClass}
+          disabled={!editing}
+        />
+      </Field>
+
       <Field label="Email" icon={<IoMailOutline size={12} />}>
         <input type="text" value={"email"} disabled className={inputClass} />
       </Field>
@@ -56,7 +66,13 @@ export function UserDetailsForm({
           className={inputClass}
         />
       </Field>
+    </div>
+  );
+}
 
+export function MatchingDataForm({ editing }: { editing?: boolean }) {
+  return (
+    <div className="flex w-full flex-col gap-2.5 text-xs text-ink">
       <Field label="Country" icon={<IoLocationOutline size={12} />}>
         <CountryDropdown variant="large" disabled={!editing} />
       </Field>
@@ -64,17 +80,6 @@ export function UserDetailsForm({
       <Field label="Current status" icon={<FaGraduationCap size={12} />}>
         <Dropdown variant="large" disabled={!editing} />
       </Field>
-
-      {editing && (
-        <Field label="Display name" icon={<IoPersonOutline size={12} />}>
-          <input
-            type="text"
-            placeholder="Display name"
-            value={profile.username}
-            className={inputClass}
-          />
-        </Field>
-      )}
     </div>
   );
 }

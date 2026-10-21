@@ -4,8 +4,8 @@ import { TiPencil } from "react-icons/ti";
 import { useProfile } from "../../store/profileStore";
 import { apiFetch } from "../../api/apiHelper";
 import { fetchProfileSchema } from "../../types/profile";
-import { UserDetailsForm } from "./UserDetails";
 import ProfilePhoto from "./ProfilePhoto";
+import { AccountDetailsForm, MatchingDataForm } from "./Sections";
 
 function MenuHeading({ label }: { label: string }) {
   return (
@@ -77,25 +77,16 @@ export default function ProfilePage({
           <div className="flex flex-col px-3 pb-2 gap-1.5">
             <div className="flex flex-col justify-center items-center gap-1">
               <ProfilePhoto profilePath={profile.profilePath} />
-              <p className="text-xs font-semibold text-clay-dark">
-                {profile.username}
-              </p>
             </div>
 
             <MenuHeading label="Account Details" />
             <div className="w-full flex flex-col justify-center py-1.5 px-1.5 border-1 border-ink/[0.06] rounded-lg">
-              {/* <MenuHeading label="User Details" /> */}
-
-              <div className="flex-1 flex flex-col">
-                <div className="flex flex-col">
-                  <UserDetailsForm profile={profile} editing={editing} />
-                </div>
-              </div>
+              <AccountDetailsForm profile={profile} editing={editing} />
             </div>
 
-            <div>
-              <MenuHeading label="Matching Data" />
-              <div className="flex flex-col"></div>
+            <MenuHeading label="Matching Data" />
+            <div className="w-full flex flex-col justify-center py-1.5 px-1.5 border-1 border-ink/[0.06] rounded-lg">
+              <MatchingDataForm editing={editing} />
             </div>
           </div>
         )}
