@@ -7,6 +7,8 @@ import {
 } from "react-icons/io5";
 import { SiLeetcode } from "react-icons/si";
 import CountryDropdown from "../complete-profile/CountryDropdown";
+import Dropdown from "../complete-profile/Dropdown";
+import { FaGraduationCap } from "react-icons/fa6";
 
 function Field({
   label,
@@ -57,6 +59,10 @@ export function UserDetailsForm({
 
       <Field label="Country" icon={<IoLocationOutline size={12} />}>
         <CountryDropdown variant="large" disabled={!editing} />
+      </Field>
+
+      <Field label="Current status" icon={<FaGraduationCap size={12} />}>
+        <Dropdown variant="large" disabled={!editing} />
       </Field>
 
       {editing && (

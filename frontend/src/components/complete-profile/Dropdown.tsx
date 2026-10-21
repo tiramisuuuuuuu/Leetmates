@@ -5,7 +5,13 @@ import { useProfileForm } from "../../store/profileFormStore";
 
 const options = ["Undergrad", "Master's", "PhD", "Working", "Other"];
 
-export default function Dropdown() {
+export default function Dropdown({
+  variant,
+  disabled,
+}: {
+  variant?: string;
+  disabled?: boolean;
+}) {
   const selected = useProfileForm((state) => state.currentStatus);
   const setSelected = useProfileForm((state) => state.setCurrentStatus);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -21,14 +27,20 @@ export default function Dropdown() {
     >
       <button
         onClick={() => setDropdownOpen(true)}
-        className="w-full flex items-center justify-between bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5"
+        className={`w-full flex items-center justify-between ${variant ? "border border-ink/20 py-1.5" : "bg-cream-muted border border-ink/30 py-0.5"} px-2.5 rounded-md ${variant && disabled && "bg-ink/[0.04]"}`}
       >
         <div className="flex flex-row items-center gap-2">
-          <LuGraduationCap size={14} className="shrink-0 text-ink-muted" />
+          {!variant && (
+            <LuGraduationCap size={14} className="shrink-0 text-ink-muted" />
+          )}
           <p
             className={`text-xs ${selected ? "text-ink" : "text-ink-muted"} outline-none`}
           >
-            {selected ? selected : "Select current status"}
+            {selected
+              ? selected
+              : !disabled
+                ? "Select current status"
+                : "Unselected"}
           </p>
         </div>
         <IoIosArrowDown className="text-ink/30 self-end justify-self-end" />
