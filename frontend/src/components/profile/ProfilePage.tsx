@@ -4,7 +4,7 @@ import { TiPencil } from "react-icons/ti";
 import { useProfile } from "../../store/profileStore";
 import { apiFetch } from "../../api/apiHelper";
 import { fetchProfileSchema } from "../../types/profile";
-import ProfilePhoto from "./ProfilePhoto";
+import ProfilePhoto, { UploadPhoto } from "./ProfilePhoto";
 import { AccountDetailsForm, MatchingDataForm } from "./Sections";
 
 function MenuHeading({ label }: { label: string }) {
@@ -75,8 +75,12 @@ export default function ProfilePage({
       <div className="relative flex-1 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full">
         {profile && (
           <div className="flex flex-col px-3 pb-2 gap-1.5">
-            <div className="flex flex-col justify-center items-center gap-1">
-              <ProfilePhoto profilePath={profile.profilePath} />
+            <div className="ml-1.5 flex flex-col justify-center items-center gap-1">
+              {!editing ? (
+                <ProfilePhoto profilePath={profile.profilePath} />
+              ) : (
+                <UploadPhoto profilePath={profile.profilePath} />
+              )}
             </div>
 
             <MenuHeading label="Account Details" />
