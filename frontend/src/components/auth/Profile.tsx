@@ -14,7 +14,6 @@ export default function Profile() {
             label="Logout"
             onClick={signOut}
           />
-          <p className="text-xs text-white">Email: {session.user.email}</p>
         </div>
       ) : (
         <p>Not logged in</p>

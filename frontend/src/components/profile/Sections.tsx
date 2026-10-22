@@ -9,6 +9,9 @@ import { SiLeetcode } from "react-icons/si";
 import CountryDropdown from "../complete-profile/CountryDropdown";
 import Dropdown from "../complete-profile/Dropdown";
 import { FaGraduationCap } from "react-icons/fa6";
+import { useAuth } from "../../store/authStore";
+import { MdOutlineWavingHand } from "react-icons/md";
+import Radio from "./Radio";
 
 function Field({
   label,
@@ -20,13 +23,13 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1">
       <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-ink-muted">
         {icon}
         {label}
       </span>
       {children}
-    </label>
+    </div>
   );
 }
 
@@ -42,6 +45,8 @@ export function AccountDetailsForm({
   profile: Profile;
   editing?: boolean;
 }) {
+  const session = useAuth((state) => state.session);
+
   return (
     <div className="flex w-full flex-col gap-2.5 text-xs text-ink">
       <Field label="Display name" icon={<IoPersonOutline size={12} />}>
@@ -55,13 +60,18 @@ export function AccountDetailsForm({
       </Field>
 
       <Field label="Email" icon={<IoMailOutline size={12} />}>
-        <input type="text" value={"email"} disabled className={inputClass} />
+        <input
+          type="text"
+          value={session?.user.email}
+          disabled
+          className={inputClass}
+        />
       </Field>
 
       <Field label="LeetCode" icon={<SiLeetcode size={12} />}>
         <input
           type="text"
-          value={"leetcode username"}
+          value={profile.leetcodeId}
           disabled
           className={inputClass}
         />
@@ -72,13 +82,20 @@ export function AccountDetailsForm({
 
 export function MatchingDataForm({ editing }: { editing?: boolean }) {
   return (
-    <div className="flex w-full flex-col gap-2.5 text-xs text-ink">
+    <div className="flex w-full flex-col-reverse gap-2.5 text-xs text-ink">
+      <Field label="Current status" icon={<FaGraduationCap size={12} />}>
+        <Dropdown variant="large" disabled={!editing} />
+      </Field>
+
       <Field label="Country" icon={<IoLocationOutline size={12} />}>
         <CountryDropdown variant="large" disabled={!editing} />
       </Field>
 
-      <Field label="Current status" icon={<FaGraduationCap size={12} />}>
-        <Dropdown variant="large" disabled={!editing} />
+      <Field
+        label="Matching Preference"
+        icon={<MdOutlineWavingHand size={12} />}
+      >
+        <Radio editing={editing ?? false} />
       </Field>
     </div>
   );

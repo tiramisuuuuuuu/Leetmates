@@ -44,7 +44,6 @@ export default function ProfilePage({
         }
 
         useProfile.getState().setProfile(parsed.data);
-        useProfileForm.getState().initForm(parsed.data);
       } catch (err) {
         console.error("Failed to fetch profile: ", err);
       }
@@ -52,6 +51,8 @@ export default function ProfilePage({
 
     if (!profile) {
       fetchProfile();
+    } else {
+      useProfileForm.getState().initForm(profile);
     }
   }, [profile]);
 
@@ -99,7 +100,6 @@ export default function ProfilePage({
       }
 
       useProfile.getState().setProfile(parsed.data);
-      useProfileForm.getState().initForm(parsed.data);
 
       if (photoChanged) {
         await queryClient.invalidateQueries({
@@ -114,12 +114,21 @@ export default function ProfilePage({
     }
   }
 
+  async function handleBack() {
+    if (profile) {
+      useProfileForm.getState().initForm(profile);
+    } else {
+      useProfileForm.getState().clearForm();
+    }
+    setEditing(false);
+  }
+
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
       {/* menu board header */}
       <div className="relative flex flex-row justify-between items-center py-2 px-3">
         <button
-          onClick={() => (!editing ? closeModal() : setEditing(false))}
+          onClick={() => (!editing ? closeModal() : handleBack())}
           className="h-6 flex flex-row items-center gap-1 text-ink-muted hover:text-ink text-xs font-semibold cursor-pointer rounded-full  transition-colors"
         >
           <IoIosArrowBack size={14} />
