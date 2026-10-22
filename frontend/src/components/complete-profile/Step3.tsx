@@ -2,7 +2,7 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { MdOutlineWavingHand } from "react-icons/md";
 import { useProfileForm } from "../../store/profileFormStore";
 
-const options = [
+export const options = [
   {
     id: "everyone",
     title: "Open to matches",

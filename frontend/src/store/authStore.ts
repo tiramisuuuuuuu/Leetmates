@@ -20,6 +20,7 @@ export const useAuth = create<AuthState>()((set) => ({
   signOut: async () => {
     await supabase.auth.signOut();
     useProfileForm.getState().setShowModal(false);
+    useProfileForm.getState().clearForm();
     useProfile.getState().clearProfile();
     set({ session: null });
   },
