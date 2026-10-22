@@ -73,7 +73,7 @@ export async function fetchSignedUrl(profilePath: string) {
   return signedUrl;
 }
 
-export async function fetchOwnProfileUrl(profilePath: string) {
+export async function fetchOwnProfileBlob(profilePath: string) {
   const { data, error } = await supabase.storage
     .from("profile_pictures")
     .download(profilePath);
@@ -82,7 +82,15 @@ export async function fetchOwnProfileUrl(profilePath: string) {
     throw new Error(error.message);
   }
 
-  const imageUrl = URL.createObjectURL(data);
+  return data;
+}
 
-  return imageUrl;
+export async function deleteFile(profilePath: string) {
+  const { error } = await supabase.storage
+    .from("profile_pictures")
+    .remove([profilePath]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
