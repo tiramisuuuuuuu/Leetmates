@@ -46,9 +46,11 @@ export async function uploadFile(file: File) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const profilePath = `${session?.user.id}/profile_${Date.now()}`;
+
   const { error } = await supabase.storage
     .from("profile_pictures")
-    .upload(`${session?.user.id}/profile`, file, {
+    .upload(profilePath, file, {
       upsert: true,
     });
 
@@ -56,7 +58,7 @@ export async function uploadFile(file: File) {
     throw new Error(error.message);
   }
 
-  return `${session?.user.id}/profile`;
+  return profilePath;
 }
 
 export async function fetchSignedUrl(profilePath: string) {

@@ -29,9 +29,10 @@ export default function useProfilePhoto(profilePath?: string | null) {
     }
 
     const imageUrl = URL.createObjectURL(blob);
-    setProfileUrl(imageUrl);
+    setProfileUrl(imageUrl); // create a blob url pointing to the blob
 
     return () => {
+      // if target blob changes or component unmounts, cleanup old blob url
       URL.revokeObjectURL(imageUrl);
     };
   }, [blob]);

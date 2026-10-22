@@ -72,11 +72,14 @@ export default function ProfilePage({
 
       let profilePath = null;
       if (file) {
-        profilePath = await uploadFile(file);
+        profilePath = await uploadFile(file); // path in supabase
       }
 
+      // only add profilePath to requestBody if photoChanged, this validates null / deleted profilePaths
       if (photoChanged) {
         requestBody["profilePath"] = profilePath;
+
+        // if the profile photo is newly deleted, make sure to delete it from supabase
         if (profilePath == null && prevPhoto) {
           deleteFile(prevPhoto);
         }

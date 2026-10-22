@@ -85,11 +85,19 @@ export default function ProfilePhoto({
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
 
   return (
-    <img
-      src={profileUrl ? profileUrl : assetPrefix + "defaultProfile.svg"}
-      alt="Profile photo"
-      className={`rounded-full w-16 h-16 bg-white object-cover flex justify-center items-center`}
-      draggable={false}
-    />
+    <div className="relative mt-[12px]">
+      <img
+        src={profileUrl ? profileUrl : assetPrefix + "defaultProfile.svg"}
+        alt="Profile photo"
+        className={`rounded-full w-16 h-16 bg-white object-cover flex justify-center items-center`}
+        draggable={false}
+      />
+      <img
+        src={assetPrefix + "catEars.svg"}
+        alt="Profile photo ears"
+        className={`absolute h-14 top-[-12px] object-cover flex justify-center items-center overflow-visible`}
+        draggable={false}
+      />
+    </div>
   );
 }
