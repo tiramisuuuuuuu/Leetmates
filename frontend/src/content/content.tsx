@@ -2,6 +2,7 @@
 import { createRoot } from "react-dom/client";
 import Overlay from "../components/Overlay";
 import tailwindStyles from "../index.css?inline";
+import { useLCProblem } from "../store/leetcodeProblemStore";
 
 // Listens for messages from popup, NOT USED FOR NOW
 chrome.runtime.onMessage.addListener((message) => {
@@ -41,7 +42,7 @@ function observeLCTitle(onTitleChange: (title: string) => void) {
 }
 
 observeLCTitle((title) => {
-  console.log("Current question:", title);
+  useLCProblem.getState().setCurrentProblem(title);
 });
 
 const shadowRootHost = document.createElement("div");

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Window from "./Window";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { initAuth } from "../store/authStore";
+import { useLCProblem } from "../store/leetcodeProblemStore";
 
 export default function Overlay({
   assetPrefix = "/",
@@ -12,6 +13,8 @@ export default function Overlay({
   const updateAssetPrefixContext = useAssetPrefix(
     (state) => state.setAssetPrefix,
   );
+  const currentProblem = useLCProblem((state) => state.currentProblem);
+  console.log("LM Current Problem: ", currentProblem);
 
   useEffect(() => {
     updateAssetPrefixContext(assetPrefix);
