@@ -21,12 +21,14 @@ export default function Dropdown({
       className="relative w-full flex flex-col"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setDropdownOpen(false);
+          if (!disabled) {
+            setDropdownOpen(false);
+          }
         }
       }}
     >
       <button
-        onClick={() => setDropdownOpen(true)}
+        onClick={() => !disabled && setDropdownOpen(true)}
         className={`w-full flex items-center justify-between ${variant ? "border border-ink/20 py-1.5" : "bg-cream-muted border border-ink/30 py-0.5"} px-2.5 rounded-md ${variant && disabled && "bg-ink/[0.04]"}`}
       >
         <div className="flex flex-row items-center gap-2">
@@ -43,7 +45,9 @@ export default function Dropdown({
                 : "Unselected"}
           </p>
         </div>
-        <IoIosArrowDown className="text-ink/30 self-end justify-self-end" />
+        {!disabled && (
+          <IoIosArrowDown className="text-ink/30 self-end justify-self-end" />
+        )}
       </button>
 
       {dropdownOpen && (

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Profile } from "../../types/profile";
 import {
   IoLocationOutline,
@@ -12,6 +12,7 @@ import { FaGraduationCap } from "react-icons/fa6";
 import { useAuth } from "../../store/authStore";
 import { MdOutlineWavingHand } from "react-icons/md";
 import Radio from "./Radio";
+import { useProfileForm } from "../../store/profileFormStore";
 
 function Field({
   label,
@@ -46,6 +47,8 @@ export function AccountDetailsForm({
   editing?: boolean;
 }) {
   const session = useAuth((state) => state.session);
+  const displayName = useProfileForm((state) => state.displayName);
+  const setDisplayName = useProfileForm((state) => state.setDisplayName);
 
   return (
     <div className="flex w-full flex-col gap-2.5 text-xs text-ink">
@@ -53,7 +56,8 @@ export function AccountDetailsForm({
         <input
           type="text"
           placeholder="Display name"
-          value={profile.username}
+          value={displayName ?? ""}
+          onChange={(e) => setDisplayName(e.target.value)}
           className={inputClass}
           disabled={!editing}
         />

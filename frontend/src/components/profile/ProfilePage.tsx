@@ -64,11 +64,13 @@ export default function ProfilePage({
       const countryCode = useProfileForm.getState().countryCode;
       const currentStatus = useProfileForm.getState().currentStatus;
       const matchingPreference = useProfileForm.getState().matchingPreference;
+      const displayName = useProfileForm.getState().displayName;
 
       let requestBody = {
         countryCode,
         currentStatus,
         matchingPreference,
+        username: displayName,
       };
 
       let profilePath = null;
