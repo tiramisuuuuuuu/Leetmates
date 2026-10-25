@@ -5,7 +5,13 @@ import { useProfileForm } from "../../store/profileFormStore";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoLocationOutline } from "react-icons/io5";
 
-export default function CountryDropdown() {
+export default function CountryDropdown({
+  variant,
+  disabled,
+}: {
+  variant?: string;
+  disabled?: boolean;
+}) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const selected = useProfileForm((state) => state.countryCode);
   const setSelected = useProfileForm((state) => state.setCountryCode);
@@ -71,9 +77,11 @@ export default function CountryDropdown() {
       }}
     >
       <div className="relative w-full">
-        <div className="w-full flex items-center justify-between bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
+        <div
+          className={`w-full flex items-center justify-between ${variant ? "border border-ink/20 py-1.5" : "bg-cream-muted border border-ink/30 py-0.5"} px-2.5 rounded-md ${variant && disabled && "bg-ink/[0.04]"}`}
+        >
           <div className="flex items-center justify-between gap-2">
-            {selected ? (
+            {selected && (
               <img
                 src={
                   assetPrefix +
@@ -82,21 +90,28 @@ export default function CountryDropdown() {
                 alt="country flag"
                 className="w-3 h-2 object-cover"
               />
-            ) : (
+            )}
+
+            {!selected && !variant && (
               <IoLocationOutline
                 size={14}
                 className="shrink-0 text-ink-muted"
               />
             )}
+
             <p
               className={`text-xs ${selected ? "text-ink" : "text-ink-muted"} outline-none`}
             >
               {selected
                 ? countriesData.find((obj) => obj.code === selected)?.name
-                : "Search country"}
+                : !disabled
+                  ? "Search country"
+                  : "Unselected"}
             </p>
           </div>
-          <IoIosArrowDown className="text-ink/30 self-end justify-self-end shrink-0" />
+          {!disabled && (
+            <IoIosArrowDown className="text-ink/30 self-end justify-self-end shrink-0" />
+          )}
         </div>
 
         <div className="absolute top-0 w-full h-full flex items-center gap-2 border border-transparent opacity-50 rounded-md px-2.5 py-0.5">
@@ -104,8 +119,10 @@ export default function CountryDropdown() {
             type="text"
             value={search}
             onFocus={() => {
-              handleInputChange("");
-              setDropdownOpen(true);
+              if (!disabled) {
+                handleInputChange("");
+                setDropdownOpen(true);
+              }
             }}
             onChange={(e) => handleInputChange(e.target.value)}
             className="w-full min-w-0 h-full bg-transparent text-xs text-transparent outline-none caret-[transparent]  cursor-default"
