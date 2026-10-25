@@ -5,7 +5,7 @@ import { IoSettingsSharp } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
-import CompleteProfile from "./profile/CompleteProfile";
+import CompleteProfile from "./complete-profile/CompleteProfile";
 import { useProfileForm } from "../store/profileFormStore";
 import FriendsList from "./friends/FriendsList";
 import { FaUserFriends } from "react-icons/fa";
@@ -13,6 +13,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Modal from "./ui/Modal";
 import EnableNotifications from "./notifications/EnableNotifications";
 import SettingsPage from "./settings/SettingsPage";
+import ProfilePage from "./profile/ProfilePage";
+import { BsPersonCircle } from "react-icons/bs";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,12 @@ export default function Lobby() {
 
           <button
             className="text-gray-500"
+            onClick={() => setModalOpen("profile")}
+          >
+            <BsPersonCircle size={16} />
+          </button>
+          <button
+            className="text-gray-500"
             onClick={() => setModalOpen("settings")}
           >
             <IoSettingsSharp size={16} />
@@ -104,6 +112,9 @@ export default function Lobby() {
             closeModal={() => setModalOpen(null)}
             toggleAppearance={() => setDarkMode((prev) => !prev)}
           />
+        )}
+        {modalOpen === "profile" && (
+          <ProfilePage closeModal={() => setModalOpen(null)} />
         )}
 
         <Toast />

@@ -46,9 +46,11 @@ export async function uploadFile(file: File) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const profilePath = `${session?.user.id}/profile_${Date.now()}`;
+
   const { error } = await supabase.storage
     .from("profile_pictures")
-    .upload(`${session?.user.id}/profile`, file, {
+    .upload(profilePath, file, {
       upsert: true,
     });
 
@@ -56,20 +58,10 @@ export async function uploadFile(file: File) {
     throw new Error(error.message);
   }
 
-  return `${session?.user.id}/profile`;
+  return profilePath;
 }
 
 export async function fetchSignedUrl(profilePath: string) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const userId = session?.user.id;
-
-  if (!userId) {
-    throw new Error("Not authenticated");
-  }
-
   const { data, error } = await supabase.storage
     .from("profile_pictures")
     .createSignedUrl(profilePath, 60 * 60); // 1 hour
@@ -81,4 +73,26 @@ export async function fetchSignedUrl(profilePath: string) {
   const signedUrl = data.signedUrl;
 
   return signedUrl;
+}
+
+export async function fetchOwnProfileBlob(profilePath: string) {
+  const { data, error } = await supabase.storage
+    .from("profile_pictures")
+    .download(profilePath);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+export async function deleteFile(profilePath: string) {
+  const { error } = await supabase.storage
+    .from("profile_pictures")
+    .remove([profilePath]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

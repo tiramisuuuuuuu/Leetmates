@@ -2,6 +2,7 @@ import z from "zod";
 
 export interface Profile {
   username: string;
+  leetcodeId: string;
   profilePath: string | null;
   countryCode: string | null;
   currentStatus: string | null;
@@ -11,6 +12,7 @@ export interface Profile {
 
 export const fetchProfileSchema = z.object({
   username: z.string(),
+  leetcodeId: z.string(),
   profilePath: z.string().nullable(),
   countryCode: z.string().nullable(),
   currentStatus: z.string().nullable(),

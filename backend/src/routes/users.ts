@@ -148,6 +148,7 @@ userRoutes.get('/', async (c) => {
   const [user] = await db
     .select({
       username: usersTable.username,
+      leetcodeId: usersTable.leetcodeId,
       profilePath: usersTable.profilePath,
       countryCode: usersTable.countryCode,
       currentStatus: usersTable.currentStatus,
