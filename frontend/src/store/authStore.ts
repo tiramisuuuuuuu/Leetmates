@@ -36,7 +36,8 @@ export function initAuth() {
     useAuth.getState().setSession(newSession);
   });
 
-  // handles edge case: monitors if the chrome storage inexplicably deletes the auth tokens
+  // handles edge case: monitors if the chrome storage deletes the auth tokens,
+  // such as when user logs out in another instance of the ext. in another tab
   const onStorageChanged = (
     changes: { [key: string]: chrome.storage.StorageChange },
     areaName: string,

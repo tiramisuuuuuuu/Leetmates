@@ -61,13 +61,11 @@ pushRoutes.post('/subscribe', async (c) => {
     return c.json('Invalid subscription', 400);
   }
 
-  await db
-    .insert(pushSubscriptionsTable)
-    .values({
-      userId: uid,
-      endpoint: subscription.endpoint,
-      subscription,
-    });
+  await db.insert(pushSubscriptionsTable).values({
+    userId: uid,
+    endpoint: subscription.endpoint,
+    subscription,
+  });
 
   return c.json(
     {
@@ -90,9 +88,15 @@ pushRoutes.post('/delete', async (c) => {
       )
     );
 
+  const subscriptions = await db
+    .select()
+    .from(pushSubscriptionsTable)
+    .where(and(eq(pushSubscriptionsTable.endpoint, endpoint)));
+  console.log('endpoint has x subscribers: ', subscriptions.length);
+
   return c.json(
     {
-      message: 'Success',
+      endpointSubscriptions: subscriptions.length,
     },
     200
   );

@@ -84,7 +84,7 @@ export default function Notifications() {
 
         <p className="text-[12px] leading-relaxed text-ink-muted">
           Let friends ping you to join them on LeetCode & receive friend
-          requests, and version updates! (Notification settings do not transfer
+          requests and version updates! (Notification settings do not transfer
           between devices.)
         </p>
       </div>

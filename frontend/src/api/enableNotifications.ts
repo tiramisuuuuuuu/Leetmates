@@ -52,20 +52,36 @@ export async function isSubscribedPushNotifications() {
 }
 
 export async function unsubscribeNotifications() {
-  const result = await chrome.runtime.sendMessage({
-    type: "UNSUBSCRIBE_FROM_PUSH",
+  const subscriptionResult = await chrome.runtime.sendMessage({
+    type: "CHECK_PUSH_SUBSCRIPTION",
   });
 
-  if (!result?.success) {
-    throw new Error("Failed to subscribe to push");
+  if (
+    !subscriptionResult?.success ||
+    !subscriptionResult?.subscription?.endpoint
+  ) {
+    return;
   }
 
-  if (result?.endpoint) {
-    await apiFetch("/push/delete", {
-      method: "POST",
-      body: JSON.stringify({
-        endpoint: result.endpoint,
-      }),
+  const response = await apiFetch("/push/delete", {
+    method: "POST",
+    body: JSON.stringify({
+      endpoint: subscriptionResult.subscription.endpoint,
+    }),
+  });
+  const body = await response.json();
+
+  if (body?.endpointSubscriptions && body.endpointSubscriptions > 0) {
+    return;
+  } else {
+    // no other users use push notifications on this device,
+    // so safe to unregister backend from browser's push server
+    const result = await chrome.runtime.sendMessage({
+      type: "UNSUBSCRIBE_FROM_PUSH",
     });
+
+    if (!result?.success) {
+      throw new Error("Failed to subscribe to push");
+    }
   }
 }
