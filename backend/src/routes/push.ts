@@ -23,6 +23,32 @@ pushRoutes.get('/public-key', (c) => {
   );
 });
 
+pushRoutes.post('/check-subscription', async (c) => {
+  const uid = c.get('uid');
+  const { endpoint } = await c.req.json();
+
+  const subscriptions = await db
+    .select()
+    .from(pushSubscriptionsTable)
+    .where(
+      and(
+        eq(pushSubscriptionsTable.userId, uid),
+        eq(pushSubscriptionsTable.endpoint, endpoint)
+      )
+    );
+
+  if (subscriptions.length === 0) {
+    return c.json('No push subscription found', 404);
+  }
+
+  return c.json(
+    {
+      message: 'Success',
+    },
+    200
+  );
+});
+
 pushRoutes.post('/subscribe', async (c) => {
   const uid = c.get('uid');
   const subscription = (await c.req.json()) as PushSubscription;
@@ -41,10 +67,6 @@ pushRoutes.post('/subscribe', async (c) => {
       userId: uid,
       endpoint: subscription.endpoint,
       subscription,
-    })
-    .onConflictDoUpdate({
-      target: pushSubscriptionsTable.endpoint,
-      set: { userId: uid, subscription },
     });
 
   return c.json(

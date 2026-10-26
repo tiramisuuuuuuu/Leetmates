@@ -68,7 +68,7 @@ export const pushSubscriptionsTable = pgTable('pushSubscriptions', {
   userId: uuid()
     .notNull()
     .references(() => usersTable.id),
-  endpoint: text().notNull().unique(),
+  endpoint: text().notNull(),
   subscription: jsonb().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

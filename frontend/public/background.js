@@ -101,7 +101,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         await self.registration.pushManager.getSubscription();
 
       if (subscription) {
-        sendResponse({ success: true });
+        sendResponse({
+          success: true,
+          subscription: subscription.toJSON(),
+        });
       } else {
         sendResponse({ success: false });
       }

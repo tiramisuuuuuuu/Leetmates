@@ -28,11 +28,27 @@ export async function isSubscribedPushNotifications() {
     type: "CHECK_PUSH_SUBSCRIPTION",
   });
 
-  if (!result?.success) {
+  if (!result?.success || !result?.subscription?.endpoint) {
     return false;
   }
 
-  return true;
+  try {
+    const apiResponse = await apiFetch("/push/check-subscription", {
+      method: "POST",
+      body: JSON.stringify({
+        endpoint: result.subscription.endpoint,
+      }),
+    });
+
+    if (!apiResponse.ok) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    console.log("Failed to check push subscription");
+    return false;
+  }
 }
 
 export async function unsubscribeNotifications() {
