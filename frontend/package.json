@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode content",
+    "build": "vite build --mode content && vite build --mode background",
     "lint": "eslint .",
     "format": "prettier . --write",
     "preview": "vite preview"

@@ -29,6 +29,22 @@ export default defineConfig(({ mode }) => {
     };
   }
 
+  if (mode === "background") {
+    return {
+      build: {
+        outDir: "dist",
+        emptyOutDir: false,
+        rolldownOptions: {
+          input: resolve(__dirname, "src/background/background.ts"),
+          output: {
+            format: "es",
+            entryFileNames: "background.js",
+          },
+        },
+      },
+    };
+  }
+
   return {
     plugins: [react(), tailwindcss()],
     build: {
