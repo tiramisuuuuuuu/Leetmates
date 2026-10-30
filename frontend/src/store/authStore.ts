@@ -4,6 +4,7 @@ import { supabase } from "../api/supabase";
 import { AUTH_STORAGE_KEY, hasChromeStorage } from "../api/chromeStorage";
 import { useProfileForm } from "./profileFormStore";
 import { useProfile } from "./profileStore";
+import { syncLoginWithNotifications } from "../api/enableNotifications";
 
 interface AuthState {
   session: Session | null;
@@ -18,6 +19,7 @@ export const useAuth = create<AuthState>()((set) => ({
   setSession: (newSession: Session | null) =>
     set({ session: newSession, loading: false }),
   signOut: async () => {
+    await syncLoginWithNotifications(false); // before auth is invalidated
     await supabase.auth.signOut();
     useProfileForm.getState().setShowModal(false);
     useProfileForm.getState().clearForm();

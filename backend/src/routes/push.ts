@@ -189,8 +189,16 @@ pushRoutes.post('/ping', async (c) => {
     return c.json('No push subscription found', 404);
   }
 
+  const activeSubscriptions = subscriptions.filter((s) => s.loggedIn);
+
+  if (activeSubscriptions.length === 0) {
+    // user is not currently logged in on any of the endpoint devices
+    // TODO: notify user via email
+    return c.json({ sent: 1, total: subscriptions.length }, 200);
+  }
+
   const results = await Promise.allSettled(
-    subscriptions.map(({ subscription }) =>
+    activeSubscriptions.map(({ subscription }) =>
       webpush.sendNotification(
         subscription as PushSubscription,
         JSON.stringify({
@@ -222,6 +230,33 @@ pushRoutes.post('/ping', async (c) => {
   const sent = results.filter((result) => result.status === 'fulfilled').length;
 
   return c.json({ sent, total: subscriptions.length }, 200);
+});
+
+pushRoutes.post('/sync-auth', async (c) => {
+  const uid = c.get('uid');
+  const { endpoint, loggedIn } = await c.req.json();
+
+  const [subscription] = await db
+    .update(pushSubscriptionsTable)
+    .set({ loggedIn })
+    .where(
+      and(
+        eq(pushSubscriptionsTable.userId, uid),
+        eq(pushSubscriptionsTable.endpoint, endpoint)
+      )
+    )
+    .returning();
+
+  if (!subscription) {
+    return c.text('Invalid endpoint', 400);
+  }
+
+  return c.json(
+    {
+      message: 'Success',
+    },
+    200
+  );
 });
 
 export default pushRoutes;

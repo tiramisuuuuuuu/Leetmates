@@ -85,3 +85,28 @@ export async function unsubscribeNotifications() {
     }
   }
 }
+
+export async function syncLoginWithNotifications(loggedIn: boolean) {
+  try {
+    const subscriptionResult = await chrome.runtime.sendMessage({
+      type: "CHECK_PUSH_SUBSCRIPTION",
+    });
+
+    if (
+      !subscriptionResult?.success ||
+      !subscriptionResult?.subscription?.endpoint
+    ) {
+      return;
+    }
+
+    await apiFetch("/push/sync-auth", {
+      method: "POST",
+      body: JSON.stringify({
+        endpoint: subscriptionResult.subscription.endpoint,
+        loggedIn,
+      }),
+    });
+  } finally {
+    return;
+  }
+}

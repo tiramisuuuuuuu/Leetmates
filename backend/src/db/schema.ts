@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -70,5 +71,6 @@ export const pushSubscriptionsTable = pgTable('pushSubscriptions', {
     .references(() => usersTable.id),
   endpoint: text().notNull(),
   subscription: jsonb().notNull(),
+  loggedIn: boolean().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
