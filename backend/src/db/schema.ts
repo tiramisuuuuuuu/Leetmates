@@ -74,3 +74,16 @@ export const pushSubscriptionsTable = pgTable('pushSubscriptions', {
   loggedIn: boolean().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const pushLogsTable = pgTable('pushLogs', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  senderId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  recipientId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+    .defaultNow()
+    .notNull(),
+});

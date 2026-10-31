@@ -2,8 +2,13 @@ import type { PushSubscription } from 'web-push';
 import { Hono } from 'hono';
 import { AppVariables } from '../types/variables';
 import { db } from '../db';
-import { friendsTable, pushSubscriptionsTable, usersTable } from '../db/schema';
-import { and, eq } from 'drizzle-orm';
+import {
+  friendsTable,
+  pushLogsTable,
+  pushSubscriptionsTable,
+  usersTable,
+} from '../db/schema';
+import { and, desc, eq } from 'drizzle-orm';
 import webpush from 'web-push';
 
 webpush.setVapidDetails(
@@ -149,10 +154,13 @@ pushRoutes.post('/test', async (c) => {
   return c.json({ sent, total: subscriptions.length }, 200);
 });
 
+const RATE_LIMIT_MS = 5 * 60 * 1000;
+
 pushRoutes.post('/ping', async (c) => {
   const uid = c.get('uid');
   const { friendUid } = await c.req.json();
 
+  // fetch user to use their username
   const [user] = await db
     .select()
     .from(usersTable)
@@ -180,6 +188,26 @@ pushRoutes.post('/ping', async (c) => {
     return c.json('Friend relation not established', 404);
   }
 
+  const [lastPush] = await db
+    .select()
+    .from(pushLogsTable)
+    .where(
+      and(
+        eq(pushLogsTable.senderId, uid),
+        eq(pushLogsTable.recipientId, friendUid)
+      )
+    )
+    .orderBy(desc(pushLogsTable.createdAt))
+    .limit(1);
+
+  if (lastPush) {
+    const elapsed = Date.now() - lastPush.createdAt.getTime();
+
+    if (elapsed < RATE_LIMIT_MS) {
+      return c.json('Last ping was less than 5 minutes ago', 400);
+    }
+  }
+
   const subscriptions = await db
     .select()
     .from(pushSubscriptionsTable)
@@ -188,6 +216,11 @@ pushRoutes.post('/ping', async (c) => {
   if (subscriptions.length === 0) {
     return c.json('No push subscription found', 404);
   }
+
+  await db.insert(pushLogsTable).values({
+    senderId: uid,
+    recipientId: friendUid,
+  });
 
   const activeSubscriptions = subscriptions.filter((s) => s.loggedIn);
 

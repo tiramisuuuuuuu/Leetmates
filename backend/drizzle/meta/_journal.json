@@ -22,6 +22,20 @@
       "when": 1793050837499,
       "tag": "0002_romantic_shen",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793436621424,
+      "tag": "0003_regular_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793437275429,
+      "tag": "0004_legal_loa",
+      "breakpoints": true
     }
   ]
 }
