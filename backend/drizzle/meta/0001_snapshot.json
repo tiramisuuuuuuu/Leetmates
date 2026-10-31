@@ -1,6 +1,6 @@
 {
-  "id": "223e51ed-31c2-4c12-a931-6e070dffc9d5",
-  "prevId": "d0f94f69-fcf4-4bd5-a2ea-7cf323a0c8ed",
+  "id": "a601405f-82a2-4d22-837c-c4ae857a5efd",
+  "prevId": "919c40f9-b1f4-4d59-8840-3c641318ea61",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -171,6 +171,71 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.pushSubscriptions": {
+      "name": "pushSubscriptions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "pushSubscriptions_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endpoint": {
+          "name": "endpoint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subscription": {
+          "name": "subscription",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pushSubscriptions_userId_users_id_fk": {
+          "name": "pushSubscriptions_userId_users_id_fk",
+          "tableFrom": "pushSubscriptions",
+          "tableTo": "users",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -242,11 +307,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_friendCode_unique": {
-          "name": "users_friendCode_unique",
-          "nullsNotDistinct": false,
-          "columns": ["friendCode"]
-        },
         "users_friend_code_unique": {
           "name": "users_friend_code_unique",
           "nullsNotDistinct": false,
