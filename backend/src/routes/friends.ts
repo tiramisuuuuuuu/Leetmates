@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { friendRequestsTable, friendsTable, usersTable } from '../db/schema';
-import { and, eq, or } from 'drizzle-orm';
+import {
+  friendRequestsTable,
+  friendsTable,
+  pushSubscriptionsTable,
+  usersTable,
+} from '../db/schema';
+import { and, eq, exists, or, sql } from 'drizzle-orm';
 import { AppVariables } from '../types/variables';
 
 const friendRoutes = new Hono<{ Variables: AppVariables }>();
@@ -175,6 +180,42 @@ friendRoutes.get('/incoming-requests', async (c) => {
     .where(eq(friendRequestsTable.recipientId, uid));
 
   return c.json(senders, 200);
+});
+
+friendRoutes.get('/', async (c) => {
+  const id = c.get('uid');
+
+  let friends = await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath,
+      notificationsEnabled: exists(
+        db
+          .select()
+          .from(pushSubscriptionsTable)
+          .where(eq(pushSubscriptionsTable.userId, usersTable.id))
+      ),
+    })
+    .from(friendsTable)
+    .innerJoin(
+      usersTable,
+      sql`${usersTable.id} = CASE
+        WHEN ${friendsTable.user1Id} = ${id}
+        THEN ${friendsTable.user2Id}
+        ELSE ${friendsTable.user1Id}
+      END`
+    )
+    .where(or(eq(friendsTable.user1Id, id), eq(friendsTable.user2Id, id)));
+
+  friends = friends.map((friend) => ({
+    ...friend,
+    onLeetcode: false,
+    leetcodeProblem: null,
+    lastActive: '1 hr ago',
+  }));
+
+  return c.json(friends, 200);
 });
 
 export default friendRoutes;
