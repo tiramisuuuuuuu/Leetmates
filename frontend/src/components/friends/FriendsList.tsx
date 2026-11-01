@@ -28,6 +28,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
 
   const [disablePing, setDisablePing] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const [timerEnd, setTimerEnd] = useState<Date | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const showToast = useToast((state) => state.showToast);
 
@@ -42,19 +43,30 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
         }),
       });
 
-      if (!response.ok) {
+      if (!response.ok && response.status != 429) {
+        console.log(" ", response.status);
         throw "Error code received";
       }
 
-      timerRef.current = setTimeout(
-        () => {
-          setDisablePing(false);
-          setShowTooltip(false);
-        },
-        5 * 60 * 1000,
-      );
+      let initialTime = 5 * 60 * 1000;
+      if (response.status == 429) {
+        initialTime = (await response.json())?.timeLeftMs;
+      }
 
-      showToast("success", "Successfully pinged friend");
+      const now = new Date();
+      setTimerEnd(new Date(now.getTime() + initialTime));
+
+      timerRef.current = setTimeout(() => {
+        setDisablePing(false);
+        setShowTooltip(false);
+        setTimerEnd(null);
+      }, initialTime);
+
+      if (response.status == 429) {
+        showToast("error", "Last pinged less than 5 min. ago");
+      } else {
+        showToast("success", "Successfully pinged friend");
+      }
     } catch (error) {
       console.log("Error pinging friend: ", error);
       showToast("error", "Failed to ping friend");
@@ -99,7 +111,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
       <div className="flex flex-row items-center flex-end  gap-1">
         {data.isFriend && !data.onLeetcode && data.notificationsEnabled && (
           <button
-            className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-gray-300 bg-gray-300 text-white"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
+            className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
             onClick={() => {
               !disablePing && handlePingPressed();
             }}
@@ -112,7 +124,18 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
             Ping
             {showTooltip && (
               <Menu position="top">
-                <p className="w-14 text-ink-muted">Ping again after 5 min.</p>
+                <p className="w-14 text-ink">
+                  Ping again after{" "}
+                  {timerEnd
+                    ? Math.max(
+                        0,
+                        Math.ceil(
+                          (timerEnd.getTime() - Date.now()) / (1000 * 60),
+                        ),
+                      )
+                    : "a few"}{" "}
+                  min.
+                </p>
               </Menu>
             )}
           </button>

@@ -204,7 +204,13 @@ pushRoutes.post('/ping', async (c) => {
     const elapsed = Date.now() - lastPush.createdAt.getTime();
 
     if (elapsed < RATE_LIMIT_MS) {
-      return c.json('Last ping was less than 5 minutes ago', 400);
+      return c.json(
+        {
+          message: 'Last ping was less than 5 minutes ago',
+          timeLeftMs: RATE_LIMIT_MS - elapsed,
+        },
+        429
+      );
     }
   }
 
