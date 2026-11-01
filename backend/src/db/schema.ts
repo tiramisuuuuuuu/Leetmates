@@ -1,6 +1,8 @@
 import {
+  boolean,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -19,7 +21,7 @@ export const usersTable = pgTable(
     currentStatus: text(),
     matchingPreference: text().default('everyone'),
     profilePath: text(),
-    friendCode: text().unique(),
+    friendCode: text(),
 
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
@@ -60,4 +62,28 @@ export const friendRequestsTable = pgTable('friendRequests', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+export const pushSubscriptionsTable = pgTable('pushSubscriptions', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  endpoint: text().notNull(),
+  subscription: jsonb().notNull(),
+  loggedIn: boolean().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const pushLogsTable = pgTable('pushLogs', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  senderId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  recipientId: uuid()
+    .notNull()
+    .references(() => usersTable.id),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+    .defaultNow()
+    .notNull(),
 });

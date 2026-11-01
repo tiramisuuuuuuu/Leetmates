@@ -1,21 +1,85 @@
 import { CiInboxIn } from "react-icons/ci";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
-import type { Friend } from "../../types/friend";
-import { MdPersonAdd } from "react-icons/md";
+import { fetchFriendsSchema, type Friend } from "../../types/friend";
+import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
-import Modal from "./Modal";
-import { useState } from "react";
+import Modal from "../ui/Modal";
+import { useEffect, useRef, useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
+import { apiFetch } from "../../api/apiHelper";
+import { useToast } from "../../store/toastStore";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSignedUrl } from "../../api/supabase";
+import Menu from "../ui/Menu";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
+  const { data: signedUrl } = useQuery({
+    queryKey: [data.id],
+    queryFn: async () => {
+      if (!data.profilePath) {
+        return null;
+      }
+      return await fetchSignedUrl(data.profilePath);
+    },
+    staleTime: 55 * 1000,
+  });
+
+  const [disablePing, setDisablePing] = useState(false);
+  const timerRef = useRef<number | null>(null);
+  const [timerEnd, setTimerEnd] = useState<Date | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const showToast = useToast((state) => state.showToast);
+
+  async function handlePingPressed() {
+    try {
+      setDisablePing(true);
+
+      const response = await apiFetch("/push/ping", {
+        method: "POST",
+        body: JSON.stringify({
+          friendUid: data.id,
+        }),
+      });
+
+      if (!response.ok && response.status != 429) {
+        console.log(" ", response.status);
+        throw "Error code received";
+      }
+
+      let initialTime = 5 * 60 * 1000;
+      if (response.status == 429) {
+        initialTime = (await response.json())?.timeLeftMs;
+      }
+
+      const now = new Date();
+      setTimerEnd(new Date(now.getTime() + initialTime));
+
+      timerRef.current = setTimeout(() => {
+        setDisablePing(false);
+        setShowTooltip(false);
+        setTimerEnd(null);
+      }, initialTime);
+
+      if (response.status == 429) {
+        showToast("error", "Last pinged less than 5 min. ago");
+      } else {
+        showToast("success", "Successfully pinged friend");
+      }
+    } catch (error) {
+      console.log("Error pinging friend: ", error);
+      showToast("error", "Failed to ping friend");
+      setDisablePing(false);
+    }
+  }
+
   return (
     <div className="group flex flex-row items-center gap-2 py-2 px-1">
       {/* avatar */}
       <div className="relative shrink-0">
         <img
-          src={assetPrefix + "defaultProfile.svg"}
+          src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
           alt={data.username}
           className={`rounded-full w-8 h-8 bg-white object-cover border-2 ${
             data.onLeetcode ? "border-clay" : "border-ink/20"
@@ -44,16 +108,48 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
         )}
       </div>
 
-      {data.isFriend ? (
-        <button className="shrink-0 p-1 text-ink-muted hover:text-ink transition-colors cursor-pointer">
+      <div className="flex flex-row items-center flex-end  gap-1">
+        {data.isFriend && !data.onLeetcode && data.notificationsEnabled && (
+          <button
+            className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
+            onClick={() => {
+              !disablePing && handlePingPressed();
+            }}
+            onMouseEnter={() => {
+              disablePing && setShowTooltip(true);
+            }}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <MdOutlineNotificationsActive size={12} />
+            Ping
+            {showTooltip && (
+              <Menu position="top">
+                <p className="w-14 text-ink">
+                  Ping again after{" "}
+                  {timerEnd
+                    ? Math.max(
+                        0,
+                        Math.ceil(
+                          (timerEnd.getTime() - Date.now()) / (1000 * 60),
+                        ),
+                      )
+                    : "a few"}{" "}
+                  min.
+                </p>
+              </Menu>
+            )}
+          </button>
+        )}
+        {!data.isFriend && (
+          <button className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors">
+            <MdPersonAdd size={12} />
+            Add
+          </button>
+        )}
+        <button className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer">
           <TbDotsVertical size={15} />
         </button>
-      ) : (
-        <button className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors">
-          <MdPersonAdd size={12} />
-          Add
-        </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -75,31 +171,36 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
+  const [realFriends, setRealFriends] = useState<Friend[]>([]);
 
   const friends: Friend[] = [
     {
-      id: "1",
+      id: "00000000-0000-0000-0000-000000000000",
       username: "mochi",
       onLeetcode: true,
       leetcodeProblem: "Two Sum",
       isFriend: true,
       lastActive: "Now",
+      profilePath: null,
     },
     {
-      id: "2",
+      id: "00000000-0000-0000-0000-000000000001",
       username: "Blade",
       onLeetcode: false,
       leetcodeProblem: null,
       isFriend: true,
       lastActive: "2 hrs ago",
+      notificationsEnabled: false,
+      profilePath: null,
     },
     {
-      id: "3",
+      id: "00000000-0000-0000-0000-000000000002",
       username: "Bob A.",
       onLeetcode: true,
       leetcodeProblem: "Linked List",
       isFriend: false,
       lastActive: "Now",
+      profilePath: null,
     },
   ];
 
@@ -107,7 +208,31 @@ export default function FriendsList({
     .filter((friend) => friend.onLeetcode)
     .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
-  const inactive = friends.filter((friend) => !friend.onLeetcode);
+  const inactive = [
+    ...friends.filter((friend) => !friend.onLeetcode),
+    ...realFriends,
+  ];
+
+  useEffect(() => {
+    async function fetchFriends() {
+      try {
+        const response = await apiFetch("/friends");
+        const body = await response.json();
+        const parsed = fetchFriendsSchema.safeParse(body);
+
+        if (!parsed.success) {
+          console.log("Error ", parsed.error.issues);
+          throw "Zod Error";
+        }
+
+        setRealFriends(parsed.data);
+      } catch (err) {
+        console.error("Failed to fetch profile: ", err);
+      }
+    }
+
+    fetchFriends();
+  }, []);
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
@@ -185,7 +310,7 @@ export default function FriendsList({
             </Modal>
           ) : (
             <Modal
-              title="Incoming Friend Requests"
+              title="Incoming Requests"
               closeModal={() => setModalDisplayed(null)}
             >
               <IncomingRequests />

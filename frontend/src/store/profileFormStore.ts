@@ -8,6 +8,7 @@ interface ProfileFormState {
   currentStatus: string | null;
   matchingPreference: string;
   showModal: boolean;
+  showNotificationsModal: boolean;
   photoChanged: boolean;
   displayName: string | null;
   updatePhoto: (file: File | null, previewUrl: string | null) => void;
@@ -15,6 +16,7 @@ interface ProfileFormState {
   setCurrentStatus: (currentStatus: string | null) => void;
   setMatchingPreference: (matchingPreference: string) => void;
   setShowModal: (showModal: boolean) => void;
+  setShowNotificationsModal: (showModal: boolean) => void;
   setDisplayName: (displayName: string) => void;
   clearForm: () => void;
   initForm: (profile: Profile) => void;
@@ -27,6 +29,7 @@ export const useProfileForm = create<ProfileFormState>()((set) => ({
   currentStatus: null,
   matchingPreference: "everyone",
   showModal: false,
+  showNotificationsModal: false,
   photoChanged: false,
   displayName: null,
   updatePhoto: (file: File | null, previewUrl: string | null) =>
@@ -36,6 +39,8 @@ export const useProfileForm = create<ProfileFormState>()((set) => ({
   setMatchingPreference: (matchingPreference: string) =>
     set({ matchingPreference }),
   setShowModal: (showModal: boolean) => set({ showModal }),
+  setShowNotificationsModal: (showNotificationsModal: boolean) =>
+    set({ showNotificationsModal }),
   setDisplayName: (displayName: string) => set({ displayName }),
   clearForm: () =>
     set({

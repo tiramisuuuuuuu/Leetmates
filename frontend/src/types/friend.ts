@@ -7,7 +7,22 @@ export interface Friend {
   leetcodeProblem: string | null;
   isFriend: boolean;
   lastActive: string;
+  profilePath: string | null;
+  notificationsEnabled?: boolean;
 }
+
+export const fetchFriendsSchema = z.array(
+  z.object({
+    id: z.uuid(),
+    username: z.string(),
+    onLeetcode: z.boolean(),
+    leetcodeProblem: z.string().nullable(),
+    isFriend: z.boolean().default(true),
+    lastActive: z.string(),
+    profilePath: z.string().nullable(),
+    notificationsEnabled: z.boolean().optional(),
+  }),
+);
 
 export interface FriendPreview {
   id: string;

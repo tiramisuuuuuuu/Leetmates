@@ -6,6 +6,7 @@ import {
 } from "react-icons/io5";
 import { useToast } from "../../store/toastStore";
 import { signInUser } from "../../api/supabase";
+import { syncLoginWithNotifications } from "../../api/enableNotifications";
 
 export default function Login({
   onSwitchToRegister,
@@ -29,6 +30,8 @@ export default function Login({
     }
     try {
       await signInUser(email, password);
+      await syncLoginWithNotifications(true);
+
       showToast("success", "Logged in successfully");
     } catch (error: any) {
       showToast("error", error.message);
