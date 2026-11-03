@@ -22,9 +22,9 @@ export default function FriendsCanvas() {
   });
   const [centeredWorldOffset, setCenteredWorldOffset] = useState({
     x: -300,
-    y: -200,
+    y: 200,
   });
-  const [actualOffset, setActualOffset] = useState({ x: -300, y: -200 });
+  const [actualOffset, setActualOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const target = containerRef.current;
@@ -42,7 +42,10 @@ export default function FriendsCanvas() {
       }
 
       setScale(scale);
-      setActualOffset({ x: centeredWorldOffset.x, y: centeredWorldOffset.y });
+      setActualOffset({
+        x: centeredWorldOffset.x * scale,
+        y: centeredWorldOffset.y * scale,
+      });
     });
 
     observer.observe(target);
@@ -65,6 +68,19 @@ export default function FriendsCanvas() {
         style={{
           width: SVG_WIDTH * scale,
           height: SVG_HEIGHT * scale,
+          transform: `translate(${actualOffset.x}px, ${actualOffset.y}px)`,
+        }}
+        draggable={false}
+      />
+      <img
+        src={assetPrefix + "sweater.svg"}
+        id="sweater"
+        alt="sweater covering profile photo"
+        className="object-cover select-none absolute"
+        style={{
+          width: SVG_WIDTH * scale,
+          height: SVG_HEIGHT * scale,
+          transform: `translate(${actualOffset.x}px, ${actualOffset.y}px)`,
         }}
         draggable={false}
       />
