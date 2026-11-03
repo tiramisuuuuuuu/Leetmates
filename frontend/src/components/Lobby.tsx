@@ -15,6 +15,7 @@ import EnableNotifications from "./notifications/EnableNotifications";
 import SettingsPage from "./settings/SettingsPage";
 import ProfilePage from "./profile/ProfilePage";
 import { BsPersonCircle } from "react-icons/bs";
+import FriendsCanvas from "./FriendsCanvas";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,8 @@ export default function Lobby() {
           className="absolute top-0 left-0 w-full h-full object-cover select-none"
           draggable={false}
         />
+
+        <FriendsCanvas />
 
         {!authLoading && !isLoggedIn && (
           <div className="absolute inset-5">
