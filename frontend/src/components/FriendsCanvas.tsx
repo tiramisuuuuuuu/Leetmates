@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Friend } from "../types/friend";
 import { useFriends } from "../hooks/useFriends";
 import { useFriendsCanvas } from "../store/friendsCanvasStore";
+import Scrollbar from "./ui/Scrollbar";
 
 const BG_SVG_WIDTH = 1200;
 const BG_SVG_HEIGHT = 800;
@@ -118,25 +119,36 @@ export default function FriendsCanvas() {
   }, []);
 
   return (
-    <div
-      className="absolute w-full h-full flex justify-start items-center overflow-x-auto overflow-y-hidden"
-      ref={containerRef}
-    >
+    <div className="absolute inset-0">
+      {/* Actual scrollable world */}
       <div
-        id="spacer which informs scrollbar"
-        className={`w-[${(worldWidth + 80) * scale}px] h-1 shrink-0`}
-      />
-      {displayData.map(([uid, position]) => (
+        ref={containerRef}
+        className="absolute inset-0 flex justify-start items-center overflow-hidden"
+      >
         <div
-          key={uid}
-          className="absolute flex justify-center items-center"
-          style={{
-            transform: `translate(${position[0] * scale}px, ${position[1] * scale}px)`,
-          }}
-        >
-          <Friend assetPrefix={assetPrefix} data={friends[uid]} scale={scale} />
-        </div>
-      ))}
+          className="h-1 shrink-0"
+          style={{ width: (worldWidth + 80) * scale }}
+        />
+
+        {displayData.map(([uid, position]) => (
+          <div
+            key={uid}
+            className="absolute flex justify-center items-center"
+            style={{
+              transform: `translate(${position[0] * scale}px, ${position[1] * scale}px)`,
+            }}
+          >
+            <Friend
+              assetPrefix={assetPrefix}
+              data={friends[uid]}
+              scale={scale}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Custom scrollbar */}
+      <Scrollbar containerRef={containerRef} />
     </div>
   );
 }
