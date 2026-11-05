@@ -172,47 +172,15 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
-  const realFriends = useFriends();
+  const friends = useFriends();
 
-  const friends: Friend[] = [
-    {
-      id: "00000000-0000-0000-0000-000000000000",
-      username: "mochi",
-      onLeetcode: true,
-      leetcodeProblem: "Two Sum",
-      isFriend: true,
-      lastActive: "Now",
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000001",
-      username: "Blade",
-      onLeetcode: false,
-      leetcodeProblem: null,
-      isFriend: true,
-      lastActive: "2 hrs ago",
-      notificationsEnabled: false,
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000002",
-      username: "Bob A.",
-      onLeetcode: true,
-      leetcodeProblem: "Linked List",
-      isFriend: false,
-      lastActive: "Now",
-      profilePath: null,
-    },
-  ];
-
-  const online = friends
+  const online = Object.values(friends)
     .filter((friend) => friend.onLeetcode)
     .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
-  const inactive = [
-    ...friends.filter((friend) => !friend.onLeetcode),
-    ...Object.values(realFriends),
-  ];
+  const inactive = Object.values(friends)
+    .filter((friend) => !friend.onLeetcode)
+    .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">

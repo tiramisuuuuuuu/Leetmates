@@ -5,44 +5,51 @@ type Pair<K, V> = [K, V];
 
 interface FriendsCanvasState {
   friendToIndex: {};
-  worldPositions: Pair<string, number>[];
-  latestPosition: number;
+  worldPositions: Pair<string, number[]>[];
+  latestX: number;
   addFriend: (uid: string) => void;
   removeFriend: (uid: string) => void;
   clearFriends: () => void;
   initFriends: (friends: Friend[]) => void;
 }
 
-const INITIAL_POSITION = 0;
-const MIN_GAP = 70;
+const INITIAL_X = 0;
+const MIN_Y = 170;
+const MIN_GAP = 200;
+
+function randomY() {
+  return Math.floor(Math.random() * 100) + MIN_Y;
+}
 
 export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
   friendToIndex: {},
   worldPositions: [],
-  latestPosition: INITIAL_POSITION,
+  latestX: INITIAL_X,
   addFriend: (uid: string) => {
     const friendsDict: Record<string, number> = { ...get().friendToIndex };
     const worldPositions = [...get().worldPositions];
-    const latestPosition = get().latestPosition;
+    let latestX = get().latestX;
+    if (latestX == INITIAL_X) {
+      latestX = INITIAL_X - MIN_GAP + 80;
+    }
 
     if (Object.hasOwn(friendsDict, uid)) {
       return;
     }
 
     friendsDict[uid] = worldPositions.length;
-    const randomPosition =
-      latestPosition + Math.floor(Math.random() * 100) + MIN_GAP;
-    worldPositions.push([uid, randomPosition]);
+    const randomX = latestX + Math.floor(Math.random() * 100) + MIN_GAP;
+    worldPositions.push([uid, [randomX, randomY()]]);
     set({
       friendToIndex: friendsDict,
       worldPositions,
-      latestPosition: randomPosition,
+      latestX: randomX,
     });
   },
   removeFriend: (uid: string) => {
     const friendsDict: Record<string, number> = { ...get().friendToIndex };
     const worldPositions = [...get().worldPositions];
-    let latestPosition = get().latestPosition;
+    let latestX = get().latestX;
 
     if (!Object.hasOwn(friendsDict, uid)) {
       return;
@@ -50,11 +57,11 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
 
     const idx = friendsDict[uid];
     if (idx !== worldPositions.length - 1) {
-      const [_, rightNeighbor] = worldPositions[idx + 1];
-      let leftNeighbor = INITIAL_POSITION;
+      const rightNeighbor = worldPositions[idx + 1][1][0];
+      let leftNeighbor = INITIAL_X;
       if (idx - 1 >= 0) {
         const pair = worldPositions[idx - 1];
-        leftNeighbor = pair[1];
+        leftNeighbor = pair[1][0];
       }
 
       const randomPosition =
@@ -65,36 +72,35 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
         MIN_GAP;
       worldPositions[idx] = [
         worldPositions[worldPositions.length - 1][0],
-        randomPosition,
+        [randomPosition, randomY()],
       ];
     }
     worldPositions.pop();
     delete friendsDict[uid];
-    latestPosition =
+    latestX =
       worldPositions.length > 0
-        ? worldPositions[worldPositions.length - 1][1]
-        : INITIAL_POSITION;
-    set({ friendToIndex: friendsDict, worldPositions, latestPosition });
+        ? worldPositions[worldPositions.length - 1][1][0]
+        : INITIAL_X;
+    set({ friendToIndex: friendsDict, worldPositions, latestX });
   },
   clearFriends: () =>
     set({
       friendToIndex: {},
       worldPositions: [],
-      latestPosition: INITIAL_POSITION,
+      latestX: INITIAL_X,
     }),
   initFriends: (friends: Friend[]) => {
     const friendsDict: Record<string, number> = {};
-    const worldPositions: Pair<string, number>[] = [];
-    let latestPosition = INITIAL_POSITION;
+    const worldPositions: Pair<string, number[]>[] = [];
+    let latestX = INITIAL_X - MIN_GAP + 80;
 
     for (const friend of friends) {
       const uid = friend.id;
       friendsDict[uid] = worldPositions.length;
-      latestPosition =
-        latestPosition + Math.floor(Math.random() * 100) + MIN_GAP;
-      worldPositions.push([uid, latestPosition]);
+      latestX = latestX + Math.floor(Math.random() * 100) + MIN_GAP;
+      worldPositions.push([uid, [latestX, randomY()]]);
     }
 
-    set({ friendToIndex: friendsDict, worldPositions, latestPosition });
+    set({ friendToIndex: friendsDict, worldPositions, latestX });
   },
 }));

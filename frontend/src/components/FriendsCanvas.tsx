@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useLCProblem } from "../store/leetcodeProblemStore";
 import { fetchSignedUrl } from "../api/supabase";
@@ -10,8 +10,12 @@ import { useFriendsCanvas } from "../store/friendsCanvasStore";
 const BG_SVG_WIDTH = 1200;
 const BG_SVG_HEIGHT = 800;
 
-const SVG_WIDTH = 109.39;
-const SVG_HEIGHT = 163;
+const SVG_OUTFITS = [
+  { path: "outfits/sweater.svg", width: 109.39, height: 163 },
+  { path: "outfits/mug.svg", width: 92, height: 163 },
+  { path: "outfits/book.svg", width: 92.49, height: 163 },
+  { path: "outfits/beret.svg", width: 109.39, height: 163 },
+];
 
 const PROFILE_OFFSET_X = 12;
 const PROFILE_OFFSET_Y = 16;
@@ -38,6 +42,10 @@ function Friend({
     staleTime: 55 * 1000,
   });
 
+  const outfitIdx = useMemo(() => {
+    return Math.floor(Math.random() * 4);
+  }, []);
+
   return (
     <div className="flex justify-center items-center relative">
       <img
@@ -52,13 +60,13 @@ function Friend({
         draggable={false}
       />
       <img
-        src={assetPrefix + "sweater.svg"}
+        src={assetPrefix + SVG_OUTFITS[outfitIdx].path}
         id="sweater"
         alt="sweater covering profile photo"
         className="object-cover select-none z-10"
         style={{
-          width: SVG_WIDTH * scale,
-          height: SVG_HEIGHT * scale,
+          width: SVG_OUTFITS[outfitIdx].width * scale,
+          height: SVG_OUTFITS[outfitIdx].height * scale,
         }}
         draggable={false}
       />
@@ -111,19 +119,19 @@ export default function FriendsCanvas() {
 
   return (
     <div
-      className="absolute w-full h-full flex justify-start items-center overflow-x-auto"
+      className="absolute w-full h-full flex justify-start items-center overflow-x-auto overflow-y-hidden"
       ref={containerRef}
     >
       <div
         id="spacer which informs scrollbar"
-        className={`w-[${(worldWidth + SVG_WIDTH) * scale}px] h-1 shrink-0`}
+        className={`w-[${(worldWidth + 80) * scale}px] h-1 shrink-0`}
       />
-      {displayData.map(([uid, xPosition]) => (
+      {displayData.map(([uid, position]) => (
         <div
           key={uid}
           className="absolute flex justify-center items-center"
           style={{
-            transform: `translate(${xPosition * scale}px, ${200 * scale}px)`,
+            transform: `translate(${position[0] * scale}px, ${position[1] * scale}px)`,
           }}
         >
           <Friend assetPrefix={assetPrefix} data={friends[uid]} scale={scale} />
