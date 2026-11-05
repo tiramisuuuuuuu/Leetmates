@@ -78,6 +78,7 @@ export default function FriendsCanvas() {
   // console.log("LM Current Problem: ", currentProblem);
   const friends = useFriends();
   const worldPositions = useFriendsCanvas((state) => state.worldPositions);
+  const worldWidth = useFriendsCanvas((state) => state.latestPosition);
   // sanity check to ensure worldPositions and friends agree
   const displayData = worldPositions.filter((pair) =>
     Object.hasOwn(friends, pair[0]),
@@ -110,9 +111,13 @@ export default function FriendsCanvas() {
 
   return (
     <div
-      className="absolute w-full h-full flex justify-center items-center"
+      className="absolute w-full h-full flex justify-start items-center overflow-x-auto"
       ref={containerRef}
     >
+      <div
+        id="spacer which informs scrollbar"
+        className={`w-[${(worldWidth + SVG_WIDTH) * scale}px] h-1 shrink-0`}
+      />
       {displayData.map(([uid, xPosition]) => (
         <div
           key={uid}

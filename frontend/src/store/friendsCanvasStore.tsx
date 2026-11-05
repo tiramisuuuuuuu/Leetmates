@@ -13,7 +13,7 @@ interface FriendsCanvasState {
   initFriends: (friends: Friend[]) => void;
 }
 
-const INITIAL_POSITION = -550;
+const INITIAL_POSITION = 0;
 const MIN_GAP = 70;
 
 export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
