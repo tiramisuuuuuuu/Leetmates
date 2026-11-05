@@ -1,11 +1,11 @@
 import { CiInboxIn } from "react-icons/ci";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
-import { fetchFriendsSchema, type Friend } from "../../types/friend";
+import { type Friend } from "../../types/friend";
 import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import Modal from "../ui/Modal";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
 import { apiFetch } from "../../api/apiHelper";
@@ -13,6 +13,7 @@ import { useToast } from "../../store/toastStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import Menu from "../ui/Menu";
+import { useFriends } from "../../hooks/useFriends";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   const { data: signedUrl } = useQuery({
@@ -171,7 +172,7 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
-  const [realFriends, setRealFriends] = useState<Friend[]>([]);
+  const realFriends = useFriends();
 
   const friends: Friend[] = [
     {
@@ -210,29 +211,8 @@ export default function FriendsList({
 
   const inactive = [
     ...friends.filter((friend) => !friend.onLeetcode),
-    ...realFriends,
+    ...Object.values(realFriends),
   ];
-
-  useEffect(() => {
-    async function fetchFriends() {
-      try {
-        const response = await apiFetch("/friends");
-        const body = await response.json();
-        const parsed = fetchFriendsSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        setRealFriends(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    fetchFriends();
-  }, []);
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
