@@ -84,25 +84,25 @@ export default function Lobby() {
           </div>
         )}
 
-        <div className="absolute top-1 right-1.5 flex flex-col justify-center items-center gap-2">
+        <div className="absolute top-1 right-0 flex flex-col justify-center items-center gap-2">
           <button
-            className="text-gray-500"
+            className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("friends")}
           >
-            <FaUserFriends size={16} />
+            <FaUserFriends size={14} className="text-clay-dark" />
           </button>
 
           <button
-            className="text-gray-500"
+            className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("profile")}
           >
-            <BsPersonCircle size={16} />
+            <BsPersonCircle size={14} className="text-clay-dark" />
           </button>
           <button
-            className="text-gray-500"
+            className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("settings")}
           >
-            <IoSettingsSharp size={16} />
+            <IoSettingsSharp size={14} className="text-clay-dark" />
           </button>
         </div>
 

@@ -87,7 +87,6 @@ export default function FriendsCanvas() {
   // console.log("LM Current Problem: ", currentProblem);
   const friends = useFriends();
   const worldPositions = useFriendsCanvas((state) => state.worldPositions);
-  const worldWidth = useFriendsCanvas((state) => state.latestPosition);
   // sanity check to ensure worldPositions and friends agree
   const displayData = worldPositions.filter((pair) =>
     Object.hasOwn(friends, pair[0]),
@@ -125,11 +124,6 @@ export default function FriendsCanvas() {
         ref={containerRef}
         className="absolute inset-0 flex justify-start items-center overflow-hidden"
       >
-        <div
-          className="h-1 shrink-0"
-          style={{ width: (worldWidth + 80) * scale }}
-        />
-
         {displayData.map(([uid, position]) => (
           <div
             key={uid}
