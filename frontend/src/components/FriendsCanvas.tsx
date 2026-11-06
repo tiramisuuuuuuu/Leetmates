@@ -48,7 +48,10 @@ function Friend({
   }, []);
 
   return (
-    <div className="flex justify-center items-center relative">
+    <div className="flex flex-col justify-center items-center relative">
+      <div className="absolute bottom-[100%] max-w-24 overflow-x-clip overflow-y-visible text-ellipsis mb-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap px-2.5 py-1 bg-green-500 text-white rounded-lg shadow-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-green-500">
+        Leetcode problem
+      </div>
       <img
         src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
         alt={data.username}
@@ -71,6 +74,9 @@ function Friend({
         }}
         draggable={false}
       />
+      <div className="absolute top-[100%] text-[12px] text-white font-semibold">
+        {data.username}
+      </div>
     </div>
   );
 }

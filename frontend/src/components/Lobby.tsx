@@ -51,7 +51,7 @@ export default function Lobby() {
           draggable={false}
         />
 
-        <FriendsCanvas />
+        {isLoggedIn && <FriendsCanvas />}
 
         {!authLoading && !isLoggedIn && (
           <div className="absolute inset-5">
