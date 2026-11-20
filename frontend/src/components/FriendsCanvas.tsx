@@ -51,6 +51,8 @@ function Friend({
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [slideDistance, setSlideDistance] = useState(0);
+  const [duration, setDuration] = useState(5);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const target = containerRef.current;
@@ -60,7 +62,9 @@ function Friend({
       if (!entries || entries.length === 0) return;
       const { width, height } = entries[0].contentRect;
       const textWidth = textRef.current!.offsetWidth;
-      setSlideDistance(width - textWidth);
+      const travelDistance = textWidth > width ? width - textWidth : 0;
+      setSlideDistance(travelDistance);
+      setDuration((-1 * travelDistance) / 40);
     });
 
     observer.observe(target);
@@ -83,13 +87,24 @@ function Friend({
             whiteSpace: "nowrap",
           }}
           initial={{ x: 0 }}
-          animate={{ x: slideDistance }}
-          transition={{
-            duration: 5,
-            ease: "linear",
-          }}
+          animate={{ x: isHovered ? slideDistance : 0 }}
+          transition={
+            isHovered
+              ? {
+                  duration: duration,
+                  ease: "linear",
+                }
+              : {
+                  type: "spring",
+                  stiffness: 300, // Higher = faster snap
+                  damping: 50, // Higher = less bounce
+                  velocity: 50,
+                }
+          }
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
         >
-          Leetcode Problem
+          Lorem ipsum doler sit amet
         </motion.span>
       </div>
       <img
@@ -125,10 +140,6 @@ export default function FriendsCanvas() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const containerRef = useRef(null);
   const [scale, setScale] = useState(1);
-  // const [centeredWorldOffset, setCenteredWorldOffset] = useState({
-  //   x: -300,
-  //   y: 200,
-  // });
   const currentProblem = useLCProblem((state) => state.currentProblem);
   // console.log("LM Current Problem: ", currentProblem);
   const friends = useFriends();

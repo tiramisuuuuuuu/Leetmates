@@ -18,7 +18,7 @@ const MIN_Y = 170;
 const MIN_GAP = 200;
 
 function randomY() {
-  return Math.floor(Math.random() * 100) + MIN_Y;
+  return Math.floor(Math.random() * 80) + MIN_Y;
 }
 
 export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
