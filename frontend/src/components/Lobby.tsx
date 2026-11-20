@@ -1,7 +1,7 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
 import { useState } from "react";
-import { IoSettingsSharp } from "react-icons/io5";
+import { IoSettingsOutline, IoSettingsSharp } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
 import Toast from "./Toast";
@@ -14,8 +14,14 @@ import Modal from "./ui/Modal";
 import EnableNotifications from "./notifications/EnableNotifications";
 import SettingsPage from "./settings/SettingsPage";
 import ProfilePage from "./profile/ProfilePage";
-import { BsPersonCircle } from "react-icons/bs";
+import { BsPeopleFill, BsPersonCircle } from "react-icons/bs";
 import FriendsCanvas from "./FriendsCanvas";
+import { MdPerson } from "react-icons/md";
+import { FaAddressCard, FaRegAddressCard } from "react-icons/fa6";
+import { LuIdCard } from "react-icons/lu";
+import { RiSettings3Line } from "react-icons/ri";
+import { LiaUserFriendsSolid } from "react-icons/lia";
+import { IoIosSettings, IoMdPeople } from "react-icons/io";
 
 const queryClient = new QueryClient();
 
@@ -89,20 +95,20 @@ export default function Lobby() {
             className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("friends")}
           >
-            <FaUserFriends size={14} className="text-clay-dark" />
+            <BsPeopleFill size={14} className="text-clay-dark" />
           </button>
 
           <button
             className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("profile")}
           >
-            <BsPersonCircle size={14} className="text-clay-dark" />
+            <LuIdCard size={14} className="text-clay-dark" />
           </button>
           <button
             className="text-gray-500 p-0.5 pr-1.5 pl-1 bg-cream border-clay border-1 border-r-0 rounded-l-[5px]"
             onClick={() => setModalOpen("settings")}
           >
-            <IoSettingsSharp size={14} className="text-clay-dark" />
+            <IoSettingsOutline size={14} className="text-clay-dark" />
           </button>
         </div>
 

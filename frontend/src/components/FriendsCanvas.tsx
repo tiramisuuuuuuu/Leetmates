@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useLCProblem } from "../store/leetcodeProblemStore";
@@ -47,10 +48,49 @@ function Friend({
     return Math.floor(Math.random() * 4);
   }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [slideDistance, setSlideDistance] = useState(0);
+
+  useEffect(() => {
+    const target = containerRef.current;
+    if (!target || !textRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      if (!entries || entries.length === 0) return;
+      const { width, height } = entries[0].contentRect;
+      const textWidth = textRef.current!.offsetWidth;
+      setSlideDistance(width - textWidth);
+    });
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className="flex flex-col justify-center items-center relative">
-      <div className="absolute bottom-[100%] max-w-24 overflow-x-clip overflow-y-visible text-ellipsis mb-2 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap px-2.5 py-1 bg-green-500 text-white rounded-lg shadow-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-green-500">
-        Leetcode problem
+      <div
+        ref={containerRef}
+        className="absolute bottom-[100%] max-w-24 overflow-x-clip overflow-y-visible mb-2 left-1/2 -translate-x-1/2 text-[11px] whitespace-nowrap px-2.5  bg-green-500 text-white rounded-lg shadow-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-green-500"
+      >
+        <motion.span
+          ref={textRef}
+          style={{
+            display: "inline-block",
+            whiteSpace: "nowrap",
+          }}
+          initial={{ x: 0 }}
+          animate={{ x: slideDistance }}
+          transition={{
+            duration: 5,
+            ease: "linear",
+          }}
+        >
+          Leetcode Problem
+        </motion.span>
       </div>
       <img
         src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
