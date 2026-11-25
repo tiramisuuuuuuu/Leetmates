@@ -65,19 +65,27 @@ function Friend({
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    const target = containerRef.current;
-    if (!target || !textRef.current) return;
+    const container = containerRef.current;
+    const textElement = textRef.current;
+    if (!container || !textElement) return;
 
-    const observer = new ResizeObserver((entries) => {
-      if (!entries || entries.length === 0) return;
-      const { width, height } = entries[0].contentRect;
-      const textWidth = textRef.current!.offsetWidth;
-      const travelDistance = textWidth > width ? width - textWidth : 0;
+    const calculateSlide = () => {
+      const style = window.getComputedStyle(container);
+      const paddingX =
+        parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+
+      const visibleWidth = container.clientWidth - paddingX;
+      const textWidth = textElement.offsetWidth;
+      const travelDistance =
+        textWidth > visibleWidth ? visibleWidth - textWidth : 0;
+
       setSlideDistance(travelDistance);
       setDuration((-1 * travelDistance) / 40);
-    });
+    };
 
-    observer.observe(target);
+    const observer = new ResizeObserver(calculateSlide);
+    observer.observe(container);
+    observer.observe(textElement);
 
     return () => {
       observer.disconnect();

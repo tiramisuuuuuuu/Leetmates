@@ -16,7 +16,6 @@ function MenuHeading({ label }: { label: string }) {
   return (
     <div className="flex flex-row items-center gap-2 px-1 pt-3 pb-1">
       <span className="text-[13px] text-clay-dark">{label}</span>
-      {/* <span className="text-[11px] text-ink/40">({count})</span> */}
       <div className="flex-1 h-px bg-ink/15" />
     </div>
   );
