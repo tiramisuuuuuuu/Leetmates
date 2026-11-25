@@ -114,10 +114,14 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
           <button
             className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
             onClick={() => {
-              !disablePing && handlePingPressed();
+              if (!disablePing) {
+                handlePingPressed();
+              }
             }}
             onMouseEnter={() => {
-              disablePing && setShowTooltip(true);
+              if (disablePing) {
+                setShowTooltip(true);
+              }
             }}
             onMouseLeave={() => setShowTooltip(false)}
           >

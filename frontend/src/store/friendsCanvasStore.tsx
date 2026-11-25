@@ -15,7 +15,7 @@ interface FriendsCanvasState {
 
 const INITIAL_X = 0;
 const MIN_Y = 170;
-const MIN_GAP = 200;
+const MIN_GAP = 230;
 
 function randomY() {
   return Math.floor(Math.random() * 80) + MIN_Y;
@@ -26,15 +26,15 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
   worldPositions: [],
   latestX: INITIAL_X,
   addFriend: (uid: string) => {
+    if (Object.hasOwn(get().friendToIndex, uid)) {
+      return;
+    }
+
     const friendsDict: Record<string, number> = { ...get().friendToIndex };
     const worldPositions = [...get().worldPositions];
     let latestX = get().latestX;
     if (latestX == INITIAL_X) {
       latestX = INITIAL_X - MIN_GAP + 80;
-    }
-
-    if (Object.hasOwn(friendsDict, uid)) {
-      return;
     }
 
     friendsDict[uid] = worldPositions.length;
@@ -47,13 +47,12 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
     });
   },
   removeFriend: (uid: string) => {
-    const friendsDict: Record<string, number> = { ...get().friendToIndex };
-    const worldPositions = [...get().worldPositions];
-    let latestX = get().latestX;
-
-    if (!Object.hasOwn(friendsDict, uid)) {
+    if (!Object.hasOwn(get().friendToIndex, uid)) {
       return;
     }
+
+    const friendsDict: Record<string, number> = { ...get().friendToIndex };
+    const worldPositions = [...get().worldPositions];
 
     const idx = friendsDict[uid];
     if (idx !== worldPositions.length - 1) {
@@ -77,10 +76,11 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
     }
     worldPositions.pop();
     delete friendsDict[uid];
-    latestX =
+    const latestX =
       worldPositions.length > 0
         ? worldPositions[worldPositions.length - 1][1][0]
         : INITIAL_X;
+
     set({ friendToIndex: friendsDict, worldPositions, latestX });
   },
   clearFriends: () =>
@@ -90,9 +90,12 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
       latestX: INITIAL_X,
     }),
   initFriends: (friends: Friend[]) => {
-    const friendsDict: Record<string, number> = {};
-    const worldPositions: Pair<string, number[]>[] = [];
-    let latestX = INITIAL_X - MIN_GAP + 80;
+    const friendsDict: Record<string, number> = { ...get().friendToIndex }; // previous list might contain "self"
+    const worldPositions = [...get().worldPositions];
+    let latestX = get().latestX;
+    if (latestX == INITIAL_X) {
+      latestX = INITIAL_X - MIN_GAP + 80;
+    }
 
     for (const friend of friends) {
       const uid = friend.id;

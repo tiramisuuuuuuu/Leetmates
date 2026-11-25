@@ -1,5 +1,5 @@
 import { IoIosArrowBack } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TiPencil } from "react-icons/ti";
 import { useProfile } from "../../store/profileStore";
 import { apiFetch } from "../../api/apiHelper";
@@ -10,6 +10,7 @@ import { useProfileForm } from "../../store/profileFormStore";
 import { deleteFile, uploadFile } from "../../api/supabase";
 import { useToast } from "../../store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserProfile } from "../../hooks/useProfile";
 
 function MenuHeading({ label }: { label: string }) {
   return (
@@ -26,35 +27,10 @@ export default function ProfilePage({
 }: {
   closeModal: () => void;
 }) {
-  const profile = useProfile((state) => state.profile);
+  const profile = useUserProfile();
   const [editing, setEditing] = useState(false);
   const showToast = useToast((state) => state.showToast);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await apiFetch("/users");
-        const body = await response.json();
-        const parsed = fetchProfileSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        useProfile.getState().setProfile(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    if (!profile) {
-      fetchProfile();
-    } else {
-      useProfileForm.getState().initForm(profile);
-    }
-  }, [profile]);
 
   async function handleSubmit() {
     try {

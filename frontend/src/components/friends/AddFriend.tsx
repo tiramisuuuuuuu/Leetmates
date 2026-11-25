@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy, MdPersonAdd } from "react-icons/md";
 import Menu from "../ui/Menu";
@@ -11,10 +11,9 @@ import { FaClock } from "react-icons/fa6";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import { apiFetch } from "../../api/apiHelper";
-import { useProfile } from "../../store/profileStore";
-import { fetchProfileSchema } from "../../types/profile";
 import { useToast } from "../../store/toastStore";
 import { genericResponseSchema } from "../../types/generic";
+import { useUserProfile } from "../../hooks/useProfile";
 
 function Friend({
   data,
@@ -87,31 +86,8 @@ export default function AddFriend() {
   const [user, setUser] = useState<FriendPreview | null>();
   const [errorCode, setErrorCode] = useState(0);
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
-  const profile = useProfile((state) => state.profile);
+  const profile = useUserProfile();
   const showToast = useToast((state) => state.showToast);
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await apiFetch("/users");
-        const body = await response.json();
-        const parsed = fetchProfileSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        useProfile.getState().setProfile(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    if (!profile) {
-      fetchProfile();
-    }
-  }, [profile]);
 
   const handleCopy = async () => {
     try {

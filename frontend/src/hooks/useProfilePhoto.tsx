@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchOwnProfileBlob } from "../api/supabase";
 import { useEffect, useState } from "react";
 
-export default function useProfilePhoto(profilePath?: string | null) {
+export default function useProfilePhoto(
+  profilePath?: string | null,
+  skip = false,
+) {
   const { data: blob } = useQuery({
     queryKey: ["user_profile_photo", profilePath],
     queryFn: async () => {
@@ -17,6 +20,7 @@ export default function useProfilePhoto(profilePath?: string | null) {
         return null;
       }
     },
+    enabled: !skip,
     staleTime: Infinity,
   });
 

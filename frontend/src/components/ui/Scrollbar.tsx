@@ -34,17 +34,34 @@ export default function Scrollbar({
       });
     };
 
+    // Listen for scrolling
     container.addEventListener("scroll", update);
-    const observer = new ResizeObserver(update);
 
-    observer.observe(container);
-    observer.observe(track);
+    // Listen for dimension changes
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(container);
+    resizeObserver.observe(track);
 
-    update();
+    // Listen for changes to absolutely positioned children
+    const mutationObserver = new MutationObserver(() => {
+      update();
+    });
+
+    mutationObserver.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    });
+
+    // Initial measurement after browser layout
+    const frame = requestAnimationFrame(update);
 
     return () => {
       container.removeEventListener("scroll", update);
-      observer.disconnect();
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      cancelAnimationFrame(frame);
     };
   }, [containerRef]);
 
