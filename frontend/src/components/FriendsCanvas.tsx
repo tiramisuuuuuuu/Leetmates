@@ -77,35 +77,43 @@ function Friend({
   return (
     <div className="flex flex-col justify-center items-center relative">
       <div
-        ref={containerRef}
-        className="absolute bottom-[100%] max-w-24 overflow-x-clip overflow-y-visible mb-2 left-1/2 -translate-x-1/2 text-[11px] whitespace-nowrap px-2.5  bg-green-500 text-white rounded-lg shadow-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-green-500"
+        className="absolute bottom-[100%] left-0 flex justify-center items-center mb-2"
+        style={{
+          width: PROFILE_WIDTH * scale, // centered with the profile picture
+          transform: `translate(${PROFILE_OFFSET_X * scale}px, ${PROFILE_OFFSET_Y * scale}px)`,
+        }}
       >
-        <motion.span
-          ref={textRef}
-          style={{
-            display: "inline-block",
-            whiteSpace: "nowrap",
-          }}
-          initial={{ x: 0 }}
-          animate={{ x: isHovered ? slideDistance : 0 }}
-          transition={
-            isHovered
-              ? {
-                  duration: duration,
-                  ease: "linear",
-                }
-              : {
-                  type: "spring",
-                  stiffness: 300, // Higher = faster snap
-                  damping: 50, // Higher = less bounce
-                  velocity: 50,
-                }
-          }
-          onHoverStart={() => setIsHovered(true)}
-          onHoverEnd={() => setIsHovered(false)}
+        <div
+          ref={containerRef}
+          className="max-w-24 overflow-x-clip overflow-y-visible text-[11px] whitespace-nowrap px-2.5 bg-green-600 text-white rounded-lg shadow-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[5px] after:border-transparent after:border-t-green-600"
         >
-          Lorem ipsum doler sit amet
-        </motion.span>
+          <motion.span
+            ref={textRef}
+            style={{
+              display: "inline-block",
+              whiteSpace: "nowrap",
+            }}
+            initial={{ x: 0 }}
+            animate={{ x: isHovered ? slideDistance : 0 }}
+            transition={
+              isHovered
+                ? {
+                    duration: duration,
+                    ease: "linear",
+                  }
+                : {
+                    type: "spring",
+                    stiffness: 300, // Higher = faster snap
+                    damping: 50, // Higher = less bounce
+                    velocity: 50,
+                  }
+            }
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+          >
+            Lorem ipsum doler sit amet
+          </motion.span>
+        </div>
       </div>
       <img
         src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
@@ -118,6 +126,7 @@ function Friend({
         }}
         draggable={false}
       />
+
       <img
         src={assetPrefix + SVG_OUTFITS[outfitIdx].path}
         id="sweater"
