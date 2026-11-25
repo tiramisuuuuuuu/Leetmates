@@ -42,7 +42,8 @@ function observeLCTitle(onTitleChange: (title: string) => void) {
 }
 
 observeLCTitle((title) => {
-  useLCProblem.getState().setCurrentProblem(title);
+  const cleaned = title.trim().replace(/ - LeetCode$/, "");
+  useLCProblem.getState().setCurrentProblem(cleaned);
 });
 
 const shadowRootHost = document.createElement("div");
