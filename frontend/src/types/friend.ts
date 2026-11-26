@@ -1,14 +1,5 @@
 import z from "zod";
 
-export interface Friend {
-  id: string;
-  username: string;
-  onLeetcode: boolean;
-  leetcodeProblem: string | null;
-  isFriend: boolean;
-  lastActive: string;
-}
-
 export interface FriendPreview {
   id: string;
   username: string;

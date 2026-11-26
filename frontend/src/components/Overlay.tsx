@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Window from "./Window";
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { initAuth } from "../store/authStore";
+import { initPresence } from "../store/presenceStore";
 
 export default function Overlay({
   assetPrefix = "/",
@@ -18,6 +19,8 @@ export default function Overlay({
   }, []);
 
   useEffect(() => initAuth(), []);
+
+  useEffect(() => initPresence(), []);
 
   return (
     <div
