@@ -1,20 +1,35 @@
 import { CiInboxIn } from "react-icons/ci";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
-import { fetchFriendsSchema, type Friend } from "../../types/friend";
+import { type Friend } from "../../types/friend";
 import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
+import { IoMoonOutline } from "react-icons/io5";
 import Modal from "../ui/Modal";
 import { useEffect, useRef, useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
 import { apiFetch } from "../../api/apiHelper";
 import { useToast } from "../../store/toastStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
-import Menu from "../ui/Menu";
+import Menu, { SpeechTriangle } from "../ui/Menu";
+import { useFriends } from "../../hooks/useFriends";
+import ConfirmationPopup from "../ui/ConfirmationPopup";
+import { useUserProfile } from "../../hooks/useProfile";
+import { useDarkMode } from "../../store/darkModeStore";
 
-function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
+type FriendAction = { kind: "remove" | "report"; friend: Friend };
+
+function Friend({
+  data,
+  assetPrefix,
+  onAction,
+}: {
+  data: Friend;
+  assetPrefix: string;
+  onAction: (action: FriendAction) => void;
+}) {
   const { data: signedUrl } = useQuery({
     queryKey: [data.id],
     queryFn: async () => {
@@ -30,7 +45,21 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   const timerRef = useRef<number | null>(null);
   const [timerEnd, setTimerEnd] = useState<Date | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
   const showToast = useToast((state) => state.showToast);
+
+  useEffect(() => {
+    if (!showActions) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!actionMenuRef.current?.contains(event.target as Node)) {
+        setShowActions(false);
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () =>
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [showActions]);
 
   async function handlePingPressed() {
     try {
@@ -75,7 +104,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   }
 
   return (
-    <div className="group flex flex-row items-center gap-2 py-2 px-1">
+    <div className="group relative flex flex-row items-center gap-2 py-2 px-1">
       {/* avatar */}
       <div className="relative shrink-0">
         <img
@@ -113,10 +142,14 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
           <button
             className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
             onClick={() => {
-              !disablePing && handlePingPressed();
+              if (!disablePing) {
+                handlePingPressed();
+              }
             }}
             onMouseEnter={() => {
-              disablePing && setShowTooltip(true);
+              if (disablePing) {
+                setShowTooltip(true);
+              }
             }}
             onMouseLeave={() => setShowTooltip(false)}
           >
@@ -146,9 +179,44 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
             Add
           </button>
         )}
-        <button className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer">
-          <TbDotsVertical size={15} />
-        </button>
+        <div ref={actionMenuRef} className="relative">
+          <button
+            aria-label={`Actions for ${data.username}`}
+            aria-expanded={showActions}
+            onClick={() => setShowActions((shown) => !shown)}
+            className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer"
+          >
+            <TbDotsVertical size={15} />
+          </button>
+          {showActions && (
+            <div className="absolute right-0 top-full z-20 mt-1 min-w-28 rounded-md border border-ink/20 bg-cream p-1 shadow-md">
+              <SpeechTriangle
+                direction="up"
+                background="cream"
+                borderOpacity={0.2}
+                className="right-[2px] bottom-[calc(100%-1px)]"
+              />
+              <button
+                className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-ink hover:bg-ink/10"
+                onClick={() => {
+                  setShowActions(false);
+                  onAction({ kind: "remove", friend: data });
+                }}
+              >
+                Remove friend
+              </button>
+              <button
+                className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-red-700 hover:bg-red-500/10"
+                onClick={() => {
+                  setShowActions(false);
+                  onAction({ kind: "report", friend: data });
+                }}
+              >
+                Report user
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -171,71 +239,55 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
-  const [realFriends, setRealFriends] = useState<Friend[]>([]);
+  const [pendingAction, setPendingAction] = useState<FriendAction | null>(null);
+  const [actionInProgress, setActionInProgress] = useState(false);
+  const friends = useFriends();
+  const queryClient = useQueryClient();
+  const showToast = useToast((state) => state.showToast);
+  const profile = useUserProfile();
+  const darkMode = useDarkMode((state) => state.darkMode);
 
-  const friends: Friend[] = [
-    {
-      id: "00000000-0000-0000-0000-000000000000",
-      username: "mochi",
-      onLeetcode: true,
-      leetcodeProblem: "Two Sum",
-      isFriend: true,
-      lastActive: "Now",
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000001",
-      username: "Blade",
-      onLeetcode: false,
-      leetcodeProblem: null,
-      isFriend: true,
-      lastActive: "2 hrs ago",
-      notificationsEnabled: false,
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000002",
-      username: "Bob A.",
-      onLeetcode: true,
-      leetcodeProblem: "Linked List",
-      isFriend: false,
-      lastActive: "Now",
-      profilePath: null,
-    },
-  ];
+  async function confirmFriendAction() {
+    if (!pendingAction || actionInProgress) return;
+    setActionInProgress(true);
+    try {
+      const isRemoval = pendingAction.kind === "remove";
+      const response = await apiFetch(
+        isRemoval ? "/friends/remove" : "/friends/report",
+        {
+          method: "POST",
+          body: JSON.stringify({ friendUid: pendingAction.friend.id }),
+        },
+      );
+      if (!response.ok) throw new Error(await response.text());
+      showToast("success", isRemoval ? "Friend removed" : "Report submitted");
+      setPendingAction(null);
+      if (isRemoval) {
+        await queryClient.invalidateQueries({ queryKey: ["friends_list"] });
+      }
+    } catch (error) {
+      console.error("Failed to process friend action:", error);
+      showToast(
+        "error",
+        pendingAction.kind === "remove"
+          ? "Could not remove friend"
+          : "Could not submit report",
+      );
+    } finally {
+      setActionInProgress(false);
+    }
+  }
 
-  const online = friends
+  const online = Object.values(friends)
     .filter((friend) => friend.onLeetcode)
     .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
-  const inactive = [
-    ...friends.filter((friend) => !friend.onLeetcode),
-    ...realFriends,
-  ];
-
-  useEffect(() => {
-    async function fetchFriends() {
-      try {
-        const response = await apiFetch("/friends");
-        const body = await response.json();
-        const parsed = fetchFriendsSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        setRealFriends(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    fetchFriends();
-  }, []);
+  const inactive = Object.values(friends)
+    .filter((friend) => !friend.onLeetcode)
+    .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
+    <div className="absolute top-0 left-0 w-full h-full bg-cream/80 backdrop-blur-md flex flex-col text-xs text-start overflow-hidden">
       {/* menu board header */}
       <div className="relative flex flex-row justify-between items-center py-2 px-3">
         <button
@@ -248,7 +300,7 @@ export default function FriendsList({
 
         <div className="flex flex-row gap-1">
           <button
-            className="relative rounded-full bg-cream border-1 border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
+            className="relative rounded-full bg-cream border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
             onClick={() => setModalDisplayed("friendRequest")}
           >
             <CiInboxIn size={15} />
@@ -270,25 +322,77 @@ export default function FriendsList({
       </div>
 
       <div className="relative flex-1 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
-          <div>
-            <MenuHeading label="Online" count={online.length} />
-            <div className="flex flex-col">
-              {online.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
-              ))}
-            </div>
+        {online.length + inactive.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center px-8 pb-5 text-center">
+            <img
+              src={assetPrefix + (darkMode ? "grayCat.svg" : "orangeCat.svg")}
+              alt="Two Leetmates meeting over a warm cup of coffee"
+              className="mb-3 h-28 w-36 select-none object-contain"
+              draggable={false}
+            />
+            <p className="text-[13px] font-semibold text-ink">
+              Your table is open
+            </p>
+            <p className="mt-1 max-w-56 text-[11px] leading-relaxed text-ink-muted">
+              Add a friend to study together.
+              {profile?.matchingPreference === "everyone" &&
+                " Or hang out here and we’ll match you with a new Leetmate."}
+            </p>
+            <button
+              onClick={() => setModalDisplayed("add")}
+              className="mt-3 rounded-full border border-clay px-3 py-1 text-[11px] font-semibold text-clay hover:bg-clay hover:text-cream transition-colors"
+            >
+              Add a friend
+            </button>
           </div>
+        ) : (
+          <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
+            <div>
+              <MenuHeading label="Online" count={online.length} />
+              <div className="flex flex-col">
+                {online.map((data) => (
+                  <Friend
+                    key={data.id}
+                    data={data}
+                    assetPrefix={assetPrefix}
+                    onAction={setPendingAction}
+                  />
+                ))}
+              </div>
+              {online.length === 0 && inactive.length > 0 && (
+                <div className="flex items-center gap-2 px-1.5 py-2">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink/[0.06] text-ink-muted">
+                    <IoMoonOutline size={15} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-ink-muted">
+                      No one online right now
+                    </p>
+                    <p className="text-[9px] text-ink/40">
+                      Your friends are just below.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          <div>
-            <MenuHeading label="Offline" count={inactive.length} />
-            <div className="flex flex-col">
-              {inactive.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
-              ))}
+            <div>
+              {inactive.length > 0 && (
+                <MenuHeading label="Offline" count={inactive.length} />
+              )}
+              <div className="flex flex-col">
+                {inactive.map((data) => (
+                  <Friend
+                    key={data.id}
+                    data={data}
+                    assetPrefix={assetPrefix}
+                    onAction={setPendingAction}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* <img
           src={assetPrefix + "autumn.svg"}
@@ -300,7 +404,7 @@ export default function FriendsList({
       </div>
 
       {modalDisplayed && (
-        <div className="absolute inset-12 flex justify-center items-center">
+        <div className="absolute inset-12 z-40 flex justify-center items-center">
           {modalDisplayed == "add" ? (
             <Modal
               title="Add Friend"
@@ -317,6 +421,24 @@ export default function FriendsList({
             </Modal>
           )}
         </div>
+      )}
+
+      {pendingAction && (
+        <ConfirmationPopup
+          title={
+            pendingAction.kind === "remove" ? "Remove friend?" : "Report user?"
+          }
+          message={
+            pendingAction.kind === "remove"
+              ? `Remove ${pendingAction.friend.username} from your friends?`
+              : `Send a report about ${pendingAction.friend.username} to the Leetmates team?`
+          }
+          confirmLabel={pendingAction.kind === "remove" ? "Remove" : "Report"}
+          destructive={pendingAction.kind === "report"}
+          busy={actionInProgress}
+          onConfirm={confirmFriendAction}
+          onCancel={() => setPendingAction(null)}
+        />
       )}
     </div>
   );
