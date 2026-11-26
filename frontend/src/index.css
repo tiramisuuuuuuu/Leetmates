@@ -12,6 +12,7 @@
   --color-ink-muted: #6b5644;
   --color-cream: #f5ead9;
   --color-cream-muted: #fbfaf5;
+  --color-cream-accent: #f6ede1;
   --color-clay: #c0602a;
   --color-clay-dark: #a94f21;
 }
@@ -66,6 +67,7 @@
   --color-ink-muted: #c1a88f;
   --color-cream: #30241c;
   --color-cream-muted: #3a2c22;
+  --color-cream-accent: #3a2c22;
   --color-clay: #e39b6a;
   --color-clay-dark: #f0b083;
 
@@ -88,6 +90,20 @@
 
 body {
   margin: 0;
+}
+
+.incoming-request-name.is-overflowing:hover > span,
+.incoming-request-name.is-overflowing:focus-visible > span {
+  animation: incoming-request-name-reveal 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes incoming-request-name-reveal {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(var(--name-overflow-distance) * -1));
+  }
 }
 
 h1,
