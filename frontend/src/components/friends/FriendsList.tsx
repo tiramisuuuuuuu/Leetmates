@@ -1,11 +1,11 @@
 import { CiInboxIn } from "react-icons/ci";
 import { useAssetPrefix } from "../../store/assetPrefixStore";
-import { fetchFriendsSchema, type Friend } from "../../types/friend";
+import { type Friend } from "../../types/friend";
 import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import Modal from "../ui/Modal";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
 import { apiFetch } from "../../api/apiHelper";
@@ -13,6 +13,7 @@ import { useToast } from "../../store/toastStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import Menu from "../ui/Menu";
+import { useFriends } from "../../hooks/useFriends";
 
 function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   const { data: signedUrl } = useQuery({
@@ -113,10 +114,14 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
           <button
             className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
             onClick={() => {
-              !disablePing && handlePingPressed();
+              if (!disablePing) {
+                handlePingPressed();
+              }
             }}
             onMouseEnter={() => {
-              disablePing && setShowTooltip(true);
+              if (disablePing) {
+                setShowTooltip(true);
+              }
             }}
             onMouseLeave={() => setShowTooltip(false)}
           >
@@ -171,68 +176,15 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
-  const [realFriends, setRealFriends] = useState<Friend[]>([]);
+  const friends = useFriends();
 
-  const friends: Friend[] = [
-    {
-      id: "00000000-0000-0000-0000-000000000000",
-      username: "mochi",
-      onLeetcode: true,
-      leetcodeProblem: "Two Sum",
-      isFriend: true,
-      lastActive: "Now",
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000001",
-      username: "Blade",
-      onLeetcode: false,
-      leetcodeProblem: null,
-      isFriend: true,
-      lastActive: "2 hrs ago",
-      notificationsEnabled: false,
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000002",
-      username: "Bob A.",
-      onLeetcode: true,
-      leetcodeProblem: "Linked List",
-      isFriend: false,
-      lastActive: "Now",
-      profilePath: null,
-    },
-  ];
-
-  const online = friends
+  const online = Object.values(friends)
     .filter((friend) => friend.onLeetcode)
     .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
-  const inactive = [
-    ...friends.filter((friend) => !friend.onLeetcode),
-    ...realFriends,
-  ];
-
-  useEffect(() => {
-    async function fetchFriends() {
-      try {
-        const response = await apiFetch("/friends");
-        const body = await response.json();
-        const parsed = fetchFriendsSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        setRealFriends(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    fetchFriends();
-  }, []);
+  const inactive = Object.values(friends)
+    .filter((friend) => !friend.onLeetcode)
+    .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">

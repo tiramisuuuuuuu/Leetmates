@@ -1,5 +1,5 @@
 import { IoIosArrowBack } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TiPencil } from "react-icons/ti";
 import { useProfile } from "../../store/profileStore";
 import { apiFetch } from "../../api/apiHelper";
@@ -10,12 +10,12 @@ import { useProfileForm } from "../../store/profileFormStore";
 import { deleteFile, uploadFile } from "../../api/supabase";
 import { useToast } from "../../store/toastStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserProfile } from "../../hooks/useProfile";
 
 function MenuHeading({ label }: { label: string }) {
   return (
     <div className="flex flex-row items-center gap-2 px-1 pt-3 pb-1">
       <span className="text-[13px] text-clay-dark">{label}</span>
-      {/* <span className="text-[11px] text-ink/40">({count})</span> */}
       <div className="flex-1 h-px bg-ink/15" />
     </div>
   );
@@ -26,35 +26,10 @@ export default function ProfilePage({
 }: {
   closeModal: () => void;
 }) {
-  const profile = useProfile((state) => state.profile);
+  const profile = useUserProfile();
   const [editing, setEditing] = useState(false);
   const showToast = useToast((state) => state.showToast);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await apiFetch("/users");
-        const body = await response.json();
-        const parsed = fetchProfileSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        useProfile.getState().setProfile(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    if (!profile) {
-      fetchProfile();
-    } else {
-      useProfileForm.getState().initForm(profile);
-    }
-  }, [profile]);
 
   async function handleSubmit() {
     try {
