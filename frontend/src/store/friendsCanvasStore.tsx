@@ -4,7 +4,7 @@ import type { Friend } from "../types/friend";
 type Pair<K, V> = [K, V];
 
 interface FriendsCanvasState {
-  friendToIndex: {};
+  friendToIndex: Record<string, number>;
   worldPositions: Pair<string, number[]>[];
   latestX: number;
   addFriend: (uid: string) => void;
@@ -47,41 +47,33 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
     });
   },
   removeFriend: (uid: string) => {
-    if (!Object.hasOwn(get().friendToIndex, uid)) {
+    const { friendToIndex, worldPositions } = get();
+
+    if (!Object.hasOwn(friendToIndex, uid)) {
       return;
     }
 
-    const friendsDict: Record<string, number> = { ...get().friendToIndex };
-    const worldPositions = [...get().worldPositions];
+    const idx = friendToIndex[uid];
 
-    const idx = friendsDict[uid];
-    if (idx !== worldPositions.length - 1) {
-      const rightNeighbor = worldPositions[idx + 1][1][0];
-      let leftNeighbor = INITIAL_X;
-      if (idx - 1 >= 0) {
-        const pair = worldPositions[idx - 1];
-        leftNeighbor = pair[1][0];
-      }
+    const updatedPositions = [...worldPositions];
+    updatedPositions.splice(idx, 1);
 
-      const randomPosition =
-        Math.floor(
-          Math.random() * (rightNeighbor - leftNeighbor - 2 * MIN_GAP + 1),
-        ) +
-        leftNeighbor +
-        MIN_GAP;
-      worldPositions[idx] = [
-        worldPositions[worldPositions.length - 1][0],
-        [randomPosition, randomY()],
-      ];
-    }
-    worldPositions.pop();
-    delete friendsDict[uid];
+    const updatedDict: Record<string, number> = {};
+
+    updatedPositions.forEach(([friendUid], index) => {
+      updatedDict[friendUid] = index;
+    });
+
     const latestX =
-      worldPositions.length > 0
-        ? worldPositions[worldPositions.length - 1][1][0]
+      updatedPositions.length > 0
+        ? updatedPositions[updatedPositions.length - 1][1][0]
         : INITIAL_X;
 
-    set({ friendToIndex: friendsDict, worldPositions, latestX });
+    set({
+      friendToIndex: updatedDict,
+      worldPositions: updatedPositions,
+      latestX,
+    });
   },
   clearFriends: () =>
     set({
@@ -99,6 +91,11 @@ export const useFriendsCanvas = create<FriendsCanvasState>()((set, get) => ({
 
     for (const friend of friends) {
       const uid = friend.id;
+
+      if (Object.hasOwn(friendsDict, uid)) {
+        continue;
+      }
+
       friendsDict[uid] = worldPositions.length;
       latestX = latestX + Math.floor(Math.random() * 100) + MIN_GAP;
       worldPositions.push([uid, [latestX, randomY()]]);
