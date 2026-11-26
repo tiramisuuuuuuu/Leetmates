@@ -17,7 +17,8 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-app.use('*', authMiddleware);
+// Skip auth middleware for the /ws route (handled separately in ws.ts)
+app.use('*', (c, next) => (c.req.path === '/ws' ? next() : authMiddleware(c, next)));
 
 app.get('/', (c) => {
   return c.text('Hello Hono!');

@@ -8,6 +8,7 @@ import {
 } from '../db/schema';
 import { and, eq, exists, or, sql } from 'drizzle-orm';
 import { AppVariables } from '../types/variables';
+import { notifyNewFriendship } from '../websocket/presence-handler';
 
 const friendRoutes = new Hono<{ Variables: AppVariables }>();
 
@@ -26,7 +27,9 @@ async function createFriendship(uid: string, senderUid: string) {
     })
     .returning();
 
-  return;
+  notifyNewFriendship(uid, senderUid).catch((err) =>
+    console.error('Failed to notify new friendship:', err)
+  );
 }
 
 friendRoutes.post('/request', async (c) => {

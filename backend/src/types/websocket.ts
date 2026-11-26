@@ -1,21 +1,26 @@
 import type { WSContext } from 'hono/ws';
 
-export type UserId = number;
+export type UserId = string;
+
+// offline: no open connection
+// online:  connected, browsing LeetCode
+// solving: connected, currently on a LeetCode problem page
+export type PresenceStatus = 'offline' | 'online' | 'solving';
 
 export interface FriendPresence {
-  uid: number;
+  uid: UserId;
   username: string;
-  connected: boolean;
-  onLeetcode: boolean;
-  leetcodeProblem: string | null;
+  profilePath: string | null;
+  status: PresenceStatus;
+  leetcodeProblem: string | null; // problem slug, e.g. "two-sum"
+  lastSeen: string | null; // ISO timestamp of last disconnect (null if online / unknown)
 }
 
 export interface WebsocketElement {
+  connectionId: number;
   websocket: WSContext;
   presence: FriendPresence;
 }
-
-export type OutputCode = 'presence:snapshot' | 'presence:update' | 'error';
 
 export interface PresenceSnapshot {
   type: 'presence:snapshot';
@@ -38,8 +43,11 @@ export type ServerMessage = PresenceSnapshot | PresenceUpdate | ErrorMessage;
 
 export interface LeetcodeStatusMessage {
   type: 'leetcode:status';
-  onLeetcode: boolean;
-  leetcodeProblem?: string | null;
+  leetcodeProblem: string | null;
 }
 
-export type ClientMessage = LeetcodeStatusMessage;
+export interface PingMessage {
+  type: 'ping';
+}
+
+export type ClientMessage = LeetcodeStatusMessage | PingMessage;

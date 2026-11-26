@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod';
 
 export interface Friend {
   id: string;
@@ -20,10 +20,9 @@ export const fetchFriendsSchema = z.array(
     isFriend: z.boolean().default(true),
     lastActive: z.string(),
     profilePath: z.string().nullable(),
-    notificationsEnabled: z.boolean().optional(),
-  }),
+    notificationsEnabled: z.boolean().optional()
+  })
 );
-
 export interface FriendPreview {
   id: string;
   username: string;
@@ -35,13 +34,13 @@ export const fetchFriendPreviewSchema = z.object({
   id: z.uuid(),
   username: z.string(),
   profilePath: z.string().nullable(),
-  friendStatus: z.string().nullable(),
+  friendStatus: z.string().nullable()
 });
 
 export const fetchFriendPreviewsSchema = z.array(
   z.object({
     id: z.uuid(),
     username: z.string(),
-    profilePath: z.string().nullable(),
-  }),
+    profilePath: z.string().nullable()
+  })
 );

@@ -1,155 +1,126 @@
-import { CiInboxIn } from "react-icons/ci";
-import { useAssetPrefix } from "../../store/assetPrefixStore";
-import { fetchFriendsSchema, type Friend } from "../../types/friend";
-import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
-import { TbDotsVertical } from "react-icons/tb";
-import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
-import Modal from "../ui/Modal";
-import { useEffect, useRef, useState } from "react";
-import AddFriend from "./AddFriend";
-import IncomingRequests from "./IncomingRequests";
-import { apiFetch } from "../../api/apiHelper";
-import { useToast } from "../../store/toastStore";
-import { useQuery } from "@tanstack/react-query";
-import { fetchSignedUrl } from "../../api/supabase";
-import Menu from "../ui/Menu";
+import { CiInboxIn } from 'react-icons/ci';
+import { useAssetPrefix } from '../../store/assetPrefixStore';
+import { TbDotsVertical } from 'react-icons/tb';
+import { IoIosAdd, IoIosArrowBack } from 'react-icons/io';
+import Modal from './Modal';
+import { useEffect, useState } from 'react';
+import AddFriend from './AddFriend';
+import IncomingRequests from './IncomingRequests';
+import { useQuery } from '@tanstack/react-query';
+import { fetchSignedUrl } from '../../api/supabase';
+import { usePresence } from '../../store/presenceStore';
+import { formatProblemSlug, type FriendPresence, type PresenceStatus } from '../../types/presence';
 
-function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
-  const { data: signedUrl } = useQuery({
-    queryKey: [data.id],
-    queryFn: async () => {
-      if (!data.profilePath) {
-        return null;
-      }
-      return await fetchSignedUrl(data.profilePath);
-    },
-    staleTime: 55 * 1000,
-  });
-
-  const [disablePing, setDisablePing] = useState(false);
-  const timerRef = useRef<number | null>(null);
-  const [timerEnd, setTimerEnd] = useState<Date | null>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const showToast = useToast((state) => state.showToast);
-
-  async function handlePingPressed() {
-    try {
-      setDisablePing(true);
-
-      const response = await apiFetch("/push/ping", {
-        method: "POST",
-        body: JSON.stringify({
-          friendUid: data.id,
-        }),
-      });
-
-      if (!response.ok && response.status != 429) {
-        console.log(" ", response.status);
-        throw "Error code received";
-      }
-
-      let initialTime = 5 * 60 * 1000;
-      if (response.status == 429) {
-        initialTime = (await response.json())?.timeLeftMs;
-      }
-
-      const now = new Date();
-      setTimerEnd(new Date(now.getTime() + initialTime));
-
-      timerRef.current = setTimeout(() => {
-        setDisablePing(false);
-        setShowTooltip(false);
-        setTimerEnd(null);
-      }, initialTime);
-
-      if (response.status == 429) {
-        showToast("error", "Last pinged less than 5 min. ago");
-      } else {
-        showToast("success", "Successfully pinged friend");
-      }
-    } catch (error) {
-      console.log("Error pinging friend: ", error);
-      showToast("error", "Failed to ping friend");
-      setDisablePing(false);
-    }
+const STATUS_STYLES: Record<PresenceStatus, { label: string; dot: string; pill: string; border: string }> = {
+  solving: {
+    label: 'Solving',
+    dot: 'bg-emerald-500',
+    pill: 'bg-emerald-500/15 text-emerald-700',
+    border: 'border-clay'
+  },
+  online: {
+    label: 'Online',
+    dot: 'bg-amber-400',
+    pill: 'bg-amber-400/20 text-amber-700',
+    border: 'border-clay/60'
+  },
+  offline: {
+    label: 'Offline',
+    dot: '',
+    pill: '',
+    border: 'border-ink/20'
   }
+};
 
+const STATUS_ORDER: Record<PresenceStatus, number> = {
+  solving: 0,
+  online: 1,
+  offline: 2
+};
+
+function formatLastSeen(iso: string, now: number) {
+  const minutes = Math.floor((now - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+// Re-render periodically so "last seen" stays accurate
+function useNow(intervalMs = 60_000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
+function Friend({ data, assetPrefix, now }: { data: FriendPresence; assetPrefix: string; now: number }) {
+  const style = STATUS_STYLES[data.status];
+
+  const { data: signedUrl } = useQuery({
+    queryKey: ['profilePhoto', data.profilePath],
+    queryFn: () => fetchSignedUrl(data.profilePath!),
+    enabled: !!data.profilePath,
+    staleTime: 55 * 60 * 1000 // signed URLs last 1 hour
+  });
   return (
     <div className="group flex flex-row items-center gap-2 py-2 px-1">
       {/* avatar */}
       <div className="relative shrink-0">
         <img
-          src={signedUrl ? signedUrl : assetPrefix + "defaultProfile.svg"}
+          src={signedUrl ?? assetPrefix + 'defaultProfile.svg'}
           alt={data.username}
-          className={`rounded-full w-8 h-8 bg-white object-cover border-2 ${
-            data.onLeetcode ? "border-clay" : "border-ink/20"
+          className={`rounded-full w-8 h-8 bg-white object-cover border-2 ${style.border} ${
+            data.status === 'offline' ? 'opacity-60' : ''
           }`}
           draggable={false}
         />
 
-        {data.onLeetcode && (
-          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 translate-0.5 rounded-full bg-emerald-500 border-2 border-cream" />
+        {data.status !== 'offline' && (
+          <span
+            className={`absolute bottom-0 right-0 w-3.5 h-3.5 translate-0.5 rounded-full border-2 border-cream ${style.dot}`}
+          />
         )}
       </div>
 
-      {/* name + description, menu style */}
-      <div className="flex-1 flex flex-col items-start leading-tight">
-        <div className=" font-semibold text-[13px] text-ink">
-          {data.username}
+      {/* name + status line */}
+      <div className="flex-1 min-w-0 flex flex-col items-start leading-tight">
+        <div className="flex flex-row items-center gap-1.5 max-w-full">
+          <span className="font-semibold text-[13px] text-ink truncate">{data.username}</span>
+          {data.status !== 'offline' && (
+            <span className={`shrink-0 px-1.5 rounded-full text-[9.5px] font-semibold ${style.pill}`}>
+              {style.label}
+            </span>
+          )}
         </div>
-        {data.leetcodeProblem ? (
-          <div className="text-[10.5px] text-ink/60">
-            now brewing — {data.leetcodeProblem}
+
+        {data.status === 'solving' && data.leetcodeProblem ? (
+          <div className="text-[10.5px] text-ink/60 truncate max-w-full">
+            now brewing —{' '}
+            <a
+              href={`https://leetcode.com/problems/${data.leetcodeProblem}/`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-clay hover:underline">
+              {formatProblemSlug(data.leetcodeProblem)}
+            </a>
           </div>
+        ) : data.status === 'online' ? (
+          <div className="text-[10.5px] text-ink/60">browsing LeetCode</div>
         ) : (
           <div className="text-[10.5px] text-ink/40">
-            last seen {data.lastActive}
+            {data.lastSeen ? `last seen ${formatLastSeen(data.lastSeen, now)}` : 'offline'}
           </div>
         )}
       </div>
 
-      <div className="flex flex-row items-center flex-end  gap-1">
-        {data.isFriend && !data.onLeetcode && data.notificationsEnabled && (
-          <button
-            className={`relative shrink-0 flex flex-row items-center gap-1 border ${!disablePing ? "border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream" : "border-transparent bg-ink/6 text-gray-500"} px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors`}
-            onClick={() => {
-              !disablePing && handlePingPressed();
-            }}
-            onMouseEnter={() => {
-              disablePing && setShowTooltip(true);
-            }}
-            onMouseLeave={() => setShowTooltip(false)}
-          >
-            <MdOutlineNotificationsActive size={12} />
-            Ping
-            {showTooltip && (
-              <Menu position="top">
-                <p className="w-14 text-ink">
-                  Ping again after{" "}
-                  {timerEnd
-                    ? Math.max(
-                        0,
-                        Math.ceil(
-                          (timerEnd.getTime() - Date.now()) / (1000 * 60),
-                        ),
-                      )
-                    : "a few"}{" "}
-                  min.
-                </p>
-              </Menu>
-            )}
-          </button>
-        )}
-        {!data.isFriend && (
-          <button className="shrink-0 flex flex-row items-center gap-1 border border-clay text-clay cursor-pointer hover:bg-clay hover:text-cream px-2 py-1 rounded-full text-[10.5px] font-semibold transition-colors">
-            <MdPersonAdd size={12} />
-            Add
-          </button>
-        )}
-        <button className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer">
-          <TbDotsVertical size={15} />
-        </button>
-      </div>
+      <button className="shrink-0 p-1 text-ink-muted hover:text-ink transition-colors cursor-pointer">
+        <TbDotsVertical size={15} />
+      </button>
     </div>
   );
 }
@@ -164,75 +135,18 @@ function MenuHeading({ label, count }: { label: string; count: number }) {
   );
 }
 
-export default function FriendsList({
-  closeModal,
-}: {
-  closeModal: () => void;
-}) {
+export default function FriendsList({ closeModal }: { closeModal: () => void }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
-  const [realFriends, setRealFriends] = useState<Friend[]>([]);
+  const connected = usePresence((state) => state.connected);
+  const friends = usePresence((state) => state.friends);
+  const now = useNow();
 
-  const friends: Friend[] = [
-    {
-      id: "00000000-0000-0000-0000-000000000000",
-      username: "mochi",
-      onLeetcode: true,
-      leetcodeProblem: "Two Sum",
-      isFriend: true,
-      lastActive: "Now",
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000001",
-      username: "Blade",
-      onLeetcode: false,
-      leetcodeProblem: null,
-      isFriend: true,
-      lastActive: "2 hrs ago",
-      notificationsEnabled: false,
-      profilePath: null,
-    },
-    {
-      id: "00000000-0000-0000-0000-000000000002",
-      username: "Bob A.",
-      onLeetcode: true,
-      leetcodeProblem: "Linked List",
-      isFriend: false,
-      lastActive: "Now",
-      profilePath: null,
-    },
-  ];
-
-  const online = friends
-    .filter((friend) => friend.onLeetcode)
-    .sort((a, b) => Number(a.isFriend) - Number(b.isFriend));
-
-  const inactive = [
-    ...friends.filter((friend) => !friend.onLeetcode),
-    ...realFriends,
-  ];
-
-  useEffect(() => {
-    async function fetchFriends() {
-      try {
-        const response = await apiFetch("/friends");
-        const body = await response.json();
-        const parsed = fetchFriendsSchema.safeParse(body);
-
-        if (!parsed.success) {
-          console.log("Error ", parsed.error.issues);
-          throw "Zod Error";
-        }
-
-        setRealFriends(parsed.data);
-      } catch (err) {
-        console.error("Failed to fetch profile: ", err);
-      }
-    }
-
-    fetchFriends();
-  }, []);
+  const sorted = [...friends].sort(
+    (a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.username.localeCompare(b.username)
+  );
+  const online = sorted.filter((friend) => friend.status !== 'offline');
+  const offline = sorted.filter((friend) => friend.status === 'offline');
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
@@ -240,8 +154,7 @@ export default function FriendsList({
       <div className="relative flex flex-row justify-between items-center py-2 px-3">
         <button
           onClick={() => closeModal()}
-          className="flex flex-row items-center gap-1 text-ink-muted hover:text-ink text-xs font-semibold cursor-pointer rounded-full  transition-colors"
-        >
+          className="flex flex-row items-center gap-1 text-ink-muted hover:text-ink text-xs font-semibold cursor-pointer rounded-full  transition-colors">
           <IoIosArrowBack size={14} />
           Lobby
         </button>
@@ -249,8 +162,7 @@ export default function FriendsList({
         <div className="flex flex-row gap-1">
           <button
             className="relative rounded-full bg-cream border-1 border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
-            onClick={() => setModalDisplayed("friendRequest")}
-          >
+            onClick={() => setModalDisplayed('friendRequest')}>
             <CiInboxIn size={15} />
 
             <div className="absolute top-0 right-0 rounded-full w-2.5 h-2.5 border border-2 border-cream bg-green-400" />
@@ -258,8 +170,7 @@ export default function FriendsList({
 
           <button
             className="relative rounded-full bg-cream border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
-            onClick={() => setModalDisplayed("add")}
-          >
+            onClick={() => setModalDisplayed('add')}>
             <IoIosAdd size={20} />
           </button>
         </div>
@@ -270,49 +181,43 @@ export default function FriendsList({
       </div>
 
       <div className="relative flex-1 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
-          <div>
-            <MenuHeading label="Online" count={online.length} />
-            <div className="flex flex-col">
-              {online.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
-              ))}
+        {!connected ? (
+          <div className="flex-1 flex justify-center items-center text-ink/50">Connecting…</div>
+        ) : friends.length === 0 ? (
+          <div className="flex-1 flex justify-center items-center text-ink/50">
+            No friends yet — add one with the + button
+          </div>
+        ) : (
+          <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
+            <div>
+              <MenuHeading label="Online" count={online.length} />
+              <div className="flex flex-col">
+                {online.map((data) => (
+                  <Friend key={data.uid} data={data} assetPrefix={assetPrefix} now={now} />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <MenuHeading label="Offline" count={offline.length} />
+              <div className="flex flex-col">
+                {offline.map((data) => (
+                  <Friend key={data.uid} data={data} assetPrefix={assetPrefix} now={now} />
+                ))}
+              </div>
             </div>
           </div>
-
-          <div>
-            <MenuHeading label="Offline" count={inactive.length} />
-            <div className="flex flex-col">
-              {inactive.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* <img
-          src={assetPrefix + "autumn.svg"}
-          id="bg-image"
-          alt="cozy autumn background"
-          className="w-full select-none opacity-90 -mt-1"
-          draggable={false}
-        /> */}
+        )}
       </div>
 
       {modalDisplayed && (
         <div className="absolute inset-12 flex justify-center items-center">
-          {modalDisplayed == "add" ? (
-            <Modal
-              title="Add Friend"
-              closeModal={() => setModalDisplayed(null)}
-            >
+          {modalDisplayed == 'add' ? (
+            <Modal title="Add Friend" closeModal={() => setModalDisplayed(null)}>
               <AddFriend />
             </Modal>
           ) : (
-            <Modal
-              title="Incoming Requests"
-              closeModal={() => setModalDisplayed(null)}
-            >
+            <Modal title="Incoming Requests" closeModal={() => setModalDisplayed(null)}>
               <IncomingRequests />
             </Modal>
           )}

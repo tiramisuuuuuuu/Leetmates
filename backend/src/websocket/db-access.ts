@@ -1,10 +1,15 @@
 import { db } from '../db';
 import { usersTable, friendsTable } from '../db/schema';
 import { eq, or, inArray } from 'drizzle-orm';
+import type { UserId } from '../types/websocket';
 
-export async function getUserInfo(uid: number) {
+export async function getUserInfo(uid: UserId) {
   const [user] = await db
-    .select({ id: usersTable.id, username: usersTable.username })
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath
+    })
     .from(usersTable)
     .where(eq(usersTable.id, uid))
     .limit(1);
@@ -12,7 +17,7 @@ export async function getUserInfo(uid: number) {
   return user;
 }
 
-export async function getFriendList(uid: number) {
+export async function getFriendList(uid: UserId) {
   const friendships = await db
     .select()
     .from(friendsTable)
@@ -27,7 +32,11 @@ export async function getFriendList(uid: number) {
   }
 
   return await db
-    .select()
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+      profilePath: usersTable.profilePath
+    })
     .from(usersTable)
     .where(inArray(usersTable.id, friendIds));
 }

@@ -1,23 +1,29 @@
 import { Hono } from 'hono';
 import { upgradeWebSocket } from 'hono/bun';
-import { UserId } from '../types/websocket';
 import { createPresenceHandler } from '../websocket/presence-handler';
+import { verifyToken } from '../middleware';
+import { AppVariables } from '../types/variables';
 
-const ws = new Hono();
+const ws = new Hono<{ Variables: AppVariables }>();
 
 ws.get(
   '/',
   async (c, next) => {
-    const raw = c.req.query('userId');
-    if (!raw || !Number.isInteger(Number(raw))) {
-      return c.text('Missing or invalid userId parameter', 400);
+    const token = c.req.query('token');
+    if (!token) {
+      return c.text('Missing token', 401);
     }
+
+    try {
+      c.set('uid', await verifyToken(token));
+    } catch (error) {
+      console.error('WS JWT verification failed:', error);
+      return c.text('Unauthorized', 401);
+    }
+
     return next();
   },
-  upgradeWebSocket((c) => {
-    const userId: UserId = Number(c.req.query('userId'));
-    return createPresenceHandler(userId);
-  })
+  upgradeWebSocket((c) => createPresenceHandler(c.get('uid')))
 );
 
 export default ws;

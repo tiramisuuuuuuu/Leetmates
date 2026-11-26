@@ -1,53 +1,55 @@
-import { useState } from "react";
-import {
-  IoMailOutline,
-  IoLockClosedOutline,
-  IoPersonOutline,
-} from "react-icons/io5";
-import { SiLeetcode } from "react-icons/si";
-import { useToast } from "../../store/toastStore";
-import { signUpNewUser } from "../../api/supabase";
-import { apiFetch } from "../../api/apiHelper";
-import { useProfileForm } from "../../store/profileFormStore";
+import { useState } from 'react';
+import { IoMailOutline, IoLockClosedOutline, IoPersonOutline } from 'react-icons/io5';
+import { SiLeetcode } from 'react-icons/si';
+import { useToast } from '../../store/toastStore';
+import { signUpNewUser } from '../../api/supabase';
+import { apiFetch } from '../../api/apiHelper';
+import { useProfileForm } from '../../store/profileFormStore';
 
-export default function Register({
-  onSwitchToLogin,
-}: {
-  onSwitchToLogin: () => void;
-}) {
-  const [email, setEmail] = useState("");
-  const [leetcodeUsername, setLeetcodeUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function Register({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
+  const [email, setEmail] = useState('');
+  const [leetcodeUsername, setLeetcodeUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const showToast = useToast((state) => state.showToast);
 
   const handleSignUp = async () => {
     if (!email || !password || !confirmPassword || !leetcodeUsername) {
-      showToast("error", "Please fill in all fields");
+      showToast('error', 'Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      showToast("error", "Passwords do not match");
+      showToast('error', 'Passwords do not match');
       return;
     }
 
     // Validate email format: x@x.x
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showToast("error", "Please enter a valid email address");
+      showToast('error', 'Please enter a valid email address');
       return;
     }
 
     try {
       await signUpNewUser(email, password);
 
-      await apiFetch("/users/create", {
-        method: "POST",
+      const response = await apiFetch('/users/create', {
+        method: 'POST',
         body: JSON.stringify({
           username: displayName,
-          leetcodeId: leetcodeUsername,
-        }),
+          leetcodeId: leetcodeUsername
+        })
+      });
+      //   eslint-disable-next-line @typescript-eslint/no-throw-literal
+      if (!response.ok) throw new Error('Could not create your account profile');
+
+      // The background worker may have attempted presence before this row
+      // existed and stopped reconnecting after the server's 4004 close.
+      chrome.runtime.sendMessage({ type: 'PRESENCE_RECONNECT' }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn('Could not retry presence connection:', chrome.runtime.lastError.message);
+        }
       });
 
       // as long as email-verification is off in Supabase settings,
@@ -55,19 +57,17 @@ export default function Register({
       // with SIGNED_IN state, when you signUpNewUser, and will trigger
       // rerender of its subscriber, ex. Lobby
 
-      showToast("success", "Account created successfully");
+      showToast('success', 'Account created successfully');
 
       useProfileForm.getState().setShowModal(true);
-    } catch (error: any) {
-      showToast("error", error.message);
+    } catch (error: unknown) {
+      showToast('error', error instanceof Error ? error.message : 'Account creation failed');
     }
   };
 
   return (
     <>
-      <h3 className="hidden [@container(min-height:280px)]:block text-sm font-bold text-ink text-center">
-        Sign Up
-      </h3>
+      <h3 className="hidden [@container(min-height:280px)]:block text-sm font-bold text-ink text-center">Sign Up</h3>
 
       <div className="flex items-center gap-2 bg-cream-muted border border-ink/30 rounded-md px-2.5 py-0.5">
         <IoMailOutline size={14} className="shrink-0 text-ink-muted" />
@@ -126,8 +126,7 @@ export default function Register({
 
       <button
         onClick={handleSignUp}
-        className="w-full flex items-center justify-center gap-1.5 bg-clay hover:bg-clay-dark text-white text-xs font-semibold rounded-md py-0.5 cursor-pointer"
-      >
+        className="w-full flex items-center justify-center gap-1.5 bg-clay hover:bg-clay-dark text-white text-xs font-semibold rounded-md py-0.5 cursor-pointer">
         Sign Up
       </button>
 
@@ -140,8 +139,7 @@ export default function Register({
 
         <button
           onClick={onSwitchToLogin}
-          className="w-full flex items-center justify-center gap-1.5 bg-transparent border border-ink/40 hover:bg-ink/10 text-ink text-xs font-semibold rounded-md py-0.5 cursor-pointer"
-        >
+          className="w-full flex items-center justify-center gap-1.5 bg-transparent border border-ink/40 hover:bg-ink/10 text-ink text-xs font-semibold rounded-md py-0.5 cursor-pointer">
           <IoPersonOutline size={14} />
           Log In Instead
         </button>
