@@ -12,9 +12,10 @@ import { apiFetch } from "../../api/apiHelper";
 import { useToast } from "../../store/toastStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
-import Menu from "../ui/Menu";
+import Menu, { SpeechTriangle } from "../ui/Menu";
 import { useFriends } from "../../hooks/useFriends";
 import ConfirmationPopup from "../ui/ConfirmationPopup";
+import { useUserProfile } from "../../hooks/useProfile";
 
 type FriendAction = { kind: "remove" | "report"; friend: Friend };
 
@@ -187,6 +188,12 @@ function Friend({
           </button>
           {showActions && (
             <div className="absolute right-0 top-full z-20 mt-1 min-w-28 rounded-md border border-ink/20 bg-cream p-1 shadow-md">
+              <SpeechTriangle
+                direction="up"
+                background="cream"
+                borderOpacity={0.2}
+                className="right-[2px] bottom-[calc(100%-1px)]"
+              />
               <button
                 className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-ink hover:bg-ink/10"
                 onClick={() => {
@@ -235,6 +242,7 @@ export default function FriendsList({
   const friends = useFriends();
   const queryClient = useQueryClient();
   const showToast = useToast((state) => state.showToast);
+  const profile = useUserProfile();
 
   async function confirmFriendAction() {
     if (!pendingAction || actionInProgress) return;
@@ -314,35 +322,58 @@ export default function FriendsList({
       </div>
 
       <div className="relative flex-1 flex flex-col overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-ink/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
-          <div>
-            <MenuHeading label="Online" count={online.length} />
-            <div className="flex flex-col">
-              {online.map((data) => (
-                <Friend
-                  key={data.id}
-                  data={data}
-                  assetPrefix={assetPrefix}
-                  onAction={setPendingAction}
-                />
-              ))}
-            </div>
+        {online.length + inactive.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center px-8 pb-5 text-center">
+            <img
+              src={assetPrefix + "friends-empty.svg"}
+              alt="Two Leetmates meeting over a warm cup of coffee"
+              className="mb-3 h-28 w-36 select-none object-contain"
+              draggable={false}
+            />
+            <p className="text-[13px] font-semibold text-ink">Your table is open</p>
+            <p className="mt-1 max-w-56 text-[11px] leading-relaxed text-ink-muted">
+              Add a friend to study together.
+              {profile?.matchingPreference === "everyone" &&
+                " Or hang out here and we’ll match you with a new Leetmate."}
+            </p>
+            <button
+              onClick={() => setModalDisplayed("add")}
+              className="mt-3 rounded-full border border-clay px-3 py-1 text-[11px] font-semibold text-clay hover:bg-clay hover:text-cream transition-colors"
+            >
+              Add a friend
+            </button>
           </div>
+        ) : (
+          <div className="flex flex-col px-3 pb-2 divide-y divide-ink/[0.06]">
+            <div>
+              <MenuHeading label="Online" count={online.length} />
+              <div className="flex flex-col">
+                {online.map((data) => (
+                  <Friend
+                    key={data.id}
+                    data={data}
+                    assetPrefix={assetPrefix}
+                    onAction={setPendingAction}
+                  />
+                ))}
+              </div>
+            </div>
 
-          <div>
-            <MenuHeading label="Offline" count={inactive.length} />
-            <div className="flex flex-col">
-              {inactive.map((data) => (
-                <Friend
-                  key={data.id}
-                  data={data}
-                  assetPrefix={assetPrefix}
-                  onAction={setPendingAction}
-                />
-              ))}
+            <div>
+              <MenuHeading label="Offline" count={inactive.length} />
+              <div className="flex flex-col">
+                {inactive.map((data) => (
+                  <Friend
+                    key={data.id}
+                    data={data}
+                    assetPrefix={assetPrefix}
+                    onAction={setPendingAction}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* <img
           src={assetPrefix + "autumn.svg"}
