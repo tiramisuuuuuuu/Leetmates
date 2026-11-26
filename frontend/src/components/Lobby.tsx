@@ -1,6 +1,6 @@
 import { useAssetPrefix } from "../store/assetPrefixStore";
 import { useAuth } from "../store/authStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoSettingsOutline, IoSettingsSharp } from "react-icons/io5";
 import Auth from "./auth/Auth";
 import Profile from "./auth/Profile";
@@ -22,15 +22,14 @@ import { LuIdCard } from "react-icons/lu";
 import { RiSettings3Line } from "react-icons/ri";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import { IoIosSettings, IoMdPeople } from "react-icons/io";
-import { chromeStorageAdapter } from "../api/chromeStorage";
-
-const APPEARANCE_STORAGE_KEY = "leetmates-dark-mode";
+import { useDarkMode } from "../store/darkModeStore";
 
 const queryClient = new QueryClient();
 
 export default function Lobby() {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
-  const [darkMode, setDarkMode] = useState(false);
+  const darkMode = useDarkMode((state) => state.darkMode);
+  const toggleAppearance = useDarkMode((state) => state.toggleDarkMode);
   const isLoggedIn = useAuth((state) => state.session !== null);
   const authLoading = useAuth((state) => state.loading);
   const showProfileForm = useProfileForm((state) => state.showModal);
@@ -41,24 +40,6 @@ export default function Lobby() {
     (state) => state.setShowNotificationsModal,
   );
   const [modalOpen, setModalOpen] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    chromeStorageAdapter.getItem(APPEARANCE_STORAGE_KEY).then((value) => {
-      if (mounted) setDarkMode(value === "true");
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const toggleAppearance = () => {
-    setDarkMode((current) => {
-      const next = !current;
-      void chromeStorageAdapter.setItem(APPEARANCE_STORAGE_KEY, String(next));
-      return next;
-    });
-  };
 
   return (
     <QueryClientProvider client={queryClient}>

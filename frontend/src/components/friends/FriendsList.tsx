@@ -16,6 +16,7 @@ import Menu, { SpeechTriangle } from "../ui/Menu";
 import { useFriends } from "../../hooks/useFriends";
 import ConfirmationPopup from "../ui/ConfirmationPopup";
 import { useUserProfile } from "../../hooks/useProfile";
+import { useDarkMode } from "../../store/darkModeStore";
 
 type FriendAction = { kind: "remove" | "report"; friend: Friend };
 
@@ -243,6 +244,7 @@ export default function FriendsList({
   const queryClient = useQueryClient();
   const showToast = useToast((state) => state.showToast);
   const profile = useUserProfile();
+  const darkMode = useDarkMode((state) => state.darkMode);
 
   async function confirmFriendAction() {
     if (!pendingAction || actionInProgress) return;
@@ -257,10 +259,7 @@ export default function FriendsList({
         },
       );
       if (!response.ok) throw new Error(await response.text());
-      showToast(
-        "success",
-        isRemoval ? "Friend removed" : "Report submitted",
-      );
+      showToast("success", isRemoval ? "Friend removed" : "Report submitted");
       setPendingAction(null);
       if (isRemoval) {
         await queryClient.invalidateQueries({ queryKey: ["friends_list"] });
@@ -325,12 +324,14 @@ export default function FriendsList({
         {online.length + inactive.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center px-8 pb-5 text-center">
             <img
-              src={assetPrefix + "friends-empty.svg"}
+              src={assetPrefix + (darkMode ? "grayCat.svg" : "orangeCat.svg")}
               alt="Two Leetmates meeting over a warm cup of coffee"
               className="mb-3 h-28 w-36 select-none object-contain"
               draggable={false}
             />
-            <p className="text-[13px] font-semibold text-ink">Your table is open</p>
+            <p className="text-[13px] font-semibold text-ink">
+              Your table is open
+            </p>
             <p className="mt-1 max-w-56 text-[11px] leading-relaxed text-ink-muted">
               Add a friend to study together.
               {profile?.matchingPreference === "everyone" &&
