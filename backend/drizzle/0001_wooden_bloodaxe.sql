@@ -1,0 +1,1 @@
+ALTER TABLE "pushSubscriptions" DROP CONSTRAINT "pushSubscriptions_endpoint_unique";

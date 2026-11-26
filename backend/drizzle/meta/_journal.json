@@ -5,15 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1791171658536,
-      "tag": "0000_giant_trauma",
+      "when": 1792185143214,
+      "tag": "0000_true_fixer",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1791413255199,
-      "tag": "0001_magenta_maximus",
+      "when": 1792891396733,
+      "tag": "0001_wooden_bloodaxe",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793050837499,
+      "tag": "0002_romantic_shen",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793436621424,
+      "tag": "0003_regular_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793437275429,
+      "tag": "0004_legal_loa",
       "breakpoints": true
     }
   ]

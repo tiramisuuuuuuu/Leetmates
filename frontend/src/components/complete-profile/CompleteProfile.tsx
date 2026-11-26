@@ -51,6 +51,7 @@ export default function CompleteProfile() {
     }
 
     useProfileForm.getState().setShowModal(false);
+    useProfileForm.getState().setShowNotificationsModal(true);
   }
 
   return (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdContentCopy, MdPersonAdd } from "react-icons/md";
-import Menu from "./Menu";
+import Menu from "../ui/Menu";
 import {
   fetchFriendPreviewSchema,
   type FriendPreview,

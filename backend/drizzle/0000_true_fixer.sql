@@ -12,18 +12,26 @@ CREATE TABLE "friends" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "pushSubscriptions" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "pushSubscriptions_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"userId" uuid NOT NULL,
+	"endpoint" text NOT NULL,
+	"subscription" jsonb NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "pushSubscriptions_endpoint_unique" UNIQUE("endpoint")
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"username" varchar(255) NOT NULL,
 	"leetcodeId" varchar(255) NOT NULL,
 	"countryCode" varchar(2),
 	"currentStatus" text,
-	"matchingPreference" text,
+	"matchingPreference" text DEFAULT 'everyone',
 	"profilePath" text,
 	"friendCode" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone,
-	CONSTRAINT "users_friendCode_unique" UNIQUE("friendCode"),
 	CONSTRAINT "users_friend_code_unique" UNIQUE("friendCode")
 );
 --> statement-breakpoint
@@ -31,5 +39,6 @@ ALTER TABLE "friendRequests" ADD CONSTRAINT "friendRequests_senderId_users_id_fk
 ALTER TABLE "friendRequests" ADD CONSTRAINT "friendRequests_recipientId_users_id_fk" FOREIGN KEY ("recipientId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "friends" ADD CONSTRAINT "friends_user1Id_users_id_fk" FOREIGN KEY ("user1Id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "friends" ADD CONSTRAINT "friends_user2Id_users_id_fk" FOREIGN KEY ("user2Id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "pushSubscriptions" ADD CONSTRAINT "pushSubscriptions_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "friends_user1Id_idx" ON "friends" USING btree ("user1Id");--> statement-breakpoint
 CREATE INDEX "friends_user2Id_idx" ON "friends" USING btree ("user2Id");
