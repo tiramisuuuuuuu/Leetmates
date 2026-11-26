@@ -3,37 +3,6 @@ import { apiFetch } from "../api/apiHelper";
 import { fetchFriendsSchema, type Friend } from "../types/friend";
 import { useFriendsCanvas } from "../store/friendsCanvasStore";
 
-const mockFriends: Friend[] = [
-  {
-    id: "00000000-0000-0000-0000-000000000000",
-    username: "mochi",
-    onLeetcode: true,
-    leetcodeProblem: "Two Sum",
-    isFriend: true,
-    lastActive: "Now",
-    profilePath: null,
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000001",
-    username: "Blade",
-    onLeetcode: false,
-    leetcodeProblem: null,
-    isFriend: true,
-    lastActive: "2 hrs ago",
-    notificationsEnabled: false,
-    profilePath: null,
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000002",
-    username: "Bob A.",
-    onLeetcode: true,
-    leetcodeProblem: "Linked List",
-    isFriend: false,
-    lastActive: "Now",
-    profilePath: null,
-  },
-];
-
 export function useFriends() {
   const initFriends = useFriendsCanvas((state) => state.initFriends);
 
@@ -50,11 +19,10 @@ export function useFriends() {
           throw "Zod Error";
         }
 
-        const mockList = [...mockFriends, ...parsed.data];
-        initFriends(mockList);
+        initFriends(parsed.data);
 
         const friendsDict: Record<string, Friend> = {};
-        for (const friend of mockList) {
+        for (const friend of parsed.data) {
           friendsDict[friend.id] = friend;
         }
         return friendsDict;

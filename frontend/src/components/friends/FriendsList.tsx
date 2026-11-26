@@ -4,6 +4,7 @@ import { type Friend } from "../../types/friend";
 import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
+import { IoMoonOutline } from "react-icons/io5";
 import Modal from "../ui/Modal";
 import { useEffect, useRef, useState } from "react";
 import AddFriend from "./AddFriend";
@@ -358,10 +359,27 @@ export default function FriendsList({
                   />
                 ))}
               </div>
+              {online.length === 0 && inactive.length > 0 && (
+                <div className="flex items-center gap-2 px-1.5 py-2">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink/[0.06] text-ink-muted">
+                    <IoMoonOutline size={15} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-medium text-ink-muted">
+                      No one online right now
+                    </p>
+                    <p className="text-[9px] text-ink/40">
+                      Your friends are just below.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
-              <MenuHeading label="Offline" count={inactive.length} />
+              {inactive.length > 0 && (
+                <MenuHeading label="Offline" count={inactive.length} />
+              )}
               <div className="flex flex-col">
                 {inactive.map((data) => (
                   <Friend
