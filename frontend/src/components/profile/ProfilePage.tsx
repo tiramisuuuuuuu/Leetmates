@@ -101,7 +101,7 @@ export default function ProfilePage({
   }
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-cream/90 flex flex-col text-xs text-start overflow-hidden">
+    <div className="absolute top-0 left-0 w-full h-full bg-cream/80 backdrop-blur-md flex flex-col text-xs text-start overflow-hidden">
       {/* menu board header */}
       <div className="relative flex flex-row justify-between items-center py-2 px-3">
         <button
