@@ -5,17 +5,28 @@ import { MdOutlineNotificationsActive, MdPersonAdd } from "react-icons/md";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoIosAdd, IoIosArrowBack } from "react-icons/io";
 import Modal from "../ui/Modal";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AddFriend from "./AddFriend";
 import IncomingRequests from "./IncomingRequests";
 import { apiFetch } from "../../api/apiHelper";
 import { useToast } from "../../store/toastStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchSignedUrl } from "../../api/supabase";
 import Menu from "../ui/Menu";
 import { useFriends } from "../../hooks/useFriends";
+import ConfirmationPopup from "../ui/ConfirmationPopup";
 
-function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
+type FriendAction = { kind: "remove" | "report"; friend: Friend };
+
+function Friend({
+  data,
+  assetPrefix,
+  onAction,
+}: {
+  data: Friend;
+  assetPrefix: string;
+  onAction: (action: FriendAction) => void;
+}) {
   const { data: signedUrl } = useQuery({
     queryKey: [data.id],
     queryFn: async () => {
@@ -31,7 +42,21 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   const timerRef = useRef<number | null>(null);
   const [timerEnd, setTimerEnd] = useState<Date | null>(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
   const showToast = useToast((state) => state.showToast);
+
+  useEffect(() => {
+    if (!showActions) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!actionMenuRef.current?.contains(event.target as Node)) {
+        setShowActions(false);
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () =>
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [showActions]);
 
   async function handlePingPressed() {
     try {
@@ -76,7 +101,7 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
   }
 
   return (
-    <div className="group flex flex-row items-center gap-2 py-2 px-1">
+    <div className="group relative flex flex-row items-center gap-2 py-2 px-1">
       {/* avatar */}
       <div className="relative shrink-0">
         <img
@@ -151,9 +176,38 @@ function Friend({ data, assetPrefix }: { data: Friend; assetPrefix: string }) {
             Add
           </button>
         )}
-        <button className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer">
-          <TbDotsVertical size={15} />
-        </button>
+        <div ref={actionMenuRef} className="relative">
+          <button
+            aria-label={`Actions for ${data.username}`}
+            aria-expanded={showActions}
+            onClick={() => setShowActions((shown) => !shown)}
+            className="shrink-0 text-ink-muted hover:text-ink transition-colors cursor-pointer"
+          >
+            <TbDotsVertical size={15} />
+          </button>
+          {showActions && (
+            <div className="absolute right-0 top-full z-20 mt-1 min-w-28 rounded-md border border-ink/20 bg-cream p-1 shadow-md">
+              <button
+                className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-ink hover:bg-ink/10"
+                onClick={() => {
+                  setShowActions(false);
+                  onAction({ kind: "remove", friend: data });
+                }}
+              >
+                Remove friend
+              </button>
+              <button
+                className="block w-full rounded px-2 py-1.5 text-left text-[11px] text-red-700 hover:bg-red-500/10"
+                onClick={() => {
+                  setShowActions(false);
+                  onAction({ kind: "report", friend: data });
+                }}
+              >
+                Report user
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -176,7 +230,45 @@ export default function FriendsList({
 }) {
   const assetPrefix = useAssetPrefix((state) => state.assetPrefix);
   const [modalDisplayed, setModalDisplayed] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<FriendAction | null>(null);
+  const [actionInProgress, setActionInProgress] = useState(false);
   const friends = useFriends();
+  const queryClient = useQueryClient();
+  const showToast = useToast((state) => state.showToast);
+
+  async function confirmFriendAction() {
+    if (!pendingAction || actionInProgress) return;
+    setActionInProgress(true);
+    try {
+      const isRemoval = pendingAction.kind === "remove";
+      const response = await apiFetch(
+        isRemoval ? "/friends/remove" : "/friends/report",
+        {
+          method: "POST",
+          body: JSON.stringify({ friendUid: pendingAction.friend.id }),
+        },
+      );
+      if (!response.ok) throw new Error(await response.text());
+      showToast(
+        "success",
+        isRemoval ? "Friend removed" : "Report submitted",
+      );
+      setPendingAction(null);
+      if (isRemoval) {
+        await queryClient.invalidateQueries({ queryKey: ["friends_list"] });
+      }
+    } catch (error) {
+      console.error("Failed to process friend action:", error);
+      showToast(
+        "error",
+        pendingAction.kind === "remove"
+          ? "Could not remove friend"
+          : "Could not submit report",
+      );
+    } finally {
+      setActionInProgress(false);
+    }
+  }
 
   const online = Object.values(friends)
     .filter((friend) => friend.onLeetcode)
@@ -200,7 +292,7 @@ export default function FriendsList({
 
         <div className="flex flex-row gap-1">
           <button
-            className="relative rounded-full bg-cream border-1 border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
+            className="relative rounded-full bg-cream border-1 border-clay text-clay hover:bg-clay hover:text-cream shadow-sm w-6 h-6 cursor-pointer transition-colors flex justify-center items-center"
             onClick={() => setModalDisplayed("friendRequest")}
           >
             <CiInboxIn size={15} />
@@ -227,7 +319,12 @@ export default function FriendsList({
             <MenuHeading label="Online" count={online.length} />
             <div className="flex flex-col">
               {online.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
+                <Friend
+                  key={data.id}
+                  data={data}
+                  assetPrefix={assetPrefix}
+                  onAction={setPendingAction}
+                />
               ))}
             </div>
           </div>
@@ -236,7 +333,12 @@ export default function FriendsList({
             <MenuHeading label="Offline" count={inactive.length} />
             <div className="flex flex-col">
               {inactive.map((data) => (
-                <Friend key={data.id} data={data} assetPrefix={assetPrefix} />
+                <Friend
+                  key={data.id}
+                  data={data}
+                  assetPrefix={assetPrefix}
+                  onAction={setPendingAction}
+                />
               ))}
             </div>
           </div>
@@ -252,7 +354,7 @@ export default function FriendsList({
       </div>
 
       {modalDisplayed && (
-        <div className="absolute inset-12 flex justify-center items-center">
+        <div className="absolute inset-12 z-40 flex justify-center items-center">
           {modalDisplayed == "add" ? (
             <Modal
               title="Add Friend"
@@ -269,6 +371,24 @@ export default function FriendsList({
             </Modal>
           )}
         </div>
+      )}
+
+      {pendingAction && (
+        <ConfirmationPopup
+          title={
+            pendingAction.kind === "remove" ? "Remove friend?" : "Report user?"
+          }
+          message={
+            pendingAction.kind === "remove"
+              ? `Remove ${pendingAction.friend.username} from your friends?`
+              : `Send a report about ${pendingAction.friend.username} to the Leetmates team?`
+          }
+          confirmLabel={pendingAction.kind === "remove" ? "Remove" : "Report"}
+          destructive={pendingAction.kind === "report"}
+          busy={actionInProgress}
+          onConfirm={confirmFriendAction}
+          onCancel={() => setPendingAction(null)}
+        />
       )}
     </div>
   );

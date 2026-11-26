@@ -87,3 +87,23 @@ export const pushLogsTable = pgTable('pushLogs', {
     .defaultNow()
     .notNull(),
 });
+
+export const userReportsTable = pgTable(
+  'userReports',
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    reporterId: uuid()
+      .notNull()
+      .references(() => usersTable.id),
+    reportedUserId: uuid()
+      .notNull()
+      .references(() => usersTable.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index('userReports_reporterId_idx').on(table.reporterId),
+    index('userReports_reportedUserId_idx').on(table.reportedUserId),
+  ]
+);

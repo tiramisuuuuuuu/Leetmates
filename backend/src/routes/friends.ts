@@ -4,12 +4,65 @@ import {
   friendRequestsTable,
   friendsTable,
   pushSubscriptionsTable,
+  userReportsTable,
   usersTable,
 } from '../db/schema';
 import { and, eq, exists, or, sql } from 'drizzle-orm';
 import { AppVariables } from '../types/variables';
 
 const friendRoutes = new Hono<{ Variables: AppVariables }>();
+
+friendRoutes.post('/remove', async (c) => {
+  const uid = c.get('uid');
+  const { friendUid } = await c.req.json<{ friendUid: string }>();
+
+  if (!friendUid || friendUid === uid) {
+    return c.text('Invalid friend', 400);
+  }
+
+  const comparison = uid.localeCompare(friendUid);
+  const [removedFriendship] = await db
+    .delete(friendsTable)
+    .where(
+      and(
+        eq(friendsTable.user1Id, comparison < 0 ? uid : friendUid),
+        eq(friendsTable.user2Id, comparison > 0 ? uid : friendUid)
+      )
+    )
+    .returning({ id: friendsTable.id });
+
+  if (!removedFriendship) {
+    return c.text('Friendship not found', 404);
+  }
+
+  return c.json({ message: 'Friend removed' }, 200);
+});
+
+friendRoutes.post('/report', async (c) => {
+  const uid = c.get('uid');
+  const { friendUid } = await c.req.json<{ friendUid: string }>();
+
+  if (!friendUid || friendUid === uid) {
+    return c.text('Invalid user to report', 400);
+  }
+
+  const [reportedUser] = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.id, friendUid))
+    .limit(1);
+
+  if (!reportedUser) {
+    return c.text('User not found', 404);
+  }
+
+  await db.insert(userReportsTable).values({
+    reporterId: uid,
+    reportedUserId: friendUid,
+  });
+
+  return c.json({ message: 'Report submitted' }, 201);
+});
 
 async function createFriendship(uid: string, senderUid: string) {
   await db
